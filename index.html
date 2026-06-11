@@ -214,7 +214,7 @@
   .appbar .ab-sub,.section-label,.scene-gh{color:var(--faint)}
   .ptitle{font-size:24px}
   .stage::before{width:min(70vw,300px);height:min(70vw,300px);background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,0) 68%);filter:blur(18px);animation:none}
-  svg.bracelet .zbody{filter:url(#bshadow)}   /* ONE filter for the whole bead group — rotation composites a cached raster (mobile jank fix) */
+  /* strand shadow removed entirely (User 2026-06-11: 显得质感不好) — beads render clean on porcelain */
   svg.bracelet .zbeads{will-change:transform}
   svg.bracelet .zring{stroke:rgba(20,22,24,.22)}
   .bead{filter:drop-shadow(0 2px 6px rgba(28,30,30,.3))}
