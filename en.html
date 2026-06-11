@@ -49,7 +49,8 @@
     font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--faint);line-height:1.5;pointer-events:none;z-index:1}
   .preview-meta{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:2px}
   .preview-meta b{color:var(--ink);font-weight:400}
-  .preview-actions{display:flex;gap:10px;margin-top:9px}
+  .preview-actions{position:absolute;top:8px;left:10px;right:10px;display:flex;justify-content:space-between;pointer-events:none;z-index:3}
+  .preview-actions .pa-btn{pointer-events:auto}
   .pa-btn{font-size:12.5px;color:var(--gold);background:rgba(227,148,49,.08);border:1px solid rgba(227,148,49,.3);border-radius:20px;padding:7px 15px;cursor:pointer;font-family:'Inter',sans-serif}
   .pa-btn:active{transform:scale(.97)}
   .modal.zoomv{padding:0}
@@ -213,7 +214,8 @@
   .appbar .ab-sub,.section-label,.scene-gh{color:var(--faint)}
   .ptitle{font-size:24px}
   .stage::before{width:min(70vw,300px);height:min(70vw,300px);background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,0) 68%);filter:blur(18px);animation:none}
-  svg.bracelet .zb image,svg.bracelet image{filter:url(#bshadow)}   /* CSS drop-shadow clips at the SVG filter region on big beads — explicit-region SVG filter instead */
+  svg.bracelet .zbody{filter:url(#bshadow)}   /* ONE filter for the whole bead group — rotation composites a cached raster (mobile jank fix) */
+  svg.bracelet .zbeads{will-change:transform}
   svg.bracelet .zring{stroke:rgba(20,22,24,.22)}
   .bead{filter:drop-shadow(0 2px 6px rgba(28,30,30,.3))}
   /* spin is JS-driven via rotate(a 150 150) — NO css transform-origin/box here (they re-offset the explicit pivot) */
@@ -274,7 +276,7 @@
   .stage .sweep{position:absolute;top:50%;left:50%;width:min(64vw,272px);height:min(64vw,272px);margin:calc(min(64vw,272px) / -2) 0 0 calc(min(64vw,272px) / -2);border-radius:50%;pointer-events:none;z-index:2;
     background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,255,255,0) 76%,rgba(255,255,255,.6) 86%,transparent 96%);
     -webkit-mask:radial-gradient(circle closest-side,transparent 40%,#000 50% 76%,transparent 88%);mask:radial-gradient(circle closest-side,transparent 40%,#000 50% 76%,transparent 88%);
-    mix-blend-mode:soft-light;filter:blur(2px);animation:sweep 13s linear infinite}
+    opacity:.45;animation:sweep 13s linear infinite}
   @keyframes sweep{to{transform:rotate(360deg)}}
   /* porcelain paper grain */
   body::after{content:'';display:block;position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.028;
@@ -1115,14 +1117,14 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
 
 /* slow turntable — JS-driven with an explicit pivot (rotate a 150 150), immune to viewBox changes */
 (function spin(){
-  let deg=0,last=0;
+  let deg=0,last=0,acc=0;
   function f(ts){ if(!last)last=ts; const dt=Math.min(ts-last,100); last=ts;
     const sv=svg(), g=sv&&sv.querySelector('.zbeads');
     if(g){
       if(state.tilt){ if(g.getAttribute('transform')) g.removeAttribute('transform'); deg=0; window._spinDeg=0; }
       else if(state.seq.length&&!sv.classList.contains('dragging')&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){
-        deg=(deg+dt*360/90000)%360; window._spinDeg=deg;
-        g.setAttribute('transform',`rotate(${deg.toFixed(3)} 150 150)`);
+        deg=(deg+dt*360/90000)%360; window._spinDeg=deg; acc+=dt;
+        if(acc>=50){ acc=0; g.setAttribute('transform',`rotate(${deg.toFixed(2)} 150 150)`); }   // ~20fps is invisible at 4°/s, third of the CPU
       }
     }
     requestAnimationFrame(f); }
