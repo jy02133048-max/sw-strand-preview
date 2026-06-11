@@ -43,7 +43,6 @@
   .stage::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:236px;height:236px;border-radius:50%;
     background:radial-gradient(circle,rgba(227,148,49,.17),rgba(227,148,49,.05) 46%,transparent 70%);filter:blur(20px);pointer-events:none}
   svg.bracelet{position:relative;z-index:1;width:min(58vw,250px);height:min(58vw,250px);display:block;touch-action:manipulation}
-  svg.bracelet image{filter:drop-shadow(0 4px 10px rgba(0,0,0,.55))}
   svg.bracelet .zb{transition:transform .44s cubic-bezier(.22,.72,.24,1),opacity .4s ease;will-change:transform,opacity}
   .empty-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:150px;text-align:center;
     font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--faint);line-height:1.5;pointer-events:none;z-index:1}
@@ -57,7 +56,6 @@
   .zoomv .zoom-stage{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
   .zoomv .zoom-stage:active{cursor:grabbing}
   .zoomv .zoom-svg{position:absolute;left:50%;top:44%;width:min(150vw,620px);height:min(150vw,620px);transform-origin:center center;will-change:transform}
-  .zoomv .zoom-svg image{filter:drop-shadow(0 5px 14px rgba(0,0,0,.5))}
   .zoomv .mx{position:fixed;top:6px;right:18px;z-index:3;font-size:34px;color:#e8e0d4}
   .zoomv .zoom-hint{position:fixed;top:16px;left:0;right:0;text-align:center;font-size:12px;color:var(--faint);z-index:2;pointer-events:none}
   .zoomv .zoom-info{position:fixed;left:0;right:0;bottom:20px;text-align:center;font-size:13px;color:var(--muted);z-index:2;pointer-events:none;padding:0 24px;text-shadow:0 1px 10px rgba(0,0,0,.85)}
