@@ -1,0 +1,1319 @@
+[
+ {
+  "key": "jx-001",
+  "en": "White Phantom Quartz",
+  "cn": "白幽灵水晶手串",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-002",
+  "en": "White Garden Quartz",
+  "cn": "白水幽灵手串",
+  "el": "metal",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-003",
+  "en": "Milky Quartz",
+  "cn": "奶白晶",
+  "el": "metal",
+  "price": 2.2,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-004",
+  "en": "White Moonstone",
+  "cn": "白月光手串",
+  "el": "metal",
+  "price": 3.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-005",
+  "en": "Milky Quartz",
+  "cn": "奶白晶水晶",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-006",
+  "en": "Snowflake Phantom Quartz",
+  "cn": "雪花幽灵水晶",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-007",
+  "en": "White Phantom Quartz",
+  "cn": "白幽灵水晶手串",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-008",
+  "en": "Champagne Moonstone",
+  "cn": "奶茶月光",
+  "el": "metal",
+  "price": 2.2,
+  "wish": [
+   "energy",
+   "intuition",
+   "self_love",
+   "wealth"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-009",
+  "en": "Azeztulite Quartz",
+  "cn": "白阿塞水晶",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-010",
+  "en": "Clear Quartz",
+  "cn": "A级白水晶",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-011",
+  "en": "Clear Quartz",
+  "cn": "A白水晶",
+  "el": "metal",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "intuition"
+  ],
+  "color": "white_neutral"
+ },
+ {
+  "key": "jx-012",
+  "en": "Fluorite",
+  "cn": "冰感彩萤石浓色",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "career",
+   "focus",
+   "intuition",
+   "love"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-013",
+  "en": "Tourmaline",
+  "cn": "浓郁色碧玺",
+  "el": "wood",
+  "price": 6.5,
+  "wish": [
+   "calm",
+   "career",
+   "energy",
+   "focus",
+   "self_love",
+   "wealth"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-014",
+  "en": "Tourmaline",
+  "cn": "天然碧玺",
+  "el": "wood",
+  "price": 6.5,
+  "wish": [
+   "calm",
+   "career",
+   "energy",
+   "focus",
+   "self_love",
+   "wealth"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-015",
+  "en": "天然聚宝盆兔毛",
+  "cn": "天然聚宝盆兔毛",
+  "el": "wood",
+  "price": 6.5,
+  "wish": [
+   "confidence",
+   "energy"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-016",
+  "en": "天然满毛彩兔毛",
+  "cn": "天然满毛彩兔毛",
+  "el": "wood",
+  "price": 6.5,
+  "wish": [],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-017",
+  "en": "Fluorite",
+  "cn": "超透体彩萤石",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-018",
+  "en": "Super Seven",
+  "cn": "超七多宝三圈手串",
+  "el": "wood",
+  "price": 3.5,
+  "wish": [
+   "career",
+   "confidence",
+   "energy",
+   "focus",
+   "intuition",
+   "love",
+   "protection",
+   "wealth"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-019",
+  "en": "Fluorite",
+  "cn": "彩萤石",
+  "el": "wood",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-020",
+  "en": "Fluorite",
+  "cn": "兔毛萤石",
+  "el": "wood",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-021",
+  "en": "Super Seven",
+  "cn": "超七多宝手串1",
+  "el": "wood",
+  "price": 3.5,
+  "wish": [
+   "career",
+   "confidence",
+   "energy",
+   "intuition",
+   "love",
+   "protection",
+   "wealth"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-022",
+  "en": "Fluorite",
+  "cn": "超透体彩萤石",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-023",
+  "en": "Angel Hair Quartz",
+  "cn": "彩胶花水晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-024",
+  "en": "Angel Hair Quartz",
+  "cn": "浅彩胶花水晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-025",
+  "en": "Fluorite",
+  "cn": "彩萤石",
+  "el": "wood",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-026",
+  "en": "Topaz",
+  "cn": "托帕石",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "multicolor"
+ },
+ {
+  "key": "jx-027",
+  "en": "Rose Quartz",
+  "cn": "双A级粉晶水晶",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-028",
+  "en": "Rose Quartz",
+  "cn": "西柚粉粉晶5",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-029",
+  "en": "Madagascar Rose Quartz",
+  "cn": "马粉水晶三圈手串",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-030",
+  "en": "Rose Quartz",
+  "cn": "西柚粉粉晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-031",
+  "en": "Madagascar Rose Quartz",
+  "cn": "紫马粉水晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "intuition",
+   "love",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-032",
+  "en": "Flower Quartz",
+  "cn": "粉胶花水晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "love",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-033",
+  "en": "Rose Quartz",
+  "cn": "马达加斯加粉晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "intuition",
+   "love",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-034",
+  "en": "Madagascar Rose Quartz",
+  "cn": "马粉",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-035",
+  "en": "Madagascar Rose Quartz",
+  "cn": "A级马粉",
+  "el": "fire",
+  "price": 2.2,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-036",
+  "en": "Rose Quartz",
+  "cn": "星光粉晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "pink"
+ },
+ {
+  "key": "jx-037",
+  "en": "Black Rutilated Quartz",
+  "cn": "黑发晶水晶手串",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "black"
+ },
+ {
+  "key": "jx-038",
+  "en": "Black Rutilated Quartz",
+  "cn": "黑发晶水晶手串",
+  "el": "water",
+  "price": 3.5,
+  "wish": [
+   "energy",
+   "grounding",
+   "protection",
+   "wealth"
+  ],
+  "color": "black"
+ },
+ {
+  "key": "jx-039",
+  "en": "Skeletal Quartz",
+  "cn": "黑骨干水晶",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "energy",
+   "grounding",
+   "intuition",
+   "protection"
+  ],
+  "color": "black"
+ },
+ {
+  "key": "jx-040",
+  "en": "Red Agate",
+  "cn": "天然满色南红",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-041",
+  "en": "Rhodonite",
+  "cn": "蔷薇石手串",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "intuition",
+   "love",
+   "protection",
+   "self_love"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-042",
+  "en": "樱花雨水晶手串1",
+  "cn": "樱花雨水晶手串1",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-043",
+  "en": "Strawberry Quartz",
+  "cn": "草莓晶水晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "love",
+   "protection"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-044",
+  "en": "Flower Quartz",
+  "cn": "红胶花水晶",
+  "el": "fire",
+  "price": 2.2,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-045",
+  "en": "星光草莓",
+  "cn": "星光草莓",
+  "el": "fire",
+  "price": 2.2,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "love",
+   "protection"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-046",
+  "en": "Red Tiger Eye",
+  "cn": "红虎眼",
+  "el": "fire",
+  "price": 2.2,
+  "wish": [
+   "confidence",
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "red"
+ },
+ {
+  "key": "jx-047",
+  "en": "Citrine",
+  "cn": "高透黄水晶",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-048",
+  "en": "Flower Quartz",
+  "cn": "橘子胶花",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-049",
+  "en": "Flower Quartz",
+  "cn": "黄金胶花水晶",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-050",
+  "en": "超透体黄塔晶",
+  "cn": "超透体黄塔晶",
+  "el": "earth",
+  "price": 3.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-051",
+  "en": "Golden Rutilated Quartz",
+  "cn": "钢板金发晶钛晶",
+  "el": "earth",
+  "price": 6.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-052",
+  "en": "Yellow Tiger Eye",
+  "cn": "天然黄虎眼6",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-053",
+  "en": "Fluorite",
+  "cn": "高品黄萤石",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "confidence",
+   "energy",
+   "grounding",
+   "protection",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-054",
+  "en": "Fluorite",
+  "cn": "黄萤石手串",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-055",
+  "en": "千层幽灵",
+  "cn": "千层幽灵",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-056",
+  "en": "Coral Jade",
+  "cn": "珊瑚玉手串",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-057",
+  "en": "柠檬晶水晶手串",
+  "cn": "柠檬晶水晶手串",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-058",
+  "en": "Flower Quartz",
+  "cn": "橘色胶花水晶手串",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-059",
+  "en": "Flower Quartz",
+  "cn": "黄胶花水晶手串",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-060",
+  "en": "Flower Quartz",
+  "cn": "黄胶花水晶",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-061",
+  "en": "天然水晶奶黄晶",
+  "cn": "天然水晶奶黄晶",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-062",
+  "en": "Yellow Tiger Eye",
+  "cn": "黄虎眼",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-063",
+  "en": "Citrine",
+  "cn": "黄水晶",
+  "el": "earth",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-064",
+  "en": "Smoky Quartz",
+  "cn": "茶晶",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "yellow_gold"
+ },
+ {
+  "key": "jx-065",
+  "en": "Flower Quartz",
+  "cn": "金箔胶花",
+  "el": "earth",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "intuition",
+   "wealth"
+  ],
+  "color": "gold"
+ },
+ {
+  "key": "jx-066",
+  "en": "Golden Rutilated Quartz",
+  "cn": "金发晶水晶",
+  "el": "earth",
+  "price": 3.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "wealth"
+  ],
+  "color": "gold"
+ },
+ {
+  "key": "jx-067",
+  "en": "黑金超水晶",
+  "cn": "黑金超水晶",
+  "el": "earth",
+  "price": 3.5,
+  "wish": [
+   "career",
+   "energy",
+   "grounding",
+   "protection",
+   "wealth"
+  ],
+  "color": "gold"
+ },
+ {
+  "key": "jx-069",
+  "en": "Lapis Lazuli",
+  "cn": "青金石",
+  "el": "water",
+  "price": 1.5,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-070",
+  "en": "Kyanite",
+  "cn": "蓝晶石",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "communication",
+   "energy",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-071",
+  "en": "Blue Moonstone",
+  "cn": "蓝月光水晶",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-072",
+  "en": "Amazonite",
+  "cn": "老矿料天河石",
+  "el": "water",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-073",
+  "en": "蓝虎眼石",
+  "cn": "蓝虎眼石",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "communication",
+   "energy",
+   "focus",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-074",
+  "en": "Fluorite",
+  "cn": "湖水蓝萤石",
+  "el": "wood",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-075",
+  "en": "Amazonite",
+  "cn": "老矿料天河石",
+  "el": "water",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-076",
+  "en": "Amazonite",
+  "cn": "天河石",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-077",
+  "en": "Blue Moonstone",
+  "cn": "蓝月光",
+  "el": "water",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-078",
+  "en": "Aquamarine",
+  "cn": "海蓝宝",
+  "el": "water",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-079",
+  "en": "Aquamarine",
+  "cn": "海蓝宝",
+  "el": "water",
+  "price": 6.5,
+  "wish": [
+   "calm",
+   "communication",
+   "confidence",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-080",
+  "en": "Aquamarine",
+  "cn": "海蓝宝",
+  "el": "water",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "communication",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-081",
+  "en": "Aquamarine",
+  "cn": "海蓝宝",
+  "el": "water",
+  "price": 6.5,
+  "wish": [
+   "calm",
+   "communication",
+   "confidence",
+   "protection"
+  ],
+  "color": "blue"
+ },
+ {
+  "key": "jx-082",
+  "en": "Malachite",
+  "cn": "孔雀石",
+  "el": "wood",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-083",
+  "en": "Green Phantom Quartz",
+  "cn": "天然聚宝盆绿幽灵",
+  "el": "wood",
+  "price": 6.5,
+  "wish": [
+   "career",
+   "love",
+   "wealth"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-084",
+  "en": "Fluorite",
+  "cn": "湖水绿萤石",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "focus",
+   "love"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-085",
+  "en": "Prehnite",
+  "cn": "葡萄石",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-086",
+  "en": "Green Phantom Quartz",
+  "cn": "绿幽灵聚宝盆水晶1",
+  "el": "wood",
+  "price": 3.5,
+  "wish": [
+   "career",
+   "love",
+   "wealth"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-087",
+  "en": "青提奶盖玉手串",
+  "cn": "青提奶盖玉手串",
+  "el": "wood",
+  "price": 1.5,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-088",
+  "en": "Fluorite",
+  "cn": "葡萄绿萤石",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "love"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-089",
+  "en": "Fluorite",
+  "cn": "薄荷绿萤石",
+  "el": "wood",
+  "price": 2.2,
+  "wish": [
+   "career",
+   "focus",
+   "love"
+  ],
+  "color": "green"
+ },
+ {
+  "key": "jx-090",
+  "en": "Silver Obsidian",
+  "cn": "银耀石手串",
+  "el": "water",
+  "price": 1.5,
+  "wish": [
+   "energy",
+   "grounding",
+   "protection"
+  ],
+  "color": "silver_gray"
+ },
+ {
+  "key": "jx-091",
+  "en": "Garnet",
+  "cn": "紫牙乌石榴石手串",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ },
+ {
+  "key": "jx-092",
+  "en": "Garnet",
+  "cn": "紫牙乌石榴石",
+  "el": "fire",
+  "price": 6.5,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ },
+ {
+  "key": "jx-093",
+  "en": "Amethyst",
+  "cn": "玻利维亚紫水晶",
+  "el": "fire",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ },
+ {
+  "key": "jx-094",
+  "en": "Amethyst",
+  "cn": "乌拉圭紫晶",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ },
+ {
+  "key": "jx-095",
+  "en": "Kunzite",
+  "cn": "阿富汗紫锂辉",
+  "el": "fire",
+  "price": 3.5,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ },
+ {
+  "key": "jx-096",
+  "en": "Kunzite",
+  "cn": "紫锂辉水晶手串",
+  "el": "fire",
+  "price": 2.2,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ },
+ {
+  "key": "jx-097",
+  "en": "Amethyst",
+  "cn": "紫水晶",
+  "el": "fire",
+  "price": 1.5,
+  "wish": [
+   "calm",
+   "energy",
+   "focus",
+   "intuition",
+   "sleep_light"
+  ],
+  "color": "purple"
+ }
+]

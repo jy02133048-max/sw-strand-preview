@@ -1,0 +1,1510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<title>Build Your Crystal — Stone Whisper</title>
+<script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.7.3/lunar.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Marcellus&family=Manrope:wght@300;400;500;600&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{color-scheme:dark;--bg:#1a0f1b;--bg2:#2a1726;--ink:#efe6da;--muted:#b6a6a4;--faint:#7c6a72;
+    --gold:#e6982f;--rose:#d2899c;--line:rgba(210,182,186,.15);--card:rgba(255,255,255,.04)}
+  html,body{height:100%;width:100%;overflow:hidden}
+  html{-webkit-text-size-adjust:100%}
+  body{background:#160c17;color:var(--ink);font-family:'Inter',sans-serif;font-weight:300;line-height:1.6;
+    -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  /* cosmic atmosphere — matches the homepage */
+  body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background:
+      radial-gradient(58% 48% at 80% 8%,rgba(227,148,49,.16),transparent 70%),
+      radial-gradient(46% 42% at 14% 92%,rgba(126,98,178,.06),transparent 72%),
+      radial-gradient(135% 120% at 50% -8%,#161020,#0c0912 58%,#080610)}
+  body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+    background-image:
+      radial-gradient(1px 1px at 24px 36px,rgba(255,255,255,.85),transparent),
+      radial-gradient(1px 1px at 132px 96px,rgba(255,246,224,.6),transparent),
+      radial-gradient(1.4px 1.4px at 78px 168px,rgba(255,236,200,.7),transparent),
+      radial-gradient(1px 1px at 190px 60px,rgba(255,255,255,.5),transparent),
+      radial-gradient(1.2px 1.2px at 300px 130px,rgba(255,240,210,.55),transparent);
+    background-size:340px 260px}
+  em{font-style:italic}
+
+  /* ---- app shell: single screen, only the panel area scrolls ---- */
+  #amb{position:fixed;inset:0;z-index:0;pointer-events:none}
+  .app{width:100%;max-width:480px;margin:0 auto;height:100dvh;overflow:hidden;display:flex;flex-direction:column;position:relative;z-index:1;
+    background:rgba(26,15,27,.4);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  .appbar{flex:none;display:flex;align-items:baseline;justify-content:space-between;padding:11px 18px;border-bottom:1px solid var(--line)}
+  .appbar b{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:15px;letter-spacing:.12em;color:#ece2d2}
+  .appbar .ab-sub{font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:#8a7e6b}
+
+  .preview{flex:none;position:relative;display:flex;flex-direction:column;align-items:center;padding:6px 0 8px}
+  .stage{position:relative;display:flex;justify-content:center;align-items:center}
+  .stage::before{content:'';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:236px;height:236px;border-radius:50%;
+    background:radial-gradient(circle,rgba(227,148,49,.17),rgba(227,148,49,.05) 46%,transparent 70%);filter:blur(20px);pointer-events:none}
+  svg.bracelet{position:relative;z-index:1;width:min(58vw,250px);height:min(58vw,250px);display:block;touch-action:manipulation}
+  svg.bracelet image{filter:drop-shadow(0 4px 10px rgba(0,0,0,.55))}
+  svg.bracelet .zb{transition:transform .44s cubic-bezier(.22,.72,.24,1),opacity .4s ease;will-change:transform,opacity}
+  .empty-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:150px;text-align:center;
+    font-family:'Cormorant Garamond',serif;font-style:italic;font-size:15px;color:var(--faint);line-height:1.5;pointer-events:none;z-index:1}
+  .preview-meta{display:flex;gap:16px;font-size:12px;color:var(--muted);margin-top:2px}
+  .preview-meta b{color:var(--ink);font-weight:400}
+  .preview-actions{display:flex;gap:10px;margin-top:9px}
+  .pa-btn{font-size:12.5px;color:var(--gold);background:rgba(227,148,49,.08);border:1px solid rgba(227,148,49,.3);border-radius:20px;padding:7px 15px;cursor:pointer;font-family:'Inter',sans-serif}
+  .pa-btn:active{transform:scale(.97)}
+  .modal.zoomv{padding:0}
+  .zoomv .zoom-stage{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab}
+  .zoomv .zoom-stage:active{cursor:grabbing}
+  .zoomv .zoom-svg{position:absolute;left:50%;top:44%;width:min(150vw,620px);height:min(150vw,620px);transform-origin:center center;will-change:transform}
+  .zoomv .zoom-svg image{filter:drop-shadow(0 5px 14px rgba(0,0,0,.5))}
+  .zoomv .mx{position:fixed;top:6px;right:18px;z-index:3;font-size:34px;color:#e8e0d4}
+  .zoomv .zoom-hint{position:fixed;top:16px;left:0;right:0;text-align:center;font-size:12px;color:var(--faint);z-index:2;pointer-events:none}
+  .zoomv .zoom-info{position:fixed;left:0;right:0;bottom:20px;text-align:center;font-size:13px;color:var(--muted);z-index:2;pointer-events:none;padding:0 24px;text-shadow:0 1px 10px rgba(0,0,0,.85)}
+  .wrist-box{position:relative;width:100%;aspect-ratio:1;border-radius:14px;overflow:hidden;background:#19141f}
+  .wrist-box img,.wrist-box canvas{width:100%;height:100%;object-fit:cover;display:block}
+  .wrist-load{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;color:var(--muted);font-size:13px;text-align:center;line-height:1.6}
+  .wrist-load small{color:var(--faint)}
+  .spin{width:30px;height:30px;border:3px solid rgba(227,148,49,.25);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .wrist-cap{font-size:12px;color:var(--faint);text-align:center;margin-top:12px;line-height:1.5}
+  .coach{max-width:330px;margin:8px 14px 0;font-size:12.5px;color:var(--muted);text-align:center;line-height:1.45;
+    background:rgba(227,148,49,.06);border:1px solid rgba(227,148,49,.18);border-radius:10px;padding:8px 12px}
+  .coach .coach-add{color:var(--gold);cursor:pointer;white-space:nowrap;border-bottom:1px solid rgba(227,148,49,.4)}
+
+  .tabs{flex:none;display:flex;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:rgba(10,8,14,.4)}
+  .tab{flex:1;min-width:0;text-align:center;padding:12px 4px;font-size:13.5px;color:var(--muted);cursor:pointer;position:relative;letter-spacing:.04em}
+  .tab.on{color:var(--gold)}
+  .tab.on::after{content:'';position:absolute;left:24%;right:24%;bottom:-1px;height:2px;background:var(--gold);border-radius:2px}
+  .tab .badge{display:none;width:6px;height:6px;border-radius:50%;background:var(--gold);position:absolute;top:9px;margin-left:3px}
+  .tab .badge.on{display:inline-block}
+
+  .panels{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:18px 16px 22px}
+  .panels::-webkit-scrollbar{width:6px}.panels::-webkit-scrollbar-thumb{background:rgba(184,168,138,.22);border-radius:4px}
+  .panel{display:none}.panel.on{display:block;animation:fade .25s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+  .ptitle{font-family:'Cormorant Garamond',serif;font-weight:400;font-size:23px;color:var(--ink);line-height:1.2}
+  .psub{font-size:13px;color:var(--faint);margin:6px 0 16px;line-height:1.5}
+  .section-label{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:#8a7e6b;margin:22px 0 12px}
+
+  /* scene chips */
+  .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+  .chip{min-height:70px;padding:13px 14px;background:var(--card);border:1px solid var(--line);border-radius:12px;cursor:pointer;transition:.15s;display:flex;flex-direction:column;justify-content:center}
+  .chip:active{transform:scale(.98)} .chip.on{border-color:var(--gold);background:rgba(227,148,49,.09)}
+  .chip .t{font-size:15px;color:var(--ink);line-height:1.25} .chip .s{font-size:11.5px;color:var(--faint);margin-top:4px} .chip.on .t{color:var(--gold)}
+  .scene-gh{font-size:10.5px;letter-spacing:.2em;color:#8a7e6b;text-transform:uppercase;margin:20px 0 11px;padding-left:2px}
+  .scene-host > .scene-gh:first-child{margin-top:2px}
+  .chip-custom{border-style:dashed} .chip-custom.on{border-style:solid}
+  .custom-scene{margin-top:12px}
+  .custom-scene textarea{width:100%;min-height:84px;background:var(--bg2);border:1px solid var(--gold);color:var(--ink);border-radius:11px;padding:12px 13px;font-family:'Inter',sans-serif;font-size:15px;font-weight:300;line-height:1.6;resize:vertical}
+  .custom-scene textarea:focus{outline:none}
+  .nudge{margin-top:18px;text-align:center;font-size:13px;color:var(--gold);cursor:pointer;opacity:.0;transition:opacity .3s;pointer-events:none}
+  .nudge.on{opacity:1;pointer-events:auto}
+
+  /* birth + reading */
+  .daterow{display:flex;gap:10px}
+  input[type=date],input[type=time]{width:100%;background:var(--bg2);border:1px solid var(--line);color:var(--ink);padding:13px 14px;border-radius:9px;font-family:'Inter',sans-serif;font-size:16px;font-weight:300;min-height:50px}
+  input[type=time]{max-width:140px}
+  #bPlace{width:100%;margin-top:10px;background:var(--bg2);border:1px solid var(--line);color:var(--ink);padding:13px 14px;border-radius:9px;font-family:'Inter',sans-serif;font-size:16px;font-weight:300;min-height:50px}
+  #bPlace:focus{outline:none;border-color:var(--gold)}
+  input:focus{outline:none;border-color:var(--gold)} input::-webkit-calendar-picker-indicator{filter:invert(.65) sepia(.4) saturate(3) hue-rotate(345deg);opacity:.9;cursor:pointer}
+  .hint{font-size:12px;color:var(--faint);margin-top:7px;line-height:1.5}.err{color:#d98a6a;font-size:13px;margin-top:8px;min-height:8px}
+  .why{background:var(--card);border-left:3px solid var(--gold);border-radius:0 8px 8px 0;padding:18px 18px;margin-top:20px}
+  .why.placeholder{border-left-color:rgba(184,168,138,.3);background:transparent}
+  .why .q{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:19px;color:var(--ink);line-height:1.5}
+  .why.placeholder .q{font-style:normal;font-size:14px;color:var(--faint);font-family:'Inter',sans-serif}
+  .why .d{font-size:14px;color:var(--muted);margin-top:11px;line-height:1.65}
+  .energy{margin-top:22px}
+  .bar-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+  .bar-label{width:46px;font-size:11.5px;color:#b8a88a;text-align:right;flex-shrink:0}
+  .bar-track{flex:1;height:20px;background:rgba(255,255,255,.04);border-radius:4px;overflow:hidden}
+  .bar-fill{height:100%;border-radius:4px;width:0;transition:width 1.1s ease}
+  .bar-fill.fire{background:linear-gradient(90deg,#c0541d,#e07830)}.bar-fill.earth{background:linear-gradient(90deg,#8a7340,#b8a060)}
+  .bar-fill.water{background:linear-gradient(90deg,#2a5a7a,#4a8aaa)}.bar-fill.metal{background:linear-gradient(90deg,#8a8a8a,#b8b8b0)}
+  .bar-fill.wood{background:linear-gradient(90deg,#3a6a30,#5a9a48)}
+  .bar-pct{width:34px;font-size:12.5px;color:var(--ink);flex-shrink:0}
+
+  /* size */
+  .sizebar{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin-bottom:6px}
+  .sz-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}.sz-row:last-child{margin-bottom:0}
+  .sz-wrist{font-size:13.5px;color:var(--muted)}
+  .sz-wrist input{width:60px;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:7px;padding:7px;font-size:15px;text-align:center}
+  .howto{font-size:11.5px;color:var(--faint);cursor:pointer;margin-left:auto}
+  .howto-note{font-size:11.5px;color:var(--faint);margin:-4px 0 6px;display:none;line-height:1.5}
+  .sz-lbl{font-size:13.5px;color:var(--muted)}
+  .sizes{display:flex;gap:6px}
+  .szchip{min-width:38px;text-align:center;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:7px;padding:7px 8px;cursor:pointer}
+  .szchip.on{border-color:var(--gold);color:var(--gold);background:rgba(227,148,49,.08)}
+
+  /* your stones + steppers */
+  .stones .ph{font-size:13.5px;color:var(--faint);padding:8px 0;line-height:1.5}
+  .stone{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line);animation:fade .35s ease}
+  .bead{width:40px;height:40px;border-radius:50%;flex-shrink:0;background-size:cover;background-position:center;cursor:pointer;filter:drop-shadow(0 3px 7px rgba(0,0,0,.5))}
+  .stone .nm{font-size:14.5px;color:var(--ink)}.stone .nm .cn{color:var(--faint);font-size:12px;margin-left:6px}
+  .stone .ds{font-size:12px;color:var(--muted);margin-top:1px}.stone .role{font-size:10px;letter-spacing:.12em;color:var(--gold);margin-top:3px}
+  .step{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:22px;flex-shrink:0;background:rgba(0,0,0,.2)}
+  .step button{width:34px;height:34px;background:transparent;border:none;color:var(--gold);font-size:19px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .step button:active{background:rgba(227,148,49,.14)}
+  .step b{min-width:24px;text-align:center;font-size:14px;color:var(--ink);font-weight:400}
+
+  /* collection */
+  .catbar{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 12px}
+  .cat{font-size:12px;color:var(--muted);border:1px solid var(--line);border-radius:30px;padding:6px 13px;cursor:pointer}
+  .cat.on{border-color:var(--gold);color:var(--gold);background:rgba(227,148,49,.08)}
+  .palette{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+  .pbead{display:flex;align-items:center;gap:9px;padding:7px 8px;border:1px solid var(--line);border-radius:11px;min-height:54px;user-select:none}
+  .pbead.has{border-color:rgba(227,148,49,.5);background:rgba(227,148,49,.07)}
+  .pbead .d{width:36px;height:36px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;cursor:pointer}
+  .pbead .info{min-width:0;flex:1;cursor:pointer}.pbead .pn{display:block;font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbead .pp{font-size:11px;color:var(--faint)}
+  .pbead .ctrls{flex-shrink:0}
+  .padd{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
+  .padd:active{background:rgba(227,148,49,.14)}
+
+  /* request */
+  textarea#reqText{width:100%;min-height:96px;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:11px;padding:13px 14px;font-family:'Inter',sans-serif;font-size:15px;font-weight:300;line-height:1.6;resize:vertical}
+  textarea#reqText:focus{outline:none;border-color:var(--gold)}
+  .namefield{display:flex;gap:8px;margin-top:6px}
+  .namefield input{flex:1;min-width:0;background:var(--bg2);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:12px 13px;font-size:16px;font-family:'Cormorant Garamond',serif;font-style:italic}
+  .namefield button{width:48px;flex-shrink:0;border:1px solid var(--line);background:transparent;border-radius:9px;cursor:pointer;font-size:17px;color:var(--ink)}
+  .savelink{margin-top:14px;font-size:13px;color:var(--faint);cursor:pointer}.savelink:active{color:var(--gold)}
+  .divider{height:1px;background:var(--line);margin:20px 0}
+  .trust{display:flex;flex-direction:column;gap:8px;margin-top:24px}
+  .trust span{font-size:12px;color:var(--muted);display:flex;gap:8px}.trust b{color:var(--gold);font-weight:400}
+  .album{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:11px}
+  .album .ph{font-size:13px;color:var(--faint)}
+  .album-item{position:relative;text-align:center}
+  .album-item .mini{width:100%;aspect-ratio:1;cursor:pointer;background:var(--card);border:1px solid var(--line);border-radius:10px}
+  .album-item .ai-name{font-size:11.5px;color:var(--muted);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:'Cormorant Garamond',serif;font-style:italic}
+  .album-item .ai-del{position:absolute;top:4px;right:6px;font-size:11px;color:#d8d0c0;cursor:pointer;background:rgba(0,0,0,.5);width:18px;height:18px;border-radius:50%;line-height:18px}
+
+  /* buttons + footer cta */
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:48px;width:100%;background:var(--gold);color:#1a1714;
+    font-size:14px;font-weight:500;letter-spacing:.06em;border:none;border-radius:8px;cursor:pointer;font-family:'Inter',sans-serif;transition:transform .12s,opacity .2s}
+  .btn:active{transform:scale(.98)} .btn:disabled{opacity:.4;cursor:not-allowed}
+  .btn.ghost{background:transparent;border:1px solid var(--gold);color:var(--gold);margin-top:12px}
+  .cta-bar{flex:none;display:flex;gap:12px;align-items:center;padding:11px 14px calc(11px + env(safe-area-inset-bottom));border-top:1px solid var(--line);background:rgba(10,8,14,.9)}
+  .cta-price{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--ink);min-width:62px;text-align:center}
+  .cta-bar .btn{flex:1}
+
+  /* modal (long-press detail) */
+  .modal{position:fixed;inset:0;background:rgba(8,6,5,.92);backdrop-filter:blur(5px);display:none;align-items:center;justify-content:center;z-index:100;padding:20px}
+  .modal.show{display:flex;animation:fade .2s ease}
+  .modal-card{background:#19141f;border:1px solid var(--line);border-radius:18px;max-width:380px;width:100%;padding:28px 26px 24px;text-align:center;position:relative}
+  .modal-card .mx{position:absolute;top:6px;right:16px;font-size:28px;color:var(--faint);cursor:pointer}
+  .modal-bead{width:min(60vw,240px);height:min(60vw,240px);margin:4px auto 16px;background-size:cover;background-position:center;border-radius:50%;box-shadow:0 10px 34px rgba(0,0,0,.55)}
+  .modal-card .mname{font-family:'Cormorant Garamond',serif;font-size:26px;color:var(--ink)}.modal-card .mcn{color:var(--faint);font-size:13px;margin-top:3px}
+  .mmeta{display:flex;gap:16px;justify-content:center;margin:12px 0 10px}.mmeta .mel{font-size:11px;letter-spacing:.12em;color:var(--gold)}.mmeta .mprice{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--ink)}
+  .modal-card .mdoes{font-size:14px;color:var(--muted);margin-bottom:20px}
+  .mremove{margin-top:12px;font-size:12.5px;color:var(--faint);cursor:pointer}
+  .toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:rgba(34,18,36,.93);backdrop-filter:blur(12px);border:1px solid rgba(227,148,49,.5);color:var(--ink);padding:11px 20px;border-radius:30px;font-size:13px;z-index:200;opacity:0;transition:opacity .3s;pointer-events:none;max-width:80vw;text-align:center;box-shadow:0 8px 30px rgba(0,0,0,.5),0 0 16px rgba(227,148,49,.15)}
+  .toast.show{opacity:1}
+
+  /* ===== design system v3 · 晨瓷 Porcelain Atelier — cool daylight, true stone colour, ink + malachite (User-picked 2026-06-10) =====
+     dials: VARIANCE 6 · MOTION 4 · DENSITY 3 · honest light: preview == delivered goods */
+  :root{color-scheme:light;--bg:#edeff0;--bg2:#ffffff;--ink:#1b1c1e;--muted:#5c5f63;--faint:#9a9da1;
+    --gold:#0e6b50;--rose:#0e6b50;--line:rgba(20,22,24,.12);--card:#ffffff}
+  body{background:#edeff0;color:var(--ink);font-family:'Manrope',sans-serif}
+  body::before{background:radial-gradient(90% 60% at 50% -15%,#ffffff,transparent 60%),linear-gradient(#eef0f1,#e7eaeb)}
+  body::after{display:none}
+  #amb{display:none}
+  .app{background:rgba(255,255,255,.5);backdrop-filter:none;-webkit-backdrop-filter:none;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  .appbar{background:rgba(255,255,255,.85);border-bottom:1px solid var(--line)}
+  .appbar b,.empty-hint,.ptitle,.why .q,.namefield input,.modal-card .mname,.cta-price,.ai-name{font-family:'Marcellus',serif;font-style:normal}
+  .appbar b{color:#1b1c1e}
+  .appbar .ab-sub,.section-label,.scene-gh{color:var(--faint)}
+  .ptitle{font-size:24px}
+  .stage::before{width:min(70vw,300px);height:min(70vw,300px);background:radial-gradient(circle,#ffffff 0%,rgba(255,255,255,0) 68%);filter:blur(18px);animation:none}
+  svg.bracelet .zb image,svg.bracelet image{filter:url(#bshadow)}   /* CSS drop-shadow clips at the SVG filter region on big beads — explicit-region SVG filter instead */
+  svg.bracelet .zring{stroke:rgba(20,22,24,.22)}
+  .bead{filter:drop-shadow(0 2px 6px rgba(28,30,30,.3))}
+  /* spin is JS-driven via rotate(a 150 150) — NO css transform-origin/box here (they re-offset the explicit pivot) */
+  @keyframes spinring{to{transform:rotate(360deg)}}
+  .empty-hint{color:var(--faint)}
+  .btn{background:#1b1c1e;color:#f6f5f3;border-radius:10px;font-weight:500;box-shadow:0 2px 8px rgba(20,22,24,.18);transition:transform .2s cubic-bezier(.25,1,.5,1),box-shadow .2s}
+  .btn:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(20,22,24,.22)}
+  .btn:active{transform:translateY(0)}
+  .btn:disabled{background:#c9cccd;color:#8b8e90;box-shadow:none}
+  .btn.ghost{background:transparent;border:1px solid #1b1c1e;color:#1b1c1e;box-shadow:none}
+  .pa-btn{background:#ffffff;border:1px solid var(--line);color:#1b1c1e;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+  .tabs{background:rgba(255,255,255,.9);border-color:var(--line)}
+  .tab{color:var(--muted)}.tab.on{color:#0e6b50;text-shadow:none}.tab.on::after{background:#0e6b50;box-shadow:none}
+  .chip{background:#ffffff;border:1px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,.05);transition:border-color .2s,transform .2s,box-shadow .2s}
+  .chip:hover{border-color:rgba(14,107,80,.45);transform:translateY(-1px)}
+  .chip.on{background:rgba(14,107,80,.06);border-color:#0e6b50;box-shadow:none}
+  .cat,.szchip{background:#ffffff;border:1px solid var(--line)}
+  .cat.on,.szchip.on{background:rgba(14,107,80,.07);border-color:#0e6b50;color:#0e6b50;box-shadow:none}
+  .pbead{background:#ffffff;border:1px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .pbead.has{background:rgba(14,107,80,.06);border-color:rgba(14,107,80,.5)}
+  .pbead .d{filter:drop-shadow(0 2px 5px rgba(28,30,30,.3))}
+  .step{background:#f6f7f7;border:1px solid var(--line)}
+  .step button{color:#0e6b50}.step b{color:#1b1c1e}
+  .padd{background:#ffffff;border:1px solid rgba(14,107,80,.55);color:#0e6b50;box-shadow:none}
+  .sizebar{background:#ffffff;border:1px solid var(--line);box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .cta-bar{background:rgba(255,255,255,.94);border-top:1px solid var(--line);box-shadow:0 -4px 16px rgba(0,0,0,.05)}
+  .cta-price{color:#1b1c1e;text-shadow:none}
+  .coach{background:#ffffff;border:1px solid rgba(14,107,80,.35);color:var(--muted)}
+  .coach .coach-add{color:#0e6b50;border-bottom-color:rgba(14,107,80,.4)}
+  .why{background:#ffffff}
+  .why.placeholder{background:transparent;border-left-color:rgba(20,22,24,.18)}
+  .why:not(.placeholder){border-left-color:#0e6b50;box-shadow:0 1px 3px rgba(0,0,0,.05)}
+  .bar-label{color:#6b6e72}
+  .bar-track{background:rgba(20,22,24,.06)}
+  .err{color:#b4543a}
+  input[type=date],input[type=time],#bPlace,.namefield input,#reqText,.custom-scene textarea{background:#ffffff;border:1px solid var(--line);color:#1b1c1e}
+  input:focus,#bPlace:focus,textarea:focus{border-color:#0e6b50!important;box-shadow:0 0 0 3px rgba(14,107,80,.1)}
+  input::-webkit-calendar-picker-indicator{filter:none;opacity:.65}
+  .custom-scene textarea{border-color:#0e6b50}
+  .modal{background:rgba(233,236,237,.94)}
+  .modal-card{background:#ffffff;border:1px solid var(--line);box-shadow:0 14px 40px rgba(20,22,24,.18)}
+  .modal-bead{box-shadow:0 10px 30px rgba(20,22,24,.25)}
+  .zoomv .mx{color:#1b1c1e}
+  .zoomv .zoom-info{text-shadow:none}
+  .album-item .mini{background:#ffffff}
+  .album-item .ai-del{background:rgba(20,22,24,.55);color:#fff}
+  .toast{background:#1b1c1e;border:none;color:#f6f5f3;box-shadow:0 8px 24px rgba(20,22,24,.3);backdrop-filter:none}
+  .ptitle em{color:#0e6b50}
+  /* —— 极致打磨 · crystals first (2026-06-10) —— */
+  .mmeta .mprice{font-family:'Marcellus',serif}
+  svg.bracelet{width:min(64vw,272px);height:min(64vw,272px)}
+
+  /* porcelain counter: soft contact shadow grounds the ring */
+  .stage::after{content:'';position:absolute;left:50%;bottom:26px;width:58%;height:20px;transform:translateX(-50%);border-radius:50%;
+    background:var(--pool,radial-gradient(ellipse at center,transparent,transparent)),radial-gradient(ellipse at center,rgba(27,28,30,.15),rgba(27,28,30,.04) 55%,transparent 78%);
+    filter:blur(10px);pointer-events:none;z-index:0;transition:background .6s ease}
+  /* travelling daylight: a soft window-light band slowly circles the beads */
+  .stage .sweep{position:absolute;top:50%;left:50%;width:min(64vw,272px);height:min(64vw,272px);margin:calc(min(64vw,272px) / -2) 0 0 calc(min(64vw,272px) / -2);border-radius:50%;pointer-events:none;z-index:2;
+    background:conic-gradient(from 0deg,transparent 0 70%,rgba(255,255,255,0) 76%,rgba(255,255,255,.6) 86%,transparent 96%);
+    -webkit-mask:radial-gradient(circle closest-side,transparent 40%,#000 50% 76%,transparent 88%);mask:radial-gradient(circle closest-side,transparent 40%,#000 50% 76%,transparent 88%);
+    mix-blend-mode:soft-light;filter:blur(2px);animation:sweep 13s linear infinite}
+  @keyframes sweep{to{transform:rotate(360deg)}}
+  /* porcelain paper grain */
+  body::after{content:'';display:block;position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.028;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>");background-size:180px 180px}
+  /* tab panel: 240ms rise, ease-out-quart */
+  .panel.on{animation:panein .24s cubic-bezier(.25,1,.5,1)}
+  @keyframes panein{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+  /* scene chips cascade in */
+  .chip{animation:chipin .38s cubic-bezier(.25,1,.5,1) backwards;animation-delay:calc(min(var(--i,0),12) * 35ms)}
+  @keyframes chipin{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  /* energy bars: gem ramps, rounded */
+  .bar-track{height:22px;border-radius:11px}
+  .bar-fill{border-radius:11px}
+  .bar-fill.fire{background:linear-gradient(90deg,#d4593b,#e8865f)}.bar-fill.earth{background:linear-gradient(90deg,#a8854a,#c9aa72)}
+  .bar-fill.water{background:linear-gradient(90deg,#2f6f95,#5b9dc0)}.bar-fill.metal{background:linear-gradient(90deg,#8e9296,#b9bdc0)}
+  .bar-fill.wood{background:linear-gradient(90deg,#4e8a44,#74ad62)}
+  .bead{width:44px;height:44px}
+  /* coach pill carries the actual suggested bead */
+  .coach-bead{display:inline-block;width:17px;height:17px;border-radius:50%;background-size:cover;background-position:center;vertical-align:-3px;margin-right:4px;box-shadow:0 1px 3px rgba(27,28,30,.3)}
+  /* detail modal: stone-tinted aura + gentle float */
+  .modal-bead{animation:beadfloat 5.5s ease-in-out infinite;position:relative;z-index:1}
+  @keyframes beadfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .modal-aura{position:absolute;left:50%;top:150px;width:300px;height:300px;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;filter:blur(36px);opacity:.45;z-index:0}
+  /* price pulse on change */
+  .cta-price.bump{animation:pricebump .3s cubic-bezier(.25,1,.5,1)}
+  @keyframes pricebump{0%{transform:scale(1)}40%{transform:scale(1.12)}100%{transform:scale(1)}}
+  /* gem sheen: a highlight passes over the hi-res stone every few seconds */
+  .modal-bead::after{content:'';position:absolute;inset:0;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
+    background:linear-gradient(115deg,transparent 40%,rgba(255,255,255,.4) 50%,transparent 60%) no-repeat;background-size:300% 300%;animation:sheen 4.6s ease-in-out infinite}
+  @keyframes sheen{0%,52%{background-position:130% 130%}88%,100%{background-position:-40% -40%}}
+  /* UI pass 3: tilt view / drag / clear / scenes */
+  .tilted .zbeads{animation:none!important}
+  .tilted .sweep{display:none}
+  .tilted::after{width:74%;bottom:20px;height:24px}
+  .dragging .zbeads{animation-play-state:paused!important}
+  .dragging{cursor:grabbing}
+  .meta-lucky{font-size:12px;color:#0e6b50;cursor:pointer;margin-left:2px}
+  .meta-lucky:active{opacity:.6}
+  .preview-meta2{font-size:11px;color:var(--faint);margin-top:1px;text-align:center}
+  .meta-clear{font-size:12px;color:var(--faint);cursor:pointer;margin-left:2px}
+  .meta-clear:active{color:#b4543a}
+  .toast.has-act{pointer-events:auto}
+  .toast .t-act{color:#7fd6b4;margin-left:8px;cursor:pointer;font-weight:500}
+  .scene-chips{display:flex;gap:6px;margin:2px 0 12px;justify-content:center;flex-wrap:wrap}
+  .schip{font-size:12px;padding:6px 12px;border-radius:20px;border:1px solid var(--line);background:#fff;color:var(--muted);cursor:pointer;font-family:'Inter',sans-serif}
+  .schip.on{border-color:#0e6b50;color:#0e6b50;background:rgba(14,107,80,.07)}
+  /* strand story */
+  .modal.story{align-items:flex-start;overflow-y:auto;padding:16px 14px calc(20px + env(safe-area-inset-bottom))}
+  .story-card{background:#ffffff;border:1px solid var(--line);border-radius:18px;max-width:420px;width:100%;margin:auto;padding:24px 22px 18px;position:relative;box-shadow:0 14px 40px rgba(20,22,24,.16)}
+  .story-card .mx{position:absolute;top:6px;right:16px;font-size:28px;color:var(--faint);cursor:pointer}
+  #storySvg{width:176px;height:176px;display:block;margin:0 auto 2px}
+  .s-name{font-family:'Marcellus',serif;font-size:24px;color:var(--ink);text-align:center}
+  .s-scene{text-align:center;font-size:12.5px;color:var(--muted);margin-top:3px}
+  .s-chart{margin:14px 0 6px;padding:11px 13px;background:rgba(14,107,80,.06);border-left:3px solid #0e6b50;border-radius:0 8px 8px 0;font-size:13px;color:#3c4a45;line-height:1.6}
+  .s-item{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);animation:fade .35s cubic-bezier(.25,1,.5,1) backwards;animation-delay:calc(var(--i,0)*70ms)}
+  .s-item:last-child{border-bottom:none}
+  .s-bead{width:46px;height:46px;border-radius:50%;flex-shrink:0;background-size:cover;background-position:center;filter:drop-shadow(0 2px 6px rgba(28,30,30,.3));margin-top:2px}
+  .s-tier{font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;color:#0e6b50;margin-bottom:1px}
+  .s-t{font-size:14.5px;color:var(--ink)}.s-t .sx{color:var(--faint);font-size:12px;margin-left:6px}
+  .s-why{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.55}
+  .s-place{font-size:12px;color:#54766c;margin-top:3px;line-height:1.5}
+  .s-foot{margin-top:14px;text-align:center;font-size:12px;color:var(--faint);line-height:1.6}
+  #shareImg{width:100%;border-radius:12px;display:block;box-shadow:0 10px 30px rgba(20,22,24,.18)}
+  #shareDl{margin-top:12px}
+  /* dish stage + per-stone size chips */
+  .stage .dish{display:none}   /* dish + under-blob removed (User 2026-06-11) */
+  .stage::after{display:none!important}
+  .zhalo{display:none}   /* per-bead colour halos removed too (User 2026-06-11) */
+
+  .catbar{display:block}   /* groups stack as rows (was flex — 全部 merged into the 五行 row) */
+  .cat-group{display:flex;align-items:flex-start;margin-bottom:8px}
+  .cat-lbl{width:36px;flex-shrink:0;font-size:10px;letter-spacing:.12em;color:var(--faint);padding-top:9px}
+  .cat-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:7px;flex:1;min-width:0}
+  .catbar .cat{text-align:center;padding:6px 4px}
+  .szmini{display:flex;gap:4px;margin-top:5px}
+  .szmini b{font-weight:400;font-size:10.5px;min-width:22px;text-align:center;padding:2px 3px;border:1px solid var(--line);border-radius:5px;color:var(--muted);cursor:pointer}
+  .szmini b.on{border-color:#0e6b50;color:#0e6b50;background:rgba(14,107,80,.06)}
+  @media (prefers-reduced-motion:reduce){svg.bracelet .zbeads,.stage .sweep,.modal-bead,.modal-bead::after,.chip,.panel.on,.s-item{animation:none!important}}
+</style>
+</head>
+<body>
+<canvas id="amb"></canvas>
+<div class="app">
+  <header class="appbar"><b>Stone Whisper</b><span class="ab-sub">Build your crystal</span></header>
+
+  <section class="preview">
+    <div class="stage">
+      <img class="dish" src="assets/dish.jpg" alt="">
+      <svg class="bracelet" id="braceletSvg" viewBox="0 0 300 300" aria-label="your bracelet"></svg>
+      <div class="sweep"></div>
+      <div class="empty-hint" id="emptyHint">Your bracelet<br>takes shape here</div>
+    </div>
+    <div class="preview-meta"><span><b id="beadCount">—</b> beads</span><span id="sizeMeta">16cm · 8mm</span><span class="meta-lucky" id="luckyBtn">🎲 Lucky</span><span class="meta-clear" id="clearAll" style="display:none">✕ Clear</span></div>
+    <div class="preview-meta2" id="metaFit" style="display:none"></div>
+    <div class="preview-actions" id="previewActions" style="display:none">
+      <button class="pa-btn" id="zoomBtn">🔍 Zoom in</button>
+      <button class="pa-btn" id="wristBtn">See it in a scene</button>
+    </div>
+    <div class="coach" id="coach" style="display:none"></div>
+  </section>
+
+  <nav class="tabs">
+    <div class="tab on" data-tab="scene">Moment</div>
+    <div class="tab" data-tab="reading">Reading<span class="badge" id="readingBadge"></span></div>
+    <div class="tab" data-tab="stones">Stones</div>
+    <div class="tab" data-tab="request">Notes</div>
+  </nav>
+
+  <main class="panels" id="panels">
+    <!-- 1 · scene -->
+    <div class="panel on" data-panel="scene">
+      <div class="ptitle">Where does this need to hold you?</div>
+      <div class="psub">Pick the one or two moments that feel closest — we build around them.</div>
+      <div class="grid" id="intentGrid"></div>
+      <div class="custom-scene" id="customScene" style="display:none"><textarea id="customText" placeholder="None of these quite fit? Tell us in your own words what moment you're stuck in, and what you need…"></textarea></div>
+      <div class="nudge" id="sceneNudge" data-go="reading">Next: add your birth date to see your reading →</div>
+    </div>
+
+    <!-- 2 · birth + reading -->
+    <div class="panel" data-panel="reading">
+      <div class="ptitle">When were you born?</div>
+      <div class="psub">We read your Eastern-astrology pattern from this — that's what makes it <em>yours</em>, not generic.</div>
+      <div class="daterow">
+        <input type="date" id="bDate" min="1940-01-01" max="2014-12-31" aria-label="date of birth">
+        <input type="time" id="bTime" aria-label="time of birth (optional)">
+      </div>
+      <input list="cityList" id="bPlace" placeholder="Birth city (optional — sharpens the reading)" autocomplete="off" aria-label="birth city">
+      <datalist id="cityList"></datalist>
+      <div class="hint">Time and city are both optional — with a city we correct your birth hour to <em>true solar time</em> by longitude, which sharpens the reading. Not sure? Leave them blank.</div>
+      <div class="err" id="birthErr"></div>
+      <div class="why placeholder" id="whyBlock">
+        <div class="q" id="whyQuote">Pick your moment and add your birthday — your reading appears here.</div>
+        <div class="d" id="whyDetail" style="display:none"></div>
+      </div>
+      <div class="energy" id="energyBlock" style="display:none">
+        <div class="section-label" style="margin-top:0">Your energy balance — what we read</div>
+        <div id="barChart"></div>
+        <div class="hint" id="balanceNote" style="margin-top:8px"></div>
+      </div>
+      <button class="btn ghost storyOpen" style="display:none">✦ The story of this strand</button>
+    </div>
+
+    <!-- 3 · stones -->
+    <div class="panel" data-panel="stones">
+      <div class="sizebar">
+        <div class="sz-row"><label class="sz-wrist">Wrist <input type="number" id="wrist" value="16" min="11" max="22" step="0.5"> cm</label><span class="howto" id="howto">ⓘ how to measure</span></div>
+        <div class="howto-note" id="howtoNote">Wrap a strip of paper or string snugly around your wrist, mark where it overlaps, then measure that length against a ruler in cm.</div>
+        <div class="sz-row"><span class="sz-lbl">Bead size</span><div class="sizes" id="sizeChips"></div></div>
+      </div>
+      <div class="section-label">Your stones · tap a bead on the bracelet or − to remove</div>
+      <div class="stones" id="stoneList"><div class="ph">No stones yet — pick your moment + birthday for a reading, or add any from the collection below.</div></div>
+      <button class="btn ghost storyOpen" style="display:none;margin-bottom:14px">✦ The story of this strand</button>
+      <div class="section-label">The collection — <span id="stoneCount">…</span> crystals · ＋ to add · press &amp; hold for a closer look</div>
+      <div class="catbar" id="catBar"></div>
+      <div class="palette" id="palette"></div>
+    </div>
+
+    <!-- 4 · request -->
+    <div class="panel" data-panel="request">
+      <div class="ptitle">Tell us in your own words</div>
+      <div class="psub">The feel you want, colours to avoid, who it's for — anything. The studio reads every note and strings accordingly.</div>
+      <textarea id="reqText" placeholder="e.g. cooler blue-white tones, nothing flashy, for everyday wear — it's a gift for a friend who just started a new job…"></textarea>
+      <button class="btn ghost" id="reqApply">Save my note</button>
+      <div class="divider"></div>
+      <div class="section-label" style="margin-top:0">Give it a name</div>
+      <div class="namefield"><input id="bname" placeholder="Name your bracelet…" maxlength="40"><button id="nameSuggest" title="suggest a name">✨</button></div>
+      <div class="savelink" id="saveAlbum">♡ Save to my album</div>
+      <div class="section-label">My album</div>
+      <div class="album" id="album"></div>
+      <div class="trust">
+        <span><b>◆</b> Hand-assembled to order in our studio</span>
+        <span><b>◆</b> We photograph your exact bracelet before it ships</span>
+        <span><b>◆</b> 30-day returns, no questions</span>
+      </div>
+    </div>
+  </main>
+
+  <footer class="cta-bar">
+    <div class="cta-price" id="ctaPrice">—</div>
+    <button class="btn" id="addBtn" disabled>Add stones to begin</button>
+  </footer>
+</div>
+
+<div class="modal" id="modal"><div class="modal-card">
+  <span class="mx" id="modalX">×</span>
+  <div class="modal-bead" id="mBead"></div>
+  <div class="mname" id="mName"></div>
+  <div class="mcn" id="mCn"></div>
+  <div class="mmeta"><span class="mel" id="mEl"></span><span class="mprice" id="mPrice"></span></div>
+  <div class="mdoes" id="mDoes"></div>
+  <button class="btn" id="mAdd">Add to my bracelet</button>
+  <div class="mremove" id="mRemove" style="display:none">↩ remove one from bracelet</div>
+</div></div>
+<div class="modal zoomv" id="zoomModal">
+  <span class="mx" id="zoomX">×</span>
+  <div class="zoom-hint">Drag to pan · scroll or pinch to zoom</div>
+  <div class="zoom-stage" id="zoomStage"><svg class="zoom-svg" id="zoomSvg" viewBox="0 0 300 300"></svg></div>
+  <div class="zoom-info" id="zoomInfo"></div>
+</div>
+<div class="modal" id="wristModal"><div class="modal-card">
+  <span class="mx" id="wristX">×</span>
+  <div class="scene-chips"><button class="schip on" data-scene="cafe">Café</button><button class="schip" data-scene="desk">Desk</button><button class="schip" data-scene="party">Party</button><button class="schip" data-scene="wrist">On wrist (AI)</button></div>
+  <div class="wrist-box">
+    <canvas id="wristCanvas" width="660" height="660" style="display:none"></canvas>
+    <img id="wristResult" alt="on-wrist preview" style="display:none">
+    <div class="wrist-load" id="wristLoad"><div class="spin"></div><div>Putting your exact strand on a wrist…<br><small>about 10–20 seconds</small></div></div>
+  </div>
+  <div class="wrist-cap" id="wristCap">AI on-wrist preview</div>
+</div></div>
+<div class="modal story" id="storyModal"><div class="story-card">
+  <span class="mx" id="storyX">×</span>
+  <svg id="storySvg" viewBox="0 0 300 300"></svg>
+  <div class="s-name" id="storyName"></div>
+  <div class="s-scene" id="storyScene"></div>
+  <div class="s-chart" id="storyChart"></div>
+  <div id="storyList"></div>
+  <div class="s-foot" id="storyFoot"></div>
+  <button class="btn ghost" id="shareBtn" style="margin-top:12px">✦ Save share image</button>
+</div></div>
+<div class="modal" id="shareModal"><div class="modal-card" style="max-width:400px">
+  <span class="mx" id="shareX">×</span>
+  <img id="shareImg" alt="share image">
+  <div class="wrist-cap">Press &amp; hold to save · share it anywhere</div>
+  <a id="shareDl" class="btn ghost" download="stone-whisper-strand.png">Download image</a>
+</div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const VER=Date.now();
+let CATALOG=[], STONES={};
+const sprite=k=>`beadwork/beads-day/${k}.png?v=${VER}`;
+const CLASP=6.00, money=v=>"$"+v.toFixed(2), EASE=13.6;
+const $=id=>document.getElementById(id), svg=()=>$('braceletSvg');
+
+/* ===== five-element engine (unchanged) ===== */
+const GEN={wood:"fire",fire:"earth",earth:"metal",metal:"water",water:"wood"};
+const GENBY={}; for(const k in GEN) GENBY[GEN[k]]=k;
+const CTRL={wood:"earth",earth:"water",water:"fire",fire:"metal",metal:"wood"};
+const CTRLBY={}; for(const k in CTRL) CTRLBY[CTRL[k]]=k;
+const GAN_EL={"甲":"wood","乙":"wood","丙":"fire","丁":"fire","戊":"earth","己":"earth","庚":"metal","辛":"metal","壬":"water","癸":"water"};
+const ZHI_EL={"子":"water","丑":"earth","寅":"wood","卯":"wood","辰":"earth","巳":"fire","午":"fire","未":"earth","申":"metal","酉":"metal","戌":"earth","亥":"water"};
+const EL_EN={wood:"Wood",fire:"Fire",earth:"Earth",metal:"Metal",water:"Water"};
+// Concrete micro-moments, grouped by life area. The more specific, the more likely one lands on the user's real point.
+// g=group · t=the moment · s=the need · r=reading phrase · risk=how a pattern tips under it · wish=stone roles it pulls
+const INTENTS=[
+  // love
+  {id:"breakup",  g:"Love", t:"Just broke up", s:"let yourself grieve", r:"just out of a breakup, their things still everywhere", risk:"pretending you're fine and swallowing it", wish:["self_love","calm","grounding"]},
+  {id:"exback",   g:"Love", t:"Can't let go of someone", s:"actually turn the page", r:"trying to let go of someone you should have let go", risk:"scrolling back through their messages at 2am", wish:["self_love","protection","calm"]},
+  {id:"confess",  g:"Love", t:"Telling them how you feel", s:"say it out loud", r:"working up to telling someone how you feel", risk:"overthinking it until the moment passes", wish:["confidence","love","communication"]},
+  {id:"longsingle",g:"Love",t:"Single a long time", s:"open your heart again", r:"opening up after a long time alone", risk:"burying the loneliness under busyness", wish:["love","self_love","confidence"]},
+  {id:"loseself", g:"Love", t:"Lost yourself in love", s:"come back to you", r:"giving yourself away in a relationship", risk:"shrinking until there's barely a you left", wish:["self_love","protection","grounding"]},
+  // work / money
+  {id:"raise",    g:"Work & Money", t:"Asking for a raise", s:"speak up, don't fold", r:"about to ask for the raise or promotion", risk:"going soft the moment you're in the room", wish:["confidence","communication","focus"]},
+  {id:"interview",g:"Work & Money", t:"Interview / job change", s:"steady nerves, full game", r:"walking into an interview", risk:"nerves eating your best answers", wish:["focus","confidence","calm"]},
+  {id:"bigproject",g:"Work & Money",t:"Big project / startup", s:"carry it, land it", r:"carrying a big project on your back", risk:"planning everything and starting nothing", wish:["confidence","focus","career"]},
+  {id:"income",   g:"Work & Money", t:"Money & momentum", s:"focus, catch what matters", r:"pushing on money and work", risk:"anxious scattering instead of aim", wish:["wealth","career","focus"]},
+  {id:"overlooked",g:"Work & Money",t:"Working hard, unseen", s:"back yourself first", r:"giving a lot without being seen", risk:"self-doubt and quietly giving up", wish:["confidence","self_love","grounding"]},
+  // inner
+  {id:"twoam",    g:"Inner", t:"The 2am brain", s:"quiet the spin", r:"lying awake at 2am", risk:"a mind that won't power down", wish:["calm","sleep_light"]},
+  {id:"anger",    g:"Inner", t:"A short fuse lately", s:"set the anger down", r:"running on a short fuse", risk:"taking it out on the people closest to you", wish:["calm","grounding","self_love"]},
+  {id:"saynp",    g:"Inner", t:"Always pleasing, can't refuse", s:"say one honest no", r:"always saying yes when you mean no", risk:"agreeing first and resenting it after", wish:["protection","confidence","grounding"]},
+  {id:"compare",  g:"Inner", t:"Never feeling enough", s:"your own pace again", r:"measuring yourself against everyone else", risk:"watching others and doubting yourself", wish:["self_love","grounding","calm"]},
+  // change
+  {id:"newcity",  g:"Change", t:"New city, on your own", s:"put down roots, unafraid", r:"alone in a city that isn't home yet", risk:"floating with nowhere to put roots", wish:["grounding","confidence","energy"]},
+  {id:"decision", g:"Change", t:"Stuck before a big decision", s:"see clear, then commit", r:"stuck in front of a big decision", risk:"flip-flopping, never committing", wish:["focus","confidence","grounding"]},
+  {id:"restart",  g:"Change", t:"Starting completely over", s:"courage & momentum", r:"starting everything over", risk:"stalling at the starting line", wish:["energy","confidence","career"]},
+  {id:"grief",    g:"Change", t:"After a loss", s:"let yourself slow down", r:"fresh from losing something that mattered", risk:"playing strong and swallowing the ache", wish:["calm","self_love","grounding"]},
+  // social
+  {id:"strangers",g:"Social", t:"A room full of strangers", s:"be seen, stay open", r:"walking into a room full of people", risk:"shrinking into a corner all night", wish:["confidence","love","energy"]},
+  {id:"stage",    g:"Social", t:"Speaking in front of people", s:"steady voice, hold the room", r:"about to speak in front of everyone", risk:"blanking out, voice gone tight", wish:["confidence","communication","calm"]},
+  {id:"bigday",   g:"Social", t:"The big day", s:"your steadiest self", r:"heading into a day that really matters", risk:"nerves turning you into someone else", wish:["confidence","calm","energy"]},
+  {id:"intimidate",g:"Social",t:"Facing someone intimidating", s:"keep your ground", r:"about to face someone who rattles you", risk:"getting talked over and going quiet", wish:["confidence","protection","calm"]},
+  // body & mind
+  {id:"burnout",  g:"Body & Mind", t:"Burnt out, recovering", s:"refill, slowly", r:"running on empty and trying to recover", risk:"pushing through instead of resting", wish:["calm","grounding","energy"]},
+  {id:"anxiety",  g:"Body & Mind", t:"Wound tight for too long", s:"finally exhale", r:"wound tight and overdue for an exhale", risk:"staying braced long after it's safe", wish:["calm","sleep_light","grounding"]},
+  {id:"discipline",g:"Body & Mind",t:"Sticking to one thing", s:"hold steady, keep going", r:"trying to see one thing through", risk:"bright starts that fizzle by week two", wish:["focus","grounding","energy"]},
+];
+const WISH_LABEL={energy:"energy",intuition:"intuition",calm:"calm",focus:"focus",self_love:"self-love",wealth:"abundance",career:"drive & career",love:"love",confidence:"confidence",protection:"protection",grounding:"grounding",communication:"clear speech",sleep_light:"deeper sleep"};
+const COLORCAT={white_neutral:"White",silver_gray:"White",pink:"Pink",red:"Red",yellow_gold:"Gold",gold:"Gold",green:"Green",blue:"Blue",purple:"Purple",black:"Black",multicolor:"Multicolor"};
+// stone colour family -> light tint (halos, counter pool, modal aura)
+const TINT={white_neutral:'#e8e4da',silver_gray:'#c9cdd2',pink:'#e9a7b8',red:'#d35b4d',yellow_gold:'#e3b95e',gold:'#e3b95e',green:'#66a877',blue:'#5b8fc7',purple:'#9a7fc9',black:'#6b6f76',multicolor:'#b48fc0'};
+const catOf=s=>COLORCAT[s.color]||"Other";
+const doesOf=s=>{const w=(s.wish||[]).slice(0,2).map(x=>WISH_LABEL[x]||x).filter(Boolean); return w.length?("for "+w.join(" & ")):"a natural all-rounder";};
+const cap=s=>s?s.charAt(0).toUpperCase()+s.slice(1):s;
+
+/* ===== funnel engine v2 — structurally classical, constants are tuned DEFAULTS (align with analyst later) =====
+   得令/得地/得势 three checks · 旺相休囚死 season multiplier (pure cycle math) · hidden-stem 本/中/余 weights ·
+   conservative follow-pattern gates · 调候 (winter fire first / summer water first) · jishen output for the coach. */
+const HIDDEN_W=[0.6,0.3,0.1];                 // 藏干 本/中/余 (default)
+const BR_W=[1.0,2.0,1.4,1.0];                 // 支位权 年/月/日/时 — 月令最重 (default)
+const SEASON_W={wang:1.2,xiang:1.0,xiu:0.7,qiu:0.6,si:0.5};   // 旺相休囚死 (default)
+function seasonMult(e,M){ if(e===M)return SEASON_W.wang; if(GEN[M]===e)return SEASON_W.xiang; if(GEN[e]===M)return SEASON_W.xiu; if(CTRL[e]===M)return SEASON_W.qiu; return SEASON_W.si; }
+function elementProfile(y,m,d,h,mi){
+  let stems,zhis,hidden=[];
+  if(typeof Solar!=="undefined"){
+    const ec=Solar.fromYmdHms(y,m,d,(h<0?12:h),(h<0?0:mi),0).getLunar().getEightChar();
+    stems=[ec.getYearGan(),ec.getMonthGan(),ec.getDayGan(),ec.getTimeGan()];
+    zhis=[ec.getYearZhi(),ec.getMonthZhi(),ec.getDayZhi(),ec.getTimeZhi()];
+    hidden=[ec.getYearHideGan(),ec.getMonthHideGan(),ec.getDayHideGan(),ec.getTimeHideGan()];
+    if(h<0){stems=stems.slice(0,3);zhis=zhis.slice(0,3);hidden=hidden.slice(0,3);}
+  } else {const f=fallbackPillars(y,m,d);stems=f.stems;zhis=f.zhis;}
+  const dm=GAN_EL[stems[2]], mEl=ZHI_EL[zhis[1]];
+  const s={wood:0,fire:0,earth:0,metal:0,water:0};
+  stems.forEach(g=>{ if(GAN_EL[g]) s[GAN_EL[g]]+=1; });
+  zhis.forEach((z,i)=>{ const hs=(hidden[i]&&hidden[i].length)?hidden[i]:null;
+    if(!hs){ s[ZHI_EL[z]]+=HIDDEN_W[0]*BR_W[i]; return; }
+    hs.forEach((g,j)=>{ if(GAN_EL[g]) s[GAN_EL[g]]+=(HIDDEN_W[j]||0.1)*BR_W[i]; }); });
+  for(const k in s) s[k]*=seasonMult(k,mEl);
+  const total=Object.values(s).reduce((a,b)=>a+b,0)||1;
+  const r=(s[dm]+s[GENBY[dm]])/total;
+  const deLing = seasonMult(dm,mEl)>=SEASON_W.xiang;
+  const deDi = zhis.some((z,i)=>{ const hs=(hidden[i]&&hidden[i].length)?hidden[i]:null;
+    return hs ? hs.some(g=>GAN_EL[g]===dm) : ZHI_EL[z]===dm; });
+  const deShi = r>=0.42;                       // default threshold
+  let strength,favorable,jishen;
+  if(r<=0.12 && !deLing && !deDi){ strength='follow-weak';   // conservative gate (default)
+    const ord=Object.keys(s).sort((a,b)=>s[b]-s[a]);
+    favorable=[ord[0],GENBY[ord[0]]]; jishen=[dm,GENBY[dm]];
+  } else if(r>=0.80 && deLing){ strength='follow-strong';    // conservative gate (default)
+    favorable=[dm,GENBY[dm],GEN[dm]]; jishen=[CTRLBY[dm],CTRL[dm]];
+  } else {
+    const strong=(deLing?1:0)+(deDi?1:0)+(deShi?1:0)>=2; strength=strong?'strong':'weak';
+    favorable=strong?[GEN[dm],CTRL[dm],CTRLBY[dm]]:[GENBY[dm],dm];
+    jishen=strong?[GENBY[dm],dm]:[CTRLBY[dm],CTRL[dm],GEN[dm]];
+  }
+  let tiaohou=null;
+  if(strength==='strong'||strength==='weak'){
+    const mz=zhis[1]||'';
+    if('亥子丑'.includes(mz)){ tiaohou='cold'; favorable=['fire',...favorable.filter(e=>e!=='fire')]; jishen=jishen.filter(e=>e!=='fire'); }
+    else if('巳午未'.includes(mz)){ tiaohou='hot'; favorable=['water',...favorable.filter(e=>e!=='water')]; jishen=jishen.filter(e=>e!=='water'); }
+  }
+  const pct={}; for(const k in s) pct[k]=Math.round(s[k]/total*100);
+  const order=Object.keys(s).sort((a,b)=>s[b]-s[a]);
+  return {dm,pct,strong:strength==='strong'||strength==='follow-strong',strength,favorable,jishen,tiaohou,strongest:order[0],weakest:order[4]};
+}
+function fallbackPillars(y,m,d){
+  const G="甲乙丙丁戊己庚辛壬癸",Z="子丑寅卯辰巳午未申酉戌亥";
+  let yy=y; if(m<2||(m===2&&d<4)) yy=y-1;
+  const yG=((yy-4)%10+10)%10,yZ=((yy-4)%12+12)%12;
+  const jdn=(Y,M,D)=>{const a=Math.floor((14-M)/12),yr=Y+4800-a,mo=M+12*a-3;return D+Math.floor((153*mo+2)/5)+365*yr+Math.floor(yr/4)-Math.floor(yr/100)+Math.floor(yr/400)-32045;};
+  const J0=jdn(1995,6,15),Jx=jdn(y,m,d);
+  const dG=(((Jx-J0)%10+3)%10+10)%10,dZ=(((Jx-J0)%12+1)%12+12)%12,mZ=((m+1)%12+12)%12,mG=((yG%5)*2+(mZ-2+12)%12+2)%10;
+  return {stems:[G[yG],G[(mG+10)%10],G[dG]],zhis:[Z[yZ],Z[mZ],Z[dZ]]};
+}
+const WARMC=new Set(['red','pink','yellow_gold','gold']), COOLC=new Set(['blue','green','purple']);
+const tempOf=s=>WARMC.has(s.color)?1:(COOLC.has(s.color)?-1:0);
+// causal-chain strand builder — every pick is the previous step's "so" and the next step's "because".
+// Spec: STONE-LOGIC.md. rng=true (lucky): each step picks randomly among its top-3 candidates.
+function selectStones(intentIds,prof,rng){
+  const want=new Set();
+  intentIds.forEach(id=>{ if(id==='custom'){ customWishes(state.customText).forEach(w=>want.add(w)); return; } const I=INTENTS.find(x=>x.id===id); if(I)I.wish.forEach(w=>want.add(w));});
+  const ji=new Set(prof.jishen||[]), fav=prof.favorable, used=new Set();
+  const hitsOf=s=>(s.wish||[]).filter(w=>want.has(w)).length;
+  const pickFrom=pool=>{ if(!pool.length)return null;
+    pool.sort((a,b)=>hitsOf(b)-hitsOf(a));
+    const s=pool[rng?Math.floor(Math.random()*Math.min(3,pool.length)):0];
+    used.add(s.en); return s; };
+  const inEl=el=>CATALOG.filter(s=>s.el===el&&!used.has(s.en)&&!ji.has(s.el));
+  const picks=[];
+  // 1 · lead — favorable #1 (tiaohou already promoted)
+  const e1=fav[0]; const lead=pickFrom(inEl(e1));
+  if(lead) picks.push({...lead,ct:'lead',e1,hits:(lead.wish||[]).filter(w=>want.has(w))});
+  // 2 · bridge — what the lead's element FEEDS (生), unless that's an avoid-element
+  let e2=GEN[e1], bt='flow';
+  if(ji.has(e2)||e2===e1||!inEl(e2).length){ e2=fav.find(e=>e!==e1&&inEl(e).length)||e1; bt='second'; }
+  const bridge=pickFrom(inEl(e2));
+  if(bridge) picks.push({...bridge,ct:'bridge',e1,e2,bt,hits:(bridge.wish||[]).filter(w=>want.has(w))});
+  // 3 · balance — counter the temperature of lead+bridge
+  const t12=picks.reduce((a,p)=>a+tempOf(p),0);
+  let balPool=CATALOG.filter(s=>!used.has(s.en)&&!ji.has(s.el)&&s.el!==e1&&s.el!==e2&&(t12>0?COOLC.has(s.color):(t12<0?WARMC.has(s.color):true)));
+  balPool.sort((a,b)=>((fav.includes(b.el)?2:0)+hitsOf(b))-((fav.includes(a.el)?2:0)+hitsOf(a)));
+  const bal=balPool.length?balPool[rng?Math.floor(Math.random()*Math.min(3,balPool.length)):0]:null;
+  if(bal){ used.add(bal.en); picks.push({...bal,ct:'balance',tdir:t12>0?'cool':(t12<0?'warm':'free'),hits:(bal.wish||[]).filter(w=>want.has(w))}); }
+  // 4 · breath — white space
+  const breath=pickFrom(CATALOG.filter(s=>!used.has(s.en)&&!ji.has(s.el)&&(s.color==='white_neutral'||s.color==='silver_gray')));
+  if(breath) picks.push({...breath,ct:'breath',hits:(breath.wish||[]).filter(w=>want.has(w))});
+  // 5 · echo — the wish not yet covered
+  const echo=pickFrom(CATALOG.filter(s=>!used.has(s.en)&&!ji.has(s.el)&&fav.includes(s.el)));
+  if(echo) picks.push({...echo,ct:'echo',hits:(echo.wish||[]).filter(w=>want.has(w))});
+  // fallback so a strand always exists
+  if(picks.length<3){ for(const s of CATALOG){ if(picks.length>=3)break;
+    if(!used.has(s.en)&&!ji.has(s.el)){ used.add(s.en); picks.push({...s,ct:'echo',hits:[]}); } } }
+  picks.forEach(p=>{ p.role=({lead:'LEAD · sets the tone',bridge:'CARRY · grounds it',balance:'BALANCE · recentres',breath:'BREATH · white space',echo:'ECHO'})[p.ct]||''; });
+  return picks;
+}
+
+/* ---- size + recipe model (unchanged) ---- */
+const SIZES=[6,8,10,12,16];
+function beadCount(){ return Math.max(4, Math.round(loopMm()/state.beadMm)); }   // capacity from the calibrated string length (loopMm = wrist inner circle + ease + πd)
+function fillToCount(recipe,n){ if(!recipe.length)return[]; const o=[]; let i=0; while(o.length<n){o.push(recipe[i%recipe.length]);i++} return o; }
+function recipeFromPicks(picks){ const r=[]; picks.forEach((p,i)=>{r.push(p.key); if(i<2)r.push(p.key);}); return r; }
+function rebuild(){ state.seq=state.recipe.slice(); renderAll(); }   // the ring IS the beads you placed — one bead per entry
+function refit(){
+  if(state.autofilled && state.basePattern && state.basePattern.length){ state.recipe=fillToCount(state.basePattern, beadCount()); }
+  let trimmed=0; while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); trimmed++; }
+  if(trimmed) toast(`Doesn't fit the wrist — removed ${trimmed} bead(s)`);
+  rebuild();
+}
+// one scale for everything: ring circumference = wrist loop, bead = its real mm. So the RING is fixed by your wrist,
+// and beads (real mm size) fill it — 8mm fits ~22, 16mm fits ~11; the ring never shrinks with bead count.
+const MM_PX=3.4;
+function loopMm(){ return state.wristCm*10 + EASE + Math.PI*state.beadMm; }   // wrist is the INNER circle; string runs through bead centres (+πd). EASE=13.6 from User's fit data (18×10mm@13.5cm, 21×10mm@16.5cm)
+function ringR(){ return loopMm()*MM_PX/(2*Math.PI); }   // true scale always — big strands expand the stage instead of shrinking beads (User: 16mm 不能变小)
+function vbHalf(seq){ const maxBd=(seq&&seq.length?Math.max(...seq.map(bdPx)):state.beadMm*MM_PX);
+  return Math.max(150, ringR()+maxBd/2+4); }
+function renderBracelet(svg,seq){
+  const cx=150,cy=150,R=ringR();
+  const vh2=vbHalf(seq); svg.setAttribute('viewBox',`${(150-vh2).toFixed(1)} ${(150-vh2).toFixed(1)} ${(2*vh2).toFixed(1)} ${(2*vh2).toFixed(1)}`);
+  let s=`<circle cx="${cx}" cy="${cy}" r="${R.toFixed(1)}" fill="none" stroke="rgba(200,180,140,.16)" stroke-width="1.3"/>`;
+  layoutRing(seq,R).forEach((p,i)=>{ const x=cx+R*Math.cos(p.a), y=cy+R*Math.sin(p.a), bd=p.bd;
+    s+=`<image data-k="${seq[i]}" href="${beadSrc(seq[i],i)}" x="${(x-bd/2).toFixed(1)}" y="${(y-bd/2).toFixed(1)}" width="${bd.toFixed(1)}" height="${bd.toFixed(1)}" transform="rotate(${jit(seq[i],i)%360} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;});
+  svg.innerHTML=`<g>${s}</g>`;
+}
+function priceOf(seq){return seq.length?CLASP+seq.reduce((a,k)=>a+(STONES[k]?STONES[k].price*(mmOf(k)/8):0),0):0;}   // size factor mm/8 = placeholder pricing
+const SVGNS='http://www.w3.org/2000/svg';
+// animated main bracelet — per-bead sizes (sequential packing), two view modes, pour-in threading,
+// per-slot jitter so no two beads of one stone look cloned, ghost slots, stained-glass halos.
+function renderBraceletMain(seq){
+  const sv=svg(), cx=150,cy=150,n=seq.length, R=ringR(), defBd=state.beadMm*MM_PX;
+  if(!sv.querySelector('.zring')){ sv.innerHTML=`<defs><filter id="bshadow" x="-70%" y="-70%" width="240%" height="240%"><feDropShadow dx="0" dy="2.5" stdDeviation="3.5" flood-color="#1c1e1e" flood-opacity="0.32"/></filter></defs><defs class="zdefs"></defs><ellipse class="zring" cx="${cx}" cy="150" rx="100" ry="100" fill="none" stroke="rgba(200,180,140,.16)" stroke-width="1.3"/><g class="zbeads"><g class="zhalo"></g><g class="zghost"></g><g class="zbody"></g></g>`; }
+  // stage grows with the strand: beads keep their pixel size, the camera frame widens
+  const vh=vbHalf(seq), vw2=2*vh;
+  sv.setAttribute('viewBox',`${(150-vh).toFixed(1)} ${(150-vh).toFixed(1)} ${vw2.toFixed(1)} ${vw2.toFixed(1)}`);
+  const Wexpr=`min(${(64*vh/150).toFixed(1)}vw, ${(272*vh/150).toFixed(0)}px)`;
+  sv.style.width=Wexpr; sv.style.height=Wexpr;
+  const swp=sv.closest('.stage')&&sv.closest('.stage').querySelector('.sweep');
+  if(swp){ swp.style.width=Wexpr; swp.style.height=Wexpr; swp.style.margin=`calc(${Wexpr} / -2) 0 0 calc(${Wexpr} / -2)`; }
+  const ring=sv.querySelector('.zring');
+  if(state.tilt){ ring.setAttribute('rx',(R*1.04).toFixed(1)); ring.setAttribute('ry',(R*0.56).toFixed(1)); ring.setAttribute('cy','163'); }
+  else { ring.setAttribute('rx',R.toFixed(1)); ring.setAttribute('ry',R.toFixed(1)); ring.setAttribute('cy','150'); }
+  const g=sv.querySelector('.zbody'), halo=sv.querySelector('.zhalo'), ghost=sv.querySelector('.zghost');
+  let els=[...g.querySelectorAll('.zb:not(.removing)')].sort((a,b)=>(+a.dataset.slot||0)-(+b.dataset.slot||0)); let newIdx=0;
+  if(state._repour){ els.forEach(e=>e.remove()); els=[]; state._repour=false; }   // full re-recommendation: pour the whole strand again
+  const newborns=[];
+  const lay=layoutRing(seq,R);
+  const used=seq.reduce((a,k)=>a+bdPx(k)/R,0);
+  // stained-glass halos
+  const uniq={}; let di=0, defs='';
+  seq.forEach(k=>{const s=STONES[k]; const c=s?(TINT[s.color]||'#cfd2d6'):'#cfd2d6';
+    if(!(c in uniq)){uniq[c]='hg'+(di++); defs+=`<radialGradient id="${uniq[c]}"><stop offset="0%" stop-color="${c}" stop-opacity=".56"/><stop offset="62%" stop-color="${c}" stop-opacity=".24"/><stop offset="100%" stop-color="${c}" stop-opacity="0"/></radialGradient>`;}});
+  sv.querySelector('.zdefs').innerHTML=defs;
+  let hh=''; lay.forEach((p,i)=>{ const s=STONES[seq[i]]; const c=s?(TINT[s.color]||'#cfd2d6'):'#cfd2d6'; const pp=projPos(p.a,R);
+    hh+=`<circle cx="${pp.x.toFixed(1)}" cy="${pp.y.toFixed(1)}" r="${(p.bd*1.05*pp.sc).toFixed(1)}" fill="url(#${uniq[c]})"/>`;});
+  halo.innerHTML=hh;
+  // ghost slots: remaining room at the default bead size
+  let gh=''; if(used<2*Math.PI-0.05){
+    const wd=defBd/R, free=2*Math.PI-used, gn=Math.max(0,Math.round(free/wd));
+    if(gn>0){ const step=free/gn;   // even distribution closes the ring — no leftover gap (User: 总少一个)
+      let ga = lay.length ? lay[lay.length-1].a+(lay[lay.length-1].bd/R)/2+step/2 : -Math.PI/2;
+      for(let i2=0;i2<gn;i2++){ const pp=projPos(ga,R);
+        gh+=`<circle cx="${pp.x.toFixed(1)}" cy="${pp.y.toFixed(1)}" r="${((defBd/2-1.5)*pp.sc).toFixed(1)}" fill="none" stroke="rgba(27,28,30,.14)" stroke-width="1.1" stroke-dasharray="3 3.5"/>`;
+        ga+=step; } }
+  }
+  ghost.innerHTML=gh;
+  for(let i=0;i<n;i++){ const p=lay[i], pp=projPos(p.a,R), bd=p.bd, h=jit(seq[i],i);
+    const rot=h%360, src=beadSrc(seq[i],i);
+    let el=els[i];
+    if(!el){ el=document.createElementNS(SVGNS,'g'); el.setAttribute('class','zb');
+      const im=document.createElementNS(SVGNS,'image'); im.setAttribute('width',bd.toFixed(1)); im.setAttribute('height',bd.toFixed(1)); im.setAttribute('x',(-bd/2).toFixed(1)); im.setAttribute('y',(-bd/2).toFixed(1)); im.setAttribute('data-k',seq[i]); im.setAttributeNS('http://www.w3.org/1999/xlink','href',src); im.setAttribute('href',src); im.setAttribute('transform',`rotate(${rot})`); el.appendChild(im);
+      // spawn loose near the dish floor; threading (or physics pour) happens after the loop
+      const sx=150+(((h>>>3)%80)-40)*0.9, sy=150+R*0.55+((h>>>5)%26);
+      el.setAttribute('transform',`translate(${sx.toFixed(1)},${sy.toFixed(1)}) scale(${pp.sc.toFixed(3)})`); el.style.opacity='0'; g.appendChild(el);
+      newIdx++; newborns.push({el,x:pp.x,y:pp.y,sc:pp.sc,bd,key:seq[i],slot:i});
+    } else { const im=el.querySelector('image');
+      im.setAttribute('data-k',seq[i]);
+      if(im.getAttribute('href')!==src){ im.setAttributeNS('http://www.w3.org/1999/xlink','href',src); im.setAttribute('href',src); }
+      im.setAttribute('width',bd.toFixed(1)); im.setAttribute('height',bd.toFixed(1)); im.setAttribute('x',(-bd/2).toFixed(1)); im.setAttribute('y',(-bd/2).toFixed(1)); im.setAttribute('transform',`rotate(${rot})`);
+      el.style.opacity='1'; el.setAttribute('transform',`translate(${pp.x.toFixed(1)},${pp.y.toFixed(1)}) scale(${pp.sc.toFixed(3)})`); }
+    el.dataset.slot=i;
+  }
+  for(let i=n;i<els.length;i++){ const el=els[i]; el.classList.add('removing'); el.style.opacity='0';
+    const mt=(el.getAttribute('transform')||'').match(/translate\(([-\d.]+),/); if(mt) el.setAttribute('transform',`translate(${mt[1]},${(150+R+30).toFixed(1)})`);
+    setTimeout(()=>el.remove(),440); }
+  if(state.tilt){ [...g.querySelectorAll('.zb:not(.removing)')].sort((a,b)=>{
+      const ya=+((a.getAttribute('transform')||'').match(/,([-\d.]+)\)/)||[0,0])[1], yb=+((b.getAttribute('transform')||'').match(/,([-\d.]+)\)/)||[0,0])[1];
+      return ya-yb; }).forEach(e=>g.appendChild(e)); }
+  if(newborns.length){
+    const phys = newborns.length>=6 && !state.tilt && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+    if(phys) pourPhysics(newborns,R,g);
+    else newborns.forEach((nb,j)=>threadIn(nb,j,g));
+  }
+  const stg0=sv.closest('.stage'), dish=stg0&&stg0.querySelector('.dish');
+  if(dish){ dish.style.width=`calc(min(64vw,272px)*${(2*R*1.62/300).toFixed(3)})`; }
+  const stg=sv.closest('.stage');
+  if(stg){ const cols=[...new Set(seq.map(k=>{const s=STONES[k];return s?(TINT[s.color]||'#cfd2d6'):null;}).filter(Boolean))].slice(0,3);
+    stg.style.setProperty('--pool', cols.length?`radial-gradient(ellipse at center,${cols[0]}66,${(cols[1]||cols[0])}44 46%,transparent 78%)`:'radial-gradient(ellipse at center,transparent,transparent)');
+    stg.classList.toggle('tilted',!!state.tilt); }
+}
+
+function threadIn(nb,j,g){
+  const dly=Math.min(j,18)*38; nb.el.style.transitionDelay=dly+'ms';
+  let appl=false;
+  const apply=()=>{ if(appl)return; appl=true; nb.el.style.opacity='1';
+    nb.el.setAttribute('transform',`translate(${nb.x.toFixed(1)},${nb.y.toFixed(1)}) scale(${nb.sc.toFixed(3)})`); };
+  requestAnimationFrame(()=>requestAnimationFrame(apply));
+  setTimeout(apply,60);   // rAF starves in background tabs / headless — the timer guarantees the bead lands
+  setTimeout(()=>{ nb.el.style.transitionDelay='';
+    try{ nb.el.animate([{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:170,easing:'cubic-bezier(.25,1,.5,1)',composite:'add'}); }catch(_){}
+    bloomAt(g,nb.x,nb.y,nb.bd,nb.key); },dly+500);
+}
+// pour physics: beads tumble onto the dish (top-down), collide, push apart, settle — then thread on
+function pourPhysics(nbs,R,g){
+  if(window._pourStop) window._pourStop();
+  let stop=false; window._pourStop=()=>{stop=true;};
+  const C=150, wall=Math.min(R*1.05,132);
+  const bod=nbs.map(nb=>{ const h=jit(nb.key,nb.slot);
+    const ang=((h>>>7)%360)*Math.PI/180, rr=((h>>>3)%60)/100*wall*0.45;
+    return {nb, x:C+Math.cos(ang)*rr, y:C+Math.sin(ang)*rr,
+      vx:(((h>>>11)%100)-50)/13, vy:(((h>>>17)%100)-50)/13, r:nb.bd/2}; });
+  bod.forEach(b=>{ b.nb.el.style.transition='none'; b.nb.el.style.opacity='1';
+    b.nb.el.setAttribute('transform',`translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`); });
+  let frames=0, handed=false;
+  function handoff(){ if(handed||stop)return; handed=true;
+    bod.forEach(b=>{ b.nb.el.style.transition=''; });
+    bod.forEach((b,j)=>threadIn(b.nb,j,g)); }
+  // safety: rAF pauses in background tabs / headless — hand off to threading no matter what
+  setTimeout(handoff,1700);
+  function step(){
+    if(stop||handed) return;
+    frames++;
+    for(const b of bod){ b.x+=b.vx; b.y+=b.vy; b.vx*=0.91; b.vy*=0.91;
+      const dx=b.x-C, dy=b.y-C, d=Math.hypot(dx,dy)||0.01, lim=wall-b.r;
+      if(d>lim){ const nx=dx/d, ny=dy/d; b.x=C+nx*lim; b.y=C+ny*lim;
+        const dot=b.vx*nx+b.vy*ny; if(dot>0){ b.vx-=1.6*dot*nx; b.vy-=1.6*dot*ny; } } }
+    for(let i=0;i<bod.length;i++)for(let j=i+1;j<bod.length;j++){
+      const a=bod[i],c=bod[j]; const dx=c.x-a.x, dy=c.y-a.y; const d=Math.hypot(dx,dy)||0.01, min=a.r+c.r;
+      if(d<min){ const nx=dx/d, ny=dy/d, push=(min-d)/2;
+        a.x-=nx*push; a.y-=ny*push; c.x+=nx*push; c.y+=ny*push;
+        const av=a.vx*nx+a.vy*ny, cv2=c.vx*nx+c.vy*ny, ex=(cv2-av)*0.8;
+        a.vx+=ex*nx; a.vy+=ex*ny; c.vx-=ex*nx; c.vy-=ex*ny; } }
+    bod.forEach(b=>b.nb.el.setAttribute('transform',`translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`));
+    const live=bod.some(b=>Math.hypot(b.vx,b.vy)>0.16);
+    if(handed) return;
+    if(frames<85 && (live||frames<26)) requestAnimationFrame(step);
+    else handoff();
+  }
+  requestAnimationFrame(step);
+}
+
+// a quiet ripple of the stone's own light where a bead just landed
+function bloomAt(g,x,y,bd,k){
+  const st=STONES[k], c=st?(TINT[st.color]||'#cfd2d6'):'#cfd2d6';
+  const e=document.createElementNS(SVGNS,'circle');
+  e.setAttribute('cx','0'); e.setAttribute('cy','0'); e.setAttribute('r',(bd*.58).toFixed(1));
+  e.setAttribute('fill','none'); e.setAttribute('stroke',c); e.setAttribute('stroke-width','2');
+  e.style.pointerEvents='none'; e.style.opacity='0';
+  e.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)})`);
+  g.appendChild(e);
+  if(e.animate) e.animate([
+    {opacity:.5,transform:`translate(${x}px,${y}px) scale(.75)`},
+    {opacity:0,transform:`translate(${x}px,${y}px) scale(1.7)`}
+  ],{duration:480,easing:'cubic-bezier(.25,1,.5,1)'});
+  setTimeout(()=>e.remove(),490);
+}
+
+/* ===== state ===== */
+const state={intents:[],picks:[],recipe:[],seq:[],basePattern:null,autofilled:false,tilt:false,sizes:{},prof:null,hasReading:false,cat:"all",wristCm:16,beadMm:8,name:"",request:"",customText:"",place:""}; window.__state=state;
+const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+// map a free-text "in my own words" description to stone wishes by keyword
+const CUSTOM_WISH=[[/sleep|insomnia|awake at|can't sleep|dream/i,"sleep_light"],[/anxi|nervous|stress|overwhelm|panic|tense|calm|relax|on edge/i,"calm"],[/focus|distract|concentrat|procrastinat|scattered/i,"focus"],[/confiden|shy|timid|afraid to|scared to|doubt myself|imposter/i,"confidence"],[/money|wealth|income|broke|debt|business|sell|hustle/i,"wealth"],[/career|job|promotion|work|interview|boss/i,"career"],[/love|crush|relationship|dating|romance|heart|single|soulmate/i,"love"],[/myself|self[- ]?worth|not enough|accept|deserve|self[- ]?love/i,"self_love"],[/protect|boundar|drain|toxic|negative|say no|people[- ]?pleas/i,"protection"],[/ground|stable|settle|root|steady|belong|home/i,"grounding"],[/speak|talk|communicat|express|present|voice|public/i,"communication"],[/energy|tired|exhaust|motivat|drive|burnout|no spark/i,"energy"],[/intuition|gut|guidance|sign|spiritual|clarity/i,"intuition"]];
+function customWishes(txt){ const w=[]; CUSTOM_WISH.forEach(([re,wish])=>{if(re.test(txt||'')&&!w.includes(wish))w.push(wish);}); return w.length?w:["calm","grounding","self_love"]; }
+// birthplace longitude + utc offset → true-solar-time correction of the hour pillar (lon east+, west-)
+const CITY={
+ "New York":{lon:-74.0,tz:-5},"Los Angeles":{lon:-118.2,tz:-8},"Chicago":{lon:-87.6,tz:-6},"Houston":{lon:-95.4,tz:-6},
+ "San Francisco":{lon:-122.4,tz:-8},"Seattle":{lon:-122.3,tz:-8},"Boston":{lon:-71.1,tz:-5},"Miami":{lon:-80.2,tz:-5},
+ "Denver":{lon:-105.0,tz:-7},"Phoenix":{lon:-112.1,tz:-7},"Atlanta":{lon:-84.4,tz:-5},"Washington DC":{lon:-77.0,tz:-5},
+ "Las Vegas":{lon:-115.1,tz:-8},"San Diego":{lon:-117.2,tz:-8},"Dallas":{lon:-96.8,tz:-6},
+ "北京":{lon:116.4,tz:8},"上海":{lon:121.5,tz:8},"广州":{lon:113.3,tz:8},"深圳":{lon:114.1,tz:8},"成都":{lon:104.1,tz:8},
+ "杭州":{lon:120.2,tz:8},"武汉":{lon:114.3,tz:8},"西安":{lon:108.9,tz:8},"重庆":{lon:106.5,tz:8},"南京":{lon:118.8,tz:8},
+ "London":{lon:-0.1,tz:0},"Toronto":{lon:-79.4,tz:-5},"Sydney":{lon:151.2,tz:10},"Tokyo":{lon:139.7,tz:9},"Singapore":{lon:103.8,tz:8}
+};
+const countIn=k=>state.recipe.filter(x=>x===k).length;
+const mmOf=k=>state.sizes[k]||state.beadMm;
+const bdPx=k=>mmOf(k)*MM_PX;
+const sumMm=arr=>(arr||state.recipe).reduce((a,k)=>a+mmOf(k),0);
+// sequential packing — every bead takes its own arc width; when the strand is full the spacing
+// compresses evenly so extra beads squeeze in all around (no tail piling onto the head)
+function layoutRing(seq,R){
+  const ws=seq.map(k=>bdPx(k)/R), total=ws.reduce((a,b)=>a+b,0);
+  // snap-to-closed: a strand within ~6% of a full loop always closes (real elastic strands are never left ajar)
+  const f=(total>2*Math.PI||total>2*Math.PI*0.94)?(2*Math.PI)/total:1;
+  const out=[]; let a=-Math.PI/2, prevW=0;
+  seq.forEach((k,i)=>{ const w=ws[i]*f; if(i>0) a+=prevW/2+w/2; out.push({a,bd:bdPx(k)}); prevW=w; });
+  return out;
+}
+function projPos(a,R){ if(state.tilt) return {x:150+R*1.04*Math.cos(a),y:150+R*0.56*Math.sin(a)+13,sc:1+0.17*Math.sin(a)};
+  return {x:150+R*Math.cos(a),y:150+R*Math.sin(a),sc:1}; }
+// deterministic per-slot jitter (rotation + brightness) — same stone never looks like a clone stamp
+function jit(k,i){ let h=2166136261; const s=k+'#'+i; for(let c=0;c<s.length;c++){h^=s.charCodeAt(c);h=Math.imul(h,16777619)>>>0;} return h; }
+// bead variant library: each stone gets several genuinely different renders (variants.json flips VARN to 4 once generated)
+let VARN=1;
+fetch('beadwork/variants.json?v='+VER).then(r=>r.json()).then(v=>{ if(v&&v.n>1){VARN=v.n; rebuild();} }).catch(()=>{});
+const beadSrc=(k,i)=>{ const vi=VARN>1?((jit(k,i)>>>4)%VARN):0; return vi?`beadwork/beads-day/${k}_v${vi}.png?v=${VER}`:sprite(k); };
+function addStone(k){   // capacity is now millimetre-true: sum of every bead's own size vs the wrist loop
+  const cap=loopMm(), cur=sumMm(), add=mmOf(k);
+  if(cur+add>cap+2*state.beadMm){ toast(`A ${state.wristCm}cm wrist truly can't fit more — go bigger on wrist size or remove a few`); return; }
+  state.recipe.push(k); state.autofilled=false; rebuild();
+  if(cur+add>cap) toast(`Running big — past a comfy fit for ${state.wristCm}cm`);
+}
+function removeStone(k){ const i=state.recipe.lastIndexOf(k); if(i>=0)state.recipe.splice(i,1); state.autofilled=false; rebuild(); }
+function removeAt(i){ if(i>=0&&i<state.recipe.length){ state.recipe.splice(i,1); state.autofilled=false; rebuild(); } }
+
+/* tap vs long-press helper (mouse + touch) */
+function attachPress(el,onTap,onLong){
+  let t=null,long=false,moved=false,sx=0,sy=0;
+  el.addEventListener('pointerdown',e=>{long=false;moved=false;sx=e.clientX;sy=e.clientY;t=setTimeout(()=>{long=true;onLong&&onLong();},430);});
+  el.addEventListener('pointermove',e=>{if(Math.abs(e.clientX-sx)>10||Math.abs(e.clientY-sy)>10){moved=true;clearTimeout(t);}});
+  el.addEventListener('pointerup',()=>{clearTimeout(t); if(!long&&!moved)onTap&&onTap();});
+  el.addEventListener('pointercancel',()=>clearTimeout(t));
+}
+
+/* ===== tabs ===== */
+function showTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('on',t.dataset.tab===name));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.dataset.panel===name));
+  $('panels').scrollTop=0;
+  if(name==='reading') $('readingBadge').classList.remove('on');
+}
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>showTab(t.dataset.tab));
+$('sceneNudge').onclick=()=>showTab($('sceneNudge').dataset.go);
+
+/* ===== scene chips ===== */
+(function buildScenes(){
+  const host=$('intentGrid'); host.innerHTML=''; host.className='scene-host';
+  const mkChip=I=>{const d=document.createElement('div');d.className='chip';d.innerHTML=`<div class="t">${I.t}</div><div class="s">${I.s}</div>`;
+    d.onclick=()=>{ if(d.classList.contains('on')){d.classList.remove('on');state.intents=state.intents.filter(x=>x!==I.id);}
+      else{if(state.intents.length>=2){toast("Pick up to two moments");return;}d.classList.add('on');state.intents.push(I.id);}
+      $('sceneNudge').classList.toggle('on',state.intents.length>0 && !state.hasReading); maybeRead(); };
+    return d;};
+  const groups=[]; INTENTS.forEach(I=>{ if(!groups.includes(I.g))groups.push(I.g); });
+  groups.forEach(g=>{ const h=document.createElement('div');h.className='scene-gh';h.textContent=g;host.appendChild(h);
+    const grid=document.createElement('div');grid.className='grid';
+    INTENTS.filter(I=>I.g===g).forEach(I=>grid.appendChild(mkChip(I)));
+    host.appendChild(grid); });
+  // "in my own words" — none of these fit? describe your own moment.
+  const oh=document.createElement('div');oh.className='scene-gh';oh.textContent='Or';host.appendChild(oh);
+  const cg=document.createElement('div');cg.className='grid';
+  const cc=document.createElement('div');cc.className='chip chip-custom';cc.innerHTML='<div class="t">✍️ In my own words</div><div class="s">None of these? Tell us</div>';
+  cc.onclick=()=>{ const on=cc.classList.toggle('on');
+    if(on){ if(state.intents.length>=2 && !state.intents.includes('custom')){cc.classList.remove('on');toast('Pick up to two moments');return;}
+      if(!state.intents.includes('custom'))state.intents.push('custom'); $('customScene').style.display='block'; setTimeout(()=>$('customText').focus(),50); }
+    else { state.intents=state.intents.filter(x=>x!=='custom'); $('customScene').style.display='none'; }
+    $('sceneNudge').classList.toggle('on',state.intents.length>0 && !state.hasReading); maybeRead(); };
+  cg.appendChild(cc); host.appendChild(cg);
+  [...host.querySelectorAll('.chip')].forEach((c,i)=>c.style.setProperty('--i',i));
+})();
+$('customText').addEventListener('input',()=>{ state.customText=$('customText').value; maybeRead(); });
+$('bDate').addEventListener('change',maybeRead); $('bTime').addEventListener('change',maybeRead);
+(function(){const dl=$('cityList'); Object.keys(CITY).forEach(c=>{const o=document.createElement('option');o.value=c;dl.appendChild(o);});})();
+$('bPlace').addEventListener('input',()=>{ state.place=$('bPlace').value; maybeRead(); });
+
+function maybeRead(){
+  const dv=$('bDate').value;
+  const ready=state.intents.some(id=>id!=='custom')||(state.intents.includes('custom')&&(state.customText||'').trim());
+  if(!ready||!dv||!CATALOG.length) return;
+  let [y,m,d]=dv.split('-').map(Number); const tv=$('bTime').value; let h=-1,mi=0; if(tv){const t=tv.split(':');h=+t[0];mi=+t[1]||0;}
+  const city=CITY[($('bPlace').value||'').trim()];
+  if(city && h>=0){ const off=Math.round((city.lon-city.tz*15)*4); const c=new Date(new Date(y,m-1,d,h,mi,0).getTime()+off*60000); y=c.getFullYear();m=c.getMonth()+1;d=c.getDate();h=c.getHours();mi=c.getMinutes(); }
+  state.prof=elementProfile(y,m,d,h,mi);
+  state.picks=selectStones(state.intents,state.prof);
+  state.sizes={};
+  const _lk=state.picks[0]&&state.picks[0].key;
+  if(_lk){ const _li=SIZES.indexOf(state.beadMm); state.sizes[_lk]=SIZES[Math.min(Math.max(_li,0)+1,SIZES.length-1)]; }   // lead stone one size up
+  state.basePattern=recipeFromPicks(state.picks);
+  state.recipe=fillToCount(state.basePattern, beadCount());   // fill to a full bracelet ONCE; then the user tweaks bead by bead
+  while(state.recipe.length&&sumMm(state.recipe)>loopMm()+state.beadMm/2) state.recipe.pop();   // half-bead slack — elastic loops don't care about 1mm (was cutting the 22nd bead → visible gap)
+  state.autofilled=true; state._repour=true;
+  const first=!state.hasReading; state.hasReading=true;
+  $('sceneNudge').classList.remove('on');
+  paintReading(); rebuild();
+  if(first){ showTab('reading'); }
+  else if(!document.querySelector('.tab[data-tab=reading]').classList.contains('on')){ $('readingBadge').classList.add('on'); }
+}
+function paintReading(){
+  const scenes=state.intents.map(id=> id==='custom'?{custom:true,t:"the moment you described"}:INTENTS.find(x=>x.id===id)).filter(Boolean);
+  const sc=scenes[0], top=state.picks[0], topName=top?top.en:"these stones";
+  const strongest=EL_EN[state.prof.strongest], weakest=EL_EN[state.prof.weakest];
+  $('whyBlock').classList.remove('placeholder');
+  $('whyQuote').textContent=`${strongest} leads in you; ${weakest} runs quiet.`;
+  const wd=$('whyDetail'); wd.style.display='block';
+  if(sc&&sc.custom){
+    wd.innerHTML=`You wrote “${esc((state.customText||'').slice(0,60))}”. ${strongest} leads in you and ${weakest} runs quiet — so this isn't a template: it leans on <em>${topName}</em> to carry what you described, keeps a little ${weakest} in the mix to pull you back to centre, and spaces the brighter stones rather than clustering them, so it actually wears well. That's why <em>your</em> strand isn't anyone else's.`;
+  } else {
+    const sName=scenes.length>1?scenes[0].t.toLowerCase()+" and "+scenes[1].t.toLowerCase():scenes[0].t.toLowerCase();
+    const riskTxt=sc&&sc.risk?`When you're ${sc.r}, a pattern like yours tends to tip into ${sc.risk}. `:'';
+    wd.innerHTML=`${riskTxt}So this isn't a generic “${sName}” set — it leans on <em>${topName}</em> to do the heavy lifting for that moment, keeps a little ${weakest} in the mix to pull you back to centre, and spaces the brighter stones rather than clustering them, so it actually wears well. That's why <em>your</em> strand isn't the same as anyone else's.`;
+  }
+  $('energyBlock').style.display='block';
+  const bc=$('barChart'); bc.innerHTML="";
+  ["fire","earth","water","metal","wood"].forEach(el=>{const row=document.createElement('div');row.className='bar-row';
+    row.innerHTML=`<div class="bar-label">${EL_EN[el]}</div><div class="bar-track"><div class="bar-fill ${el}" data-w="${state.prof.pct[el]}"></div></div><div class="bar-pct">${state.prof.pct[el]}%</div>`;bc.appendChild(row);});
+  setTimeout(()=>document.querySelectorAll('#barChart .bar-fill').forEach(f=>f.style.width=f.dataset.w+'%'),50);
+  $('balanceNote').textContent=({strong:'Your pattern runs strong — these stones move the excess, not pile more on.',weak:"Your pattern runs light — these stones feed what you're short on.",'follow-strong':'Your pattern runs all one way — this strand flows with it rather than against it.','follow-weak':'Your pattern yields to its strongest current — this strand borrows that force instead of fighting it.'})[state.prof.strength]||'';
+}
+
+/* coach */
+function coachMsg(){
+  const uniq=[...new Set(state.recipe)]; if(!uniq.length) return null;
+  const cnt={wood:0,fire:0,earth:0,metal:0,water:0}; uniq.forEach(k=>{const s=STONES[k]; if(s)cnt[s.el]++});
+  const tot=uniq.length, order=Object.keys(cnt).sort((a,b)=>cnt[b]-cnt[a]), top=order[0], least=order[4];
+  if(state.prof&&state.prof.jishen){ const badEls=state.prof.jishen.filter(el=>cnt[el]>0);
+    for(const el of badEls){ const nBad=state.recipe.filter(k=>STONES[k]&&STONES[k].el===el).length;
+      if(nBad>=3){ const sug=CATALOG.find(s2=>state.prof.favorable.includes(s2.el)&&!uniq.includes(s2.key));
+        return {msg:`${nBad} ${EL_EN[el]} beads in here — ${EL_EN[el]} runs against your pattern`,key:sug?sug.key:null}; } } }
+  if(state.prof){ for(const el of state.prof.favorable){ if(!uniq.some(k=>STONES[k]&&STONES[k].el===el)){ const sug=CATALOG.find(s=>s.el===el&&!uniq.includes(s.key)); if(sug) return {msg:`Your reading runs light on ${EL_EN[el]} —`,key:sug.key}; } } }
+  if(tot>=3 && cnt[top]/tot>=0.5){ const sug=CATALOG.find(s=>s.el===least&&!uniq.includes(s.key)); if(sug) return {msg:`Heavy on ${EL_EN[top]} — a touch of ${EL_EN[least]} balances it.`,key:sug.key}; }
+  if(tot>=3) return {msg:"Lovely balance — this set feels whole."};
+  return null;
+}
+function renderCoach(){
+  const c=coachMsg(), el=$('coach');
+  if(!c){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML = c.key ? `${c.msg} <span class="coach-add"><span class="coach-bead" style="background-image:url(${sprite(c.key)})"></span>＋ ${STONES[c.key].en}</span>` : c.msg;
+  const a=el.querySelector('.coach-add'); if(a) a.onclick=()=>addStone(c.key);
+}
+
+/* ===== render ===== */
+function renderAll(){
+  renderBraceletMain(state.seq);
+  $('emptyHint').style.display=state.seq.length?'none':'block';
+  $('previewActions').style.display=state.seq.length?'flex':'none';
+  $('clearAll').style.display=state.seq.length?'inline':'none';
+  const _mf=$('metaFit');
+  if(state.seq.length){ const sm=sumMm(), davg=sm/state.seq.length, inner=sm-Math.PI*davg, fitW=(inner-EASE)/10;
+    _mf.style.display='block';
+    _mf.textContent=`≈${(inner/10).toFixed(1)}cm inside · fits ${(fitW-0.5).toFixed(1)}–${(fitW+0.4).toFixed(1)}cm wrists`; }
+  else _mf.style.display='none';
+  document.querySelectorAll('.storyOpen').forEach(b=>b.style.display=state.seq.length?'inline-flex':'none');
+  $('beadCount').textContent=state.seq.length||'—';
+  $('sizeMeta').textContent=state.wristCm+'cm · '+state.beadMm+'mm';
+  renderCoach();
+  renderYourStones();
+  fillPalette();
+  const has=state.seq.length>0;
+  const cp=$('ctaPrice'), npv=has?money(priceOf(state.seq)):'—';
+  if(cp.textContent!==npv&&cp.textContent!=='—'){cp.classList.remove('bump');void cp.offsetWidth;cp.classList.add('bump');}
+  cp.textContent=npv;
+  const b=$('addBtn'); b.disabled=!has; b.textContent=has?'Make mine — this strand':'Add stones to begin';
+}
+function renderYourStones(){
+  const sl=$('stoneList'), keys=[...new Set(state.recipe)];
+  if(!keys.length){ sl.innerHTML='<div class="ph">No stones yet — pick your moment + birthday for a reading, or add any from the collection below.</div>'; return; }
+  sl.innerHTML="";
+  keys.forEach(k=>{const st=STONES[k]; if(!st)return; const pk=state.picks.find(p=>p.key===k), n=countIn(k);
+    const row=document.createElement('div');row.className='stone';
+    row.innerHTML=`<div class="bead" style="background-image:url(${sprite(k)})"></div>
+      <div style="flex:1;min-width:0"><div class="nm">${st.en}${st.cn?`<span class="cn">${st.cn}</span>`:''}</div>
+      <div class="ds">${doesOf(st)}</div>${pk?`<div class="role">${pk.role}</div>`:''}</div>
+      <div class="step"><button aria-label="one less">−</button><b>${n}</b><button aria-label="one more">＋</button></div>`;
+    const [mi,pl]=row.querySelectorAll('.step button');
+    mi.onclick=()=>removeStone(k); pl.onclick=()=>addStone(k);
+    const sz=document.createElement('div'); sz.className='szmini';
+    SIZES.forEach(mm=>{ const b2=document.createElement('b'); b2.textContent=mm;
+      if(mm===(state.sizes[k]||state.beadMm)) b2.className='on';
+      b2.onclick=()=>{ if(mm===state.beadMm) delete state.sizes[k]; else state.sizes[k]=mm;
+        while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm) state.recipe.pop();
+        state.autofilled=false; rebuild(); };
+      sz.appendChild(b2); });
+    row.children[1].appendChild(sz);
+    attachPress(row.querySelector('.bead'),()=>openDetail(k),()=>openDetail(k));
+    sl.appendChild(row);});
+}
+
+/* size controls */
+(function(){const sc=$('sizeChips'); SIZES.forEach(mm=>{const e=document.createElement('div');e.className='szchip'+(mm===state.beadMm?' on':'');e.textContent=mm;
+  e.onclick=()=>{state.beadMm=mm;document.querySelectorAll('.szchip').forEach(x=>x.classList.toggle('on',+x.textContent===mm));refit();}; sc.appendChild(e);});})();
+$('wrist').addEventListener('input',()=>{const v=+$('wrist').value; if(v>=11&&v<=22){state.wristCm=v;refit();}});
+$('howto').onclick=()=>{const n=$('howtoNote'); n.style.display=n.style.display==='block'?'none':'block';};
+
+/* name + request */
+$('bname').addEventListener('input',()=>{state.name=$('bname').value;});
+$('nameSuggest').onclick=()=>{ state.name=suggestName(); $('bname').value=state.name; };
+function suggestName(){
+  const adj=["Quiet","Still","Soft","Golden","Velvet","Midnight","Morning","Hidden","Gentle","Half-Lit","Low","Far"];
+  const nounByEl={fire:"Ember",earth:"Grove",water:"Tide",metal:"Light",wood:"Bloom"};
+  let el = state.prof?state.prof.strongest:null;
+  if(!el && state.recipe.length){const c={};state.recipe.forEach(k=>{const s=STONES[k];if(s)c[s.el]=(c[s.el]||0)+1;});el=Object.keys(c).sort((a,b)=>c[b]-c[a])[0];}
+  const noun=nounByEl[el]||"Glow";
+  return `The ${adj[Math.floor(Math.random()*adj.length)]} ${noun}`;
+}
+$('reqText').addEventListener('input',()=>{state.request=$('reqText').value;});
+$('reqApply').onclick=()=>{ state.request=$('reqText').value.trim();
+  toast(state.request?"Noted — your note travels with the order to the studio":"Write a little something first"); };
+
+/* palette + category */
+function buildPalette(){
+  const cb=$('catBar'); cb.innerHTML='';
+  const groups=[
+    {lbl:'',items:[{id:'all',t:'All'}]},
+    {lbl:'ENERGY',items:[['metal','Metal'],['wood','Wood'],['water','Water'],['fire','Fire'],['earth','Earth']].map(a=>({id:'el:'+a[0],t:a[1]}))},
+    {lbl:'WISH',items:[['love','Love'],['wealth','Wealth'],['career','Career'],['focus','Focus'],['calm','Calm'],['sleep_light','Sleep'],['protection','Protection'],['confidence','Confidence']].map(a=>({id:'wish:'+a[0],t:a[1]}))},
+    {lbl:'COLOR',items:Array.from(new Set(CATALOG.map(catOf))).map(c=>({id:'color:'+c,t:c}))},
+  ];
+  groups.forEach(gr=>{ const row=document.createElement('div'); row.className='cat-group';
+    const l=document.createElement('span'); l.className='cat-lbl'; l.textContent=gr.lbl||''; row.appendChild(l);
+    const chips=document.createElement('div'); chips.className='cat-chips'; row.appendChild(chips);
+    gr.items.forEach(it=>{ const e=document.createElement('div'); e.className='cat'+(state.cat===it.id?' on':''); e.textContent=it.t; e.dataset.f=it.id;
+      e.onclick=()=>{ state.cat=it.id; cb.querySelectorAll('.cat').forEach(x=>x.classList.toggle('on',x.dataset.f===it.id)); fillPalette(); };
+      chips.appendChild(e); });
+    cb.appendChild(row); });
+  $('stoneCount').textContent=CATALOG.length; fillPalette();
+}
+function fillPalette(){
+  const pal=$('palette'); if(!pal)return; pal.innerHTML="";
+  const _f=state.cat||'all';
+  CATALOG.filter(s=> _f==='all' ? true : (_f.indexOf('el:')===0 ? s.el===_f.slice(3) : (_f.indexOf('wish:')===0 ? (s.wish||[]).includes(_f.slice(5)) : catOf(s)===_f.slice(6)))).forEach(s=>{
+    const n=countIn(s.key);
+    const b=document.createElement('div');b.className='pbead'+(n?' has':'');
+    b.innerHTML=`<span class="d" style="background-image:url(${sprite(s.key)})"></span>
+      <span class="info"><span class="pn">${s.en}</span><span class="pp">${state.beadMm}mm · ${money(s.price)}</span></span>
+      <span class="ctrls"></span>`;
+    const ctrls=b.querySelector('.ctrls');
+    if(n){ ctrls.className='ctrls step'; ctrls.innerHTML=`<button aria-label="one less">−</button><b>${n}</b><button aria-label="one more">＋</button>`;
+      const [mi,pl]=ctrls.querySelectorAll('button'); mi.onclick=e=>{e.stopPropagation();removeStone(s.key);}; pl.onclick=e=>{e.stopPropagation();addStone(s.key);}; }
+    else { ctrls.innerHTML=`<button class="padd" aria-label="add">＋</button>`; ctrls.querySelector('button').onclick=e=>{e.stopPropagation();addStone(s.key);}; }
+    attachPress(b.querySelector('.d'),()=>addStone(s.key),()=>openDetail(s.key));
+    attachPress(b.querySelector('.info'),()=>openDetail(s.key),()=>openDetail(s.key));
+    pal.appendChild(b);});
+}
+
+/* detail modal (long-press) */
+function openDetail(key){const s=STONES[key]; if(!s)return;
+  $('mBead').style.backgroundImage=`url(beadwork/hi-day/${key}.png?v=${VER}), url(${sprite(key)})`;
+  let au=$('mAura'); if(!au){au=document.createElement('div');au.id='mAura';au.className='modal-aura';$('mBead').parentNode.insertBefore(au,$('mBead'));}
+  au.style.background=`radial-gradient(circle,${TINT[s.color]||'#cfd2d6'} 0%,transparent 70%)`;
+  $('mName').textContent=s.en; $('mCn').textContent=s.cn||'';
+  $('mEl').textContent=EL_EN[s.el]||''; $('mPrice').textContent=money(s.price);
+  $('mDoes').textContent=cap(doesOf(s));
+  $('mAdd').onclick=()=>{addStone(key);closeDetail();toast("Added");};
+  const rm=$('mRemove'); rm.style.display=countIn(key)?'block':'none';
+  rm.onclick=()=>{removeStone(key);closeDetail();};
+  $('modal').classList.add('show');}
+function closeDetail(){$('modal').classList.remove('show');}
+$('modalX').onclick=closeDetail; $('modal').onclick=e=>{if(e.target===$('modal'))closeDetail();};
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
+
+
+/* slow turntable — JS-driven with an explicit pivot (rotate a 150 150), immune to viewBox changes */
+(function spin(){
+  let deg=0,last=0;
+  function f(ts){ if(!last)last=ts; const dt=Math.min(ts-last,100); last=ts;
+    const sv=svg(), g=sv&&sv.querySelector('.zbeads');
+    if(g){
+      if(state.tilt){ if(g.getAttribute('transform')) g.removeAttribute('transform'); deg=0; window._spinDeg=0; }
+      else if(state.seq.length&&!sv.classList.contains('dragging')&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){
+        deg=(deg+dt*360/90000)%360; window._spinDeg=deg;
+        g.setAttribute('transform',`rotate(${deg.toFixed(3)} 150 150)`);
+      }
+    }
+    requestAnimationFrame(f); }
+  requestAnimationFrame(f);
+})();
+
+/* bracelet bead: tap = remove, long-press = detail, drag = reorder (face-on view) */
+(function(){
+  let t=null,long=false,key=null,slot=-1,drag=false,sx=0,sy=0,el=null;
+  const SV=svg();
+  const svgPt=e=>{const p=SV.createSVGPoint();p.x=e.clientX;p.y=e.clientY;return p.matrixTransform(SV.getScreenCTM().inverse());};
+  const groupAngle=()=>((window._spinDeg||0)*Math.PI/180);
+  SV.addEventListener('pointerdown',e=>{const k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-k'); if(!k){key=null;return;}
+    key=k; long=false; drag=false; sx=e.clientX; sy=e.clientY;
+    el=e.target.closest('.zb'); slot=el?+el.dataset.slot:-1;
+    t=setTimeout(()=>{long=true;openDetail(k);},430);
+    try{SV.setPointerCapture(e.pointerId);}catch(_){}});
+  SV.addEventListener('pointermove',e=>{ if(!key||long)return;
+    if(!drag && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
+      clearTimeout(t);
+      if(state.tilt||slot<0){key=null;return;}
+      drag=true; SV.classList.add('dragging'); el.style.transition='none'; el._target=slot; }
+    if(drag){ const phi=groupAngle(), pt=svgPt(e);
+      const dx=pt.x-150, dy=pt.y-150, c=Math.cos(-phi), s=Math.sin(-phi);
+      const gx=150+dx*c-dy*s, gy=150+dx*s+dy*c;
+      el.setAttribute('transform',`translate(${gx.toFixed(1)},${gy.toFixed(1)}) scale(1.18)`);
+      const lay=layoutRing(state.seq,ringR()), ang=Math.atan2(gy-150,gx-150);
+      let j=0,best=9; lay.forEach((p,idx)=>{ const d2=Math.abs(((ang-p.a)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI); if(d2<best){best=d2;j=idx;} });
+      el._target=j; }});
+  const fin=apply=>{ clearTimeout(t);
+    if(drag){ SV.classList.remove('dragging'); el.style.transition='';
+      const j=el._target; if(apply&&j!==slot&&j>=0){ const r=state.recipe.splice(slot,1)[0]; state.recipe.splice(j,0,r); state.autofilled=false; }
+      SV._noClick=true; setTimeout(()=>SV._noClick=false,300);
+      rebuild(); drag=false; key=null; return true; }
+    return false; };
+  SV.addEventListener('pointerup',()=>{ if(fin(true))return; if(key&&!long){ slot>=0?removeAt(slot):removeStone(key); SV._noClick=true; setTimeout(()=>SV._noClick=false,300); } key=null; });
+  SV.addEventListener('pointercancel',()=>{ if(fin(false))return; key=null; });
+})();
+
+/* zoom the whole bracelet to a big image (button, or tap the empty ring centre) */
+const _pz=(function(){           // drag to pan, wheel / two-finger pinch to zoom
+  const stage=$('zoomStage'), inner=$('zoomSvg');
+  let s=1.5,tx=0,ty=0,sx=0,sy=0,drag=false,startDist=0,startScale=1; const pts=new Map();
+  const apply=()=>inner.style.transform=`translate(-50%,-50%) translate(${tx}px,${ty}px) scale(${s})`;
+  stage.addEventListener('pointerdown',e=>{ try{stage.setPointerCapture(e.pointerId);}catch(_){} pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){drag=true;sx=e.clientX-tx;sy=e.clientY-ty;} else if(pts.size===2){drag=false;const a=[...pts.values()];startDist=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y)||1;startScale=s;} });
+  stage.addEventListener('pointermove',e=>{ if(!pts.has(e.pointerId))return; pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size>=2){const a=[...pts.values()];const d=Math.hypot(a[0].x-a[1].x,a[0].y-a[1].y);s=Math.max(0.6,Math.min(7,startScale*d/startDist));apply();}
+    else if(drag){tx=e.clientX-sx;ty=e.clientY-sy;apply();} });
+  const up=e=>{ pts.delete(e.pointerId); if(pts.size===1){const p=[...pts.values()][0];sx=p.x-tx;sy=p.y-ty;drag=true;} else if(pts.size===0){drag=false;} };
+  stage.addEventListener('pointerup',up); stage.addEventListener('pointercancel',up);
+  stage.addEventListener('wheel',e=>{e.preventDefault();s=Math.max(0.6,Math.min(7,s*(e.deltaY<0?1.12:0.9)));apply();},{passive:false});
+  stage.addEventListener('dblclick',()=>{ s=s>2?1.5:3; tx=0;ty=0; apply(); });
+  return { reset(){ s=1.5;tx=0;ty=0;apply(); } };
+})();
+function openZoom(){ if(!state.seq.length)return;
+  renderBracelet($('zoomSvg'),state.seq);
+  $('zoomInfo').textContent=`${state.name||'Your bracelet'} · ${state.seq.length} beads · ${state.beadMm}mm · ${money(priceOf(state.seq))}`;
+  $('zoomModal').classList.add('show'); _pz.reset(); }
+$('zoomBtn').onclick=openZoom;
+$('clearAll').onclick=()=>{ if(!state.recipe.length)return; const bak=state.recipe.slice();
+  state.recipe=[]; state.basePattern=null; state.autofilled=false; rebuild();
+  toast('Strand cleared','Undo',()=>{ state.recipe=bak; rebuild(); }); };
+$('zoomX').onclick=()=>$('zoomModal').classList.remove('show'); $('zoomModal').onclick=e=>{if(e.target===$('zoomModal'))$('zoomModal').classList.remove('show');};
+svg().addEventListener('click',e=>{ if(svg()._noClick)return; const k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-k'); if(!k&&state.seq.length)openZoom();});
+
+/* on-wrist preview — composite YOUR actual beads around a bare-wrist photo on a canvas */
+const WRISTIMG=new Image(); WRISTIMG.src='assets/wrist-base.png?v='+VER;
+const WC={x:706,y:576,rv:90,rh:46};   // wrist centre + ellipse radii in base-image pixels (tuned to wrist-base.png)
+function drawWrist(){
+  const cv=$('wristCanvas'); if(!cv||!cv.getContext)return; const x=cv.getContext('2d'), S=cv.width;
+  if(!WRISTIMG.complete||!WRISTIMG.naturalWidth){ WRISTIMG.onload=drawWrist; return; }
+  const seq=state.seq, srcs=seq.map((kk,ii)=>beadSrc(kk,ii)), uniqS=[...new Set(srcs)], imgs={}; let pending=uniqS.length;
+  uniqS.forEach(u=>{const im=new Image();im.onload=im.onerror=()=>{if(--pending<=0)paint();};im.src=u;imgs[u]=im;});
+  if(!uniqS.length) paint();
+  function paint(){
+    const iw=WRISTIMG.naturalWidth,ih=WRISTIMG.naturalHeight,crop=Math.min(iw,ih),sx=(iw-crop)/2,sy=(ih-crop)/2,k=S/crop;
+    x.clearRect(0,0,S,S); x.drawImage(WRISTIMG,sx,sy,crop,crop,0,0,S,S);
+    const cx=(WC.x-sx)*k, cy=(WC.y-sy)*k, rv=WC.rv*k, rh=WC.rh*k, n=seq.length;
+    const P=Math.PI*(3*(rv+rh)-Math.sqrt(Math.max(0,(3*rv+rh)*(rv+3*rh))));
+    const bd=Math.min(rv*0.95, P/Math.max(n,8))*1.28;
+    x.save(); x.globalAlpha=.3; x.fillStyle='#2c2016'; x.beginPath(); x.ellipse(cx,cy+rv*0.42,rh*1.25,rv*0.5,0,0,7); x.fill(); x.restore();
+    const ds=seq.map(kk=>mmOf(kk)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
+    const order=[]; let cum=0; for(let i=0;i<n;i++){ const a=(cum+ds[i]/2)/totMm*2*Math.PI; cum+=ds[i]; order.push({i,a}); }
+    order.sort((p,q)=>Math.sin(p.a)-Math.sin(q.a));                       // far side first, near side on top
+    order.forEach(({i,a})=>{ const px=cx+rh*Math.sin(a), py=cy-rv*Math.cos(a), front=Math.sin(a)>=0, d=bd*(front?1.05:0.9)*ds[i]/state.beadMm;
+      const im=imgs[srcs[i]]; if(!im||!im.naturalWidth)return; x.save(); if(!front)x.globalAlpha=.8;
+      x.shadowColor='rgba(0,0,0,.4)';x.shadowBlur=d*0.16;x.shadowOffsetY=d*0.1; x.drawImage(im,px-d/2,py-d/2,d,d); x.restore(); });
+  }
+}
+// render JUST your bead ring on a clean dark square → send to the AI as the reference
+function braceletDataURL(cb){
+  const seq=state.seq; if(!seq.length){cb(null);return;}
+  const C=document.createElement('canvas'); C.width=C.height=512; const x=C.getContext('2d');
+  x.fillStyle='#0e0b13'; x.fillRect(0,0,512,512);
+  const srcs=seq.map((k,i)=>beadSrc(k,i)), uniqS=[...new Set(srcs)], imgs={}; let pend=uniqS.length;
+  uniqS.forEach(u=>{const im=new Image();im.onload=im.onerror=()=>{if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
+  if(!uniqS.length){cb(null);return;}
+  function paint(){ const cx=256,cy=256,n=seq.length;
+    const ds=seq.map(kk=>mmOf(kk)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
+    const base=Math.min(78, 2*Math.PI*176/Math.max(n,8)*1.12), R=Math.min(196, (totMm/state.beadMm)*base/(2*Math.PI));
+    let cum=0;
+    for(let i=0;i<n;i++){ const a=(cum+ds[i]/2)/totMm*2*Math.PI-Math.PI/2; cum+=ds[i];
+      const d=base*ds[i]/state.beadMm, px=cx+R*Math.cos(a), py=cy+R*Math.sin(a), im=imgs[srcs[i]];
+      if(im&&im.naturalWidth){x.save();x.shadowColor='rgba(0,0,0,.5)';x.shadowBlur=d*.14;x.shadowOffsetY=d*.1;x.drawImage(im,px-d/2,py-d/2,d,d);x.restore();}}
+    cb(C.toDataURL('image/png')); }
+}
+function openWrist(){ if(!state.seq.length)return;
+  $('wristModal').classList.add('show');
+  $('wristResult').style.display='none'; $('wristCanvas').style.display='none'; $('wristLoad').style.display='flex'; $('wristCap').textContent='Generating your on-wrist preview…';
+  braceletDataURL(durl=>{ if(!durl){ wristFallback(); return; }
+    fetch('/api/onwrist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:durl})})
+      .then(r=>r.json()).then(d=>{ if(!d||!d.image) throw 0; const im=$('wristResult');
+        im.onload=()=>{ $('wristLoad').style.display='none'; im.style.display='block'; $('wristCap').textContent='On-wrist preview · your exact strand'; };
+        im.onerror=()=>wristFallback(); im.src=d.image; })
+      .catch(()=>wristFallback()); });
+}
+function wristFallback(){ $('wristLoad').style.display='none'; $('wristResult').style.display='none'; drawWrist(); $('wristCanvas').style.display='block'; $('wristCap').textContent='Composite preview (AI preview is busy right now)'; }
+/* scene preview: instant composites + the AI wrist shot */
+const SCENES={cafe:{img:'assets/scenes/cafe.jpg',cap:'On a café table · your strand'},desk:{img:'assets/scenes/desk.jpg',cap:'On the desk · your strand'},party:{img:'assets/scenes/party.jpg',cap:'Party night · your strand'}};
+for(const n in SCENES){ const im=new Image(); im.src=SCENES[n].img+'?v='+VER; SCENES[n].image=im; }
+function drawScene(name){
+  const cv=$('wristCanvas'), x=cv.getContext('2d'), S=cv.width, bg=SCENES[name].image;
+  const seq=state.seq, srcs=seq.map((kk,ii)=>beadSrc(kk,ii)), uniqS=[...new Set(srcs)], imgs={}; let pend=uniqS.length;
+  uniqS.forEach(u=>{const im=new Image();im.onload=im.onerror=()=>{if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
+  if(!uniqS.length)return;
+  function paint(){
+    if(!bg.complete||!bg.naturalWidth){ bg.onload=paint; return; }
+    const iw=bg.naturalWidth,ih=bg.naturalHeight,crop=Math.min(iw,ih),sx0=(iw-crop)/2,sy0=(ih-crop)/2;
+    x.clearRect(0,0,S,S); x.drawImage(bg,sx0,sy0,crop,crop,0,0,S,S);
+    const cx=S*0.5, cy=S*0.62, rh=S*0.30, rv=S*0.16, n=seq.length;
+    const P=Math.PI*(3*(rh+rv)-Math.sqrt(Math.max(0,(3*rh+rv)*(rh+3*rv))));
+    const bd=Math.min(rv*0.85,P/Math.max(n,8))*1.22;
+    const ds=seq.map(kk=>mmOf(kk)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
+    const pts=[]; let cum=0; for(let i=0;i<n;i++){const a=(cum+ds[i]/2)/totMm*2*Math.PI-Math.PI/2; cum+=ds[i]; pts.push({i,r:ds[i]/state.beadMm,px:cx+rh*Math.sin(a),py:cy-rv*Math.cos(a),f:Math.cos(a)});}
+    pts.forEach(p=>{const d=bd*(1+0.13*(-p.f))*p.r; x.save(); x.globalAlpha=.2; x.fillStyle='#15110c';
+      x.beginPath(); x.ellipse(p.px,p.py+d*0.32,d*0.5,d*0.16,0,0,7); x.fill(); x.restore();});
+    pts.sort((a,b)=>b.f-a.f);
+    pts.forEach(p=>{const im2=imgs[srcs[p.i]]; if(!im2||!im2.naturalWidth)return;
+      const d=bd*(1+0.13*(-p.f))*p.r; x.save(); x.shadowColor='rgba(0,0,0,.25)'; x.shadowBlur=d*.12; x.shadowOffsetY=d*.06;
+      x.drawImage(im2,p.px-d/2,p.py-d/2,d,d); x.restore();});
+  }
+  paint();
+}
+const _sceneCache={};
+function openScene(name){
+  if(!state.seq.length)return;
+  $('wristModal').classList.add('show');
+  document.querySelectorAll('.schip').forEach(c=>c.classList.toggle('on',c.dataset.scene===name));
+  if(name==='wrist'){ openWrist(); return; }
+  const ck=name+'|'+state.seq.join(',');
+  if(_sceneCache[ck]){ const im=$('wristResult'); $('wristLoad').style.display='none'; $('wristCanvas').style.display='none';
+    im.src=_sceneCache[ck]; im.style.display='block'; $('wristCap').textContent=SCENES[name].cap+' · AI'; return; }
+  $('wristResult').style.display='none'; $('wristCanvas').style.display='none';
+  $('wristLoad').style.display='flex'; $('wristCap').textContent='Placing your strand into the scene…';
+  braceletDataURL(durl=>{ if(!durl){ sceneFallback(name); return; }
+    fetch('/api/onwrist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:durl,scene:name})})
+      .then(r=>r.json()).then(d=>{ if(!d||!d.image) throw 0; _sceneCache[ck]=d.image; const im=$('wristResult');
+        im.onload=()=>{ $('wristLoad').style.display='none'; im.style.display='block'; $('wristCap').textContent=SCENES[name].cap+' · AI'; };
+        im.onerror=()=>sceneFallback(name); im.src=d.image; })
+      .catch(()=>sceneFallback(name)); });
+}
+function sceneFallback(name){ $('wristLoad').style.display='none'; $('wristResult').style.display='none';
+  drawScene(name); $('wristCanvas').style.display='block'; $('wristCap').textContent=SCENES[name].cap+' (quick composite · AI busy)'; }
+document.querySelectorAll('.schip').forEach(c=>c.onclick=()=>openScene(c.dataset.scene));
+$('wristBtn').onclick=()=>openScene('cafe');
+
+/* ===== the story of this strand — why each bead, from your pattern and your moment ===== */
+function wantedWishes(){ const want=new Set();
+  state.intents.forEach(id=>{ if(id==='custom'){ customWishes(state.customText).forEach(w=>want.add(w)); return; }
+    const I=INTENTS.find(x=>x.id===id); if(I)I.wish.forEach(w=>want.add(w)); });
+  return want; }
+function openStory(){
+  if(!state.seq.length){ toast('Build something first'); return; }
+  renderBracelet($('storySvg'),state.seq);
+  $('storyName').textContent=state.name||'Your bracelet';
+  const scenes=state.intents.map(id=> id==='custom'?'the moment you described':(INTENTS.find(x=>x.id===id)||{}).t).filter(Boolean);
+  $('storyScene').textContent=scenes.length?('Strung for "'+scenes.join('" & "')+'"'):'Strung by your own hand';
+  const prof=state.prof;
+  let chartLine=prof?`${EL_EN[prof.strongest]} leads in you; ${EL_EN[prof.weakest]} runs quiet. This strand is built around exactly that.`:'No reading yet — add your birthday under Reading and every bead picks up the logic of your pattern.';
+  if(prof&&prof.tiaohou==='cold') chartLine+=' Born in the cold months — warmth comes first.';
+  if(prof&&prof.tiaohou==='hot') chartLine+=' Born at the height of summer — cool water comes first.';
+  $('storyChart').textContent=chartLine;
+  const want=wantedWishes(), host=$('storyList'); host.innerHTML='';
+  const uniq=[],seen={}; state.seq.forEach((k,i)=>{ if(!(k in seen)){seen[k]=uniq.length;uniq.push({key:k,pos:[i]});} else uniq[seen[k]].pos.push(i); });
+  const tiaoTxt=prof&&prof.tiaohou==='cold'?', born in the cold months':(prof&&prof.tiaohou==='hot'?', born at the height of summer':'');
+  const sceneName=scenes.length?scenes.join(' & '):'this moment';
+  uniq.forEach((u,bi)=>{ const st=STONES[u.key]; if(!st)return;
+    const pk=state.picks.find(p=>p.key===u.key);
+    const ct=pk?pk.ct:'own';
+    const tierLbl={lead:'LEAD',bridge:'CARRY',balance:'BALANCE',breath:'BREATH',echo:'ECHO',own:'YOURS'}[ct]||'YOURS';
+    const hits=(pk&&pk.hits?pk.hits:(st.wish||[]).filter(w=>want.has(w))).map(w=>WISH_LABEL[w]||w);
+    let why='';
+    if(ct==='lead'&&prof){ why=`Because ${EL_EN[prof.strongest]} leads in you and ${EL_EN[prof.weakest]} runs quiet${tiaoTxt}, and you're in the middle of \u201c${sceneName}\u201d — this strand opens with it: ${EL_EN[st.el]}, the energy your pattern needs most right now${hits.length?`, answering the ${hits.join(' & ')} you asked for`:''}.`; }
+    else if(ct==='bridge'&&prof){ why=pk.bt==='flow'?`Because the lead raises ${EL_EN[pk.e1]}, and ${EL_EN[pk.e1]} feeds ${EL_EN[pk.e2]} — this stone carries that charge and grounds it, so the energy doesn't spin loose.`:`Because one note alone doesn't hold — it carries the second thing your pattern asks for: ${EL_EN[st.el]}.`; }
+    else if(ct==='balance'){ why=pk.tdir==='cool'?`Because the lead and the carry both run warm, the strand is heating up — so one cool stone, spaced in, presses the rhythm back to centre.`:(pk.tdir==='warm'?`Because the first two notes run cool — so one warm stone lifts the temperature back.`:`Because the main line already stands — it fills in the ${hits.join(' & ')||'detail'} thread.`); }
+    else if(ct==='breath'){ why=`Because even a full story needs white space — a colourless stone that competes with nothing. The strand's breath.`; }
+    else if(ct==='echo'){ why=hits.length?`Because the ${hits.join(' & ')} you asked for deserves one more hand — this is its echo.`:`It lays one more undertone beneath the strand.`; }
+    else { why=(hits.length?`Answers the ${hits.join(' & ')} you asked for`:(prof&&st.el===prof.weakest?`Feeds the ${EL_EN[st.el]} that runs quiet in you`:(prof&&prof.favorable.includes(st.el)?`Flows with the ${EL_EN[st.el]} your pattern favours`:cap(doesOf(st)))))+'.'; }
+    let place={lead:'Opens the strand in a pair — it sets the tone.',bridge:'Also paired, echoing the lead like a chorus.',balance:'A single bead spaced between the brighter stones.',breath:'Single, leaving room around the bright notes.',echo:'Single, closing the loop.',own:`Placed by you — bead ${u.pos.map(p2=>p2+1).join(', ')}.`}[ct];
+    if(u.pos.length>=3&&ct!=='own'){ const g=Math.round((u.pos[u.pos.length-1]-u.pos[0])/(u.pos.length-1));
+      place+=` Returns every ~${g} beads — even breathing.`; }
+    if(ct==='own'&&prof&&prof.jishen&&prof.jishen.includes(st.el)) place+=` One honest note: ${EL_EN[st.el]} runs against your pattern — keep it if you love the colour.`;
+    if(ct==='lead'&&state.sizes[u.key]&&state.sizes[u.key]>state.beadMm) place+=` One size up (${state.sizes[u.key]}mm) — front and centre.`;
+    const it=document.createElement('div'); it.className='s-item'; it.style.setProperty('--i',bi);
+    it.innerHTML=`<div class="s-bead" style="background-image:url(${sprite(u.key)})"></div>
+      <div style="flex:1;min-width:0"><div class="s-tier">${tierLbl} · ×${u.pos.length}</div>
+      <div class="s-t">${st.en}${st.cn?`<span class="sx">${st.cn}</span>`:''}</div>
+      <div class="s-why">${why}</div>
+      <div class="s-place">${place}</div></div>`;
+    host.appendChild(it); });
+  $('storyFoot').textContent=`${state.seq.length} beads · ${money(priceOf(state.seq))} · hand-assembled · photographed before it ships`;
+  $('storyModal').classList.add('show');
+}
+document.querySelectorAll('.storyOpen').forEach(b=>b.onclick=openStory);
+$('storyX').onclick=()=>$('storyModal').classList.remove('show');
+$('storyModal').onclick=e=>{if(e.target===$('storyModal'))$('storyModal').classList.remove('show');};
+
+/* ===== share image: the story card as a saveable picture ===== */
+
+function roundRect(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();}
+function wrapText(x,t,maxW){ const out=[]; let line='';
+  for(const ch of t){ if(x.measureText(line+ch).width>maxW){out.push(line);line=ch;} else line+=ch; }
+  if(line)out.push(line); return out; }
+
+function buildShareImage(cb){
+  const seq=state.seq; if(!seq.length){cb(null);return;}
+  const W=1080,H=1440,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
+  const srcs=seq.map((k,i)=>beadSrc(k,i)), uniqS=[...new Set(srcs)], imgs={};
+  let pend=uniqS.length;
+  uniqS.forEach(u=>{const im=new Image();im.onload=im.onerror=()=>{if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
+  function paint(){
+    x.fillStyle='#e9ebec';x.fillRect(0,0,W,H);
+    x.save();x.shadowColor='rgba(20,22,24,.15)';x.shadowBlur=46;x.shadowOffsetY=14;
+    x.fillStyle='#ffffff';roundRect(x,48,48,W-96,H-96,40);x.fill();x.restore();
+    // ring (per-bead sizes + variants + rotation)
+    const ds=seq.map(k=>mmOf(k)), tot=ds.reduce((a,b)=>a+b,0), n=seq.length;
+    const base=Math.min(150, 2*Math.PI*580/Math.max(n,8)*1.06);
+    const Rr=Math.min(300,(tot/state.beadMm)*base/(2*Math.PI)), ccx=W/2, ccy=400;
+    let cum=0;
+    for(let i=0;i<n;i++){ const a=(cum+ds[i]/2)/tot*2*Math.PI-Math.PI/2; cum+=ds[i];
+      const d=base*ds[i]/state.beadMm, px=ccx+Rr*Math.cos(a), py=ccy+Rr*Math.sin(a), im=imgs[srcs[i]];
+      if(!im||!im.naturalWidth)continue;
+      x.save();x.translate(px,py);x.rotate((jit(seq[i],i)%360)*Math.PI/180);
+      x.shadowColor='rgba(0,0,0,.28)';x.shadowBlur=d*.12;x.shadowOffsetY=d*.07;
+      x.drawImage(im,-d/2,-d/2,d,d);x.restore(); }
+    // texts
+    const ink='#1b1c1e', muted='#5c5f63', faint='#9a9da1', green='#0e6b50';
+    x.textAlign='center';
+    x.fillStyle=ink; x.font='400 58px Marcellus, "Songti SC", serif';
+    x.fillText(state.name||'Your bracelet', W/2, 830);
+    x.fillStyle=muted; x.font='300 26px Manrope, "PingFang SC", sans-serif';
+    const scenes=state.intents.map(id=> id==='custom'?'the moment you described':(INTENTS.find(z=>z.id===id)||{}).t).filter(Boolean);
+    x.fillText(scenes.length?('Strung for \u201c'+scenes.join('\u201d & \u201c')+'\u201d'):'Strung by your own hand', W/2, 876);
+    // chart band
+    const prof=state.prof;
+    if(prof){ const bw=W-200;
+      x.textAlign='left'; x.font='300 26px Manrope, "PingFang SC", sans-serif';
+      let chart=`${EL_EN[prof.strongest]} leads in you; ${EL_EN[prof.weakest]} runs quiet — this strand is built around that.`+(prof.tiaohou==='cold'?' Born in the cold months — warmth first.':(prof.tiaohou==='hot'?' Born at the height of summer — water first.':''));
+      const lines=wrapText(x,chart,bw-60).slice(0,2);
+      x.fillStyle='rgba(14,107,80,.07)'; roundRect(x,100,906,bw,34+lines.length*36,10); x.fill();
+      x.fillStyle=green; x.fillRect(100,906,6,34+lines.length*36);
+      x.fillStyle='#3c4a45';
+      lines.forEach((l,i)=>x.fillText(l,130,950+i*36)); }
+    // stone rows
+    const uniq=[],seen={}; seq.forEach((k,i)=>{ if(!(k in seen)){seen[k]=uniq.length;uniq.push({key:k,pos:[i]});} else uniq[seen[k]].pos.push(i); });
+    const want=wantedWishes(), rows=uniq.slice(0,4), y0=prof?1064:980;
+    x.textAlign='left';
+    rows.forEach((u,ri)=>{ const st=STONES[u.key]; if(!st)return; const y=y0+ri*82;
+      const im=imgs[beadSrc(u.key,u.pos[0])]||imgs[srcs[0]];
+      if(im&&im.naturalWidth){ x.save();x.shadowColor='rgba(0,0,0,.22)';x.shadowBlur=8;x.shadowOffsetY=4; x.drawImage(im,108,y-30,64,64);x.restore(); }
+      const pk2=state.picks.find(p=>p.key===u.key);
+      const tier=pk2?({lead:'LEAD',bridge:'CARRY',balance:'BALANCE',breath:'BREATH',echo:'ECHO'})[pk2.ct]||'YOURS':'YOURS';
+      x.fillStyle=green; x.font='600 17px Manrope, "PingFang SC", sans-serif';
+      x.fillText(tier+' ×'+u.pos.length, 196, y-6);
+      x.fillStyle=ink; x.font='400 28px Manrope, "PingFang SC", sans-serif';
+      x.fillText(st.en, 196, y+26);
+      const hits=(st.wish||[]).filter(w=>want.has(w)).map(w=>WISH_LABEL[w]||w);
+      let why=hits.length?`answers the ${hits.join(' & ')} you asked for`:(prof&&st.el===prof.weakest?`feeds the ${EL_EN[st.el]} that runs quiet in you`:(prof&&prof.favorable.includes(st.el)?`flows with the ${EL_EN[st.el]} your pattern favours`:doesOf(st)));
+      x.fillStyle=faint; x.font='300 22px Manrope, "PingFang SC", sans-serif';
+      x.fillText(wrapText(x,why,W-420)[0]||'', 196, y+56);
+    });
+    if(uniq.length>4){ x.fillStyle=faint; x.font='300 22px Manrope, "PingFang SC", sans-serif';
+      x.fillText('…and {N} more stones'.replace('{N}',uniq.length-4), 108, y0+4*82); }
+    // footer
+    x.textAlign='center'; x.fillStyle=faint; x.font='300 22px Manrope, "PingFang SC", sans-serif';
+    x.fillText('Stone Whisper · {N} beads · {P} · hand-assembled · photographed before it ships'.replace('{N}',seq.length).replace('{P}',money(priceOf(seq))), W/2, H-86);
+    cb(cv.toDataURL('image/png'));
+  }
+}
+$('shareBtn').onclick=()=>{ if(!state.seq.length)return;
+  buildShareImage(durl=>{ if(!durl)return;
+    $('shareImg').src=durl; $('shareDl').href=durl;
+    $('shareModal').classList.add('show'); }); };
+$('shareX').onclick=()=>$('shareModal').classList.remove('show');
+$('shareModal').onclick=e=>{if(e.target===$('shareModal'))$('shareModal').classList.remove('show');};
+
+/* lucky — with a chart it walks the causal chain (random among each step's top-3); without, pure luck */
+function luckyStrand(){
+  if(!CATALOG.length) return;
+  if(state.prof){
+    const picks=selectStones(state.intents,state.prof,true);
+    if(!picks.length)return;
+    state.picks=picks;
+  } else {
+    const pool=CATALOG.slice(), picks=[], used=new Set();
+    while(picks.length<5&&pool.length){ const s=pool.splice(Math.floor(Math.random()*pool.length),1)[0];
+      if(used.has(s.en))continue; used.add(s.en);
+      picks.push({...s,ct:'echo',hits:[],role:'luck brought it'}); }
+    if(!picks.length)return;
+    state.picks=picks;
+  }
+  state.sizes={};   // lucky = uniform size
+  state.basePattern=recipeFromPicks(state.picks);
+  state.recipe=fillToCount(state.basePattern,beadCount());
+  while(state.recipe.length&&sumMm(state.recipe)>loopMm()+state.beadMm/2) state.recipe.pop();
+  state.autofilled=true; state._repour=true; rebuild();
+  toast(state.prof?'A lucky strand — same causal chain, different cards':'A lucky strand — add your birthday and luck gets smarter');
+}
+$('luckyBtn').onclick=luckyStrand;
+$('wristX').onclick=()=>$('wristModal').classList.remove('show'); $('wristModal').onclick=e=>{if(e.target===$('wristModal'))$('wristModal').classList.remove('show');};
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){$('zoomModal').classList.remove('show');$('wristModal').classList.remove('show');$('storyModal').classList.remove('show');$('shareModal').classList.remove('show');}});
+
+/* confirm */
+$('addBtn').onclick=()=>{ if(!state.seq.length)return;
+  alert("Prototype — Add to cart wires into the SW store.\n\n"+(state.name||"Your bracelet")+" — "+state.seq.length+" beads ("+state.beadMm+"mm, "+state.wristCm+"cm wrist)\nStones: "+[...new Set(state.seq)].map(k=>STONES[k].en).join(", ")+(state.request?"\nYour note: "+state.request:"")+"\nTotal: "+money(priceOf(state.seq))); };
+
+/* album (localStorage) */
+function loadAlbum(){ try{return JSON.parse(localStorage.getItem('sw_album')||'[]');}catch(e){return[];} }
+function putAlbum(a){ try{localStorage.setItem('sw_album',JSON.stringify(a.slice(0,40)));}catch(e){} }
+$('saveAlbum').onclick=()=>{ if(!state.recipe.length){toast("Build something first");return;}
+  const a=loadAlbum(); a.unshift({name:state.name||"Untitled",recipe:state.recipe.slice(),sizes:{...state.sizes},wristCm:state.wristCm,beadMm:state.beadMm,ts:Date.now()});
+  putAlbum(a); renderAlbum(); toast("Saved to your album"); };
+function miniRing(recipe){ const seq=recipe.length?recipe.slice(0,30):[]; const cx=50,cy=50,R=37,n=seq.length||1,bd=2*Math.PI*R/n; let s='';
+  for(let i=0;i<n;i++){const a=i/n*2*Math.PI-Math.PI/2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a); s+=`<image href="${sprite(seq[i])}" x="${(x-bd/2).toFixed(1)}" y="${(y-bd/2).toFixed(1)}" width="${bd.toFixed(1)}" height="${bd.toFixed(1)}"/>`;}
+  return `<g>${s}</g>`; }
+function renderAlbum(){
+  const a=loadAlbum(), el=$('album');
+  if(!a.length){ el.innerHTML='<div class="ph">No saved designs yet — build one and tap "♡ Save to my album".</div>'; return; }
+  el.innerHTML="";
+  a.forEach((d,i)=>{ const it=document.createElement('div');it.className='album-item';
+    it.innerHTML=`<svg class="mini" viewBox="0 0 100 100">${miniRing(d.recipe)}</svg><div class="ai-name">${d.name}</div><div class="ai-del">✕</div>`;
+    it.querySelector('.mini').onclick=()=>loadDesign(d);
+    it.querySelector('.ai-del').onclick=(e)=>{e.stopPropagation(); const al=loadAlbum(); al.splice(i,1); putAlbum(al); renderAlbum();};
+    el.appendChild(it); });
+}
+function loadDesign(d){
+  state.recipe=d.recipe.slice(); state.sizes=(d.sizes&&{...d.sizes})||{}; state.autofilled=false; state.basePattern=null; state.wristCm=d.wristCm||16; state.beadMm=d.beadMm||8; state.name=d.name||"";
+  $('wrist').value=state.wristCm; $('bname').value=state.name;
+  document.querySelectorAll('.szchip').forEach(x=>x.classList.toggle('on',+x.textContent===state.beadMm));
+  rebuild(); showTab('stones');
+}
+let _tt; function toast(m,act,fn){ const t=$('toast');
+  if(act&&fn){ t.innerHTML=`${esc(m)} <b class="t-act">${esc(act)}</b>`; t.classList.add('has-act'); t.querySelector('.t-act').onclick=()=>{fn(); t.classList.remove('show','has-act');}; }
+  else { t.textContent=m; t.classList.remove('has-act'); }
+  t.classList.add('show'); clearTimeout(_tt); _tt=setTimeout(()=>t.classList.remove('show','has-act'),act?3600:1800); }
+
+/* ambient: soft jewel-box light motes drifting up — gives the space life (seen softly through the frosted app) */
+(function ambient(){
+  const cv=document.getElementById('amb'); if(!cv) return; const x=cv.getContext('2d'); let W,H,DPR;
+  function size(){ DPR=Math.min(devicePixelRatio||1,2); W=cv.width=innerWidth*DPR; H=cv.height=innerHeight*DPR; cv.style.width=innerWidth+'px'; cv.style.height=innerHeight+'px'; }
+  size(); addEventListener('resize',size);
+  const COL=[[236,172,92],[214,142,162],[176,118,196],[240,206,150],[150,120,200]];
+  const N=innerWidth<560?24:38, P=[];
+  function mk(init){ const c=COL[Math.floor(Math.random()*COL.length)]; return {x:Math.random()*W,y:init?Math.random()*H:H+50*DPR,r:(9+Math.random()*30)*DPR,c,a:0,ta:.05+Math.random()*.13,v:(.09+Math.random()*.26)*DPR,dr:(Math.random()-.5)*.16*DPR,ph:Math.random()*6.28}; }
+  for(let i=0;i<N;i++) P.push(mk(true));
+  let t=0;
+  function frame(){ t+=.016; x.clearRect(0,0,W,H);
+    for(const p of P){ p.y-=p.v; p.x+=p.dr+Math.sin(t*.3+p.ph)*.12*DPR; p.a+=(p.ta-p.a)*.02;
+      if(p.y<-70*DPR) Object.assign(p,mk(false));
+      const g=x.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r);
+      g.addColorStop(0,`rgba(${p.c[0]},${p.c[1]},${p.c[2]},${p.a.toFixed(3)})`); g.addColorStop(1,`rgba(${p.c[0]},${p.c[1]},${p.c[2]},0)`);
+      x.fillStyle=g; x.beginPath(); x.arc(p.x,p.y,p.r,0,7); x.fill(); }
+    requestAnimationFrame(frame); }
+  requestAnimationFrame(frame);
+})();
+
+/* load catalog */
+fetch('beadwork/stones.json?v='+VER).then(r=>r.json()).then(cat=>{
+  CATALOG=cat; cat.forEach(s=>STONES[s.key]=s);
+  buildPalette(); renderAlbum(); rebuild();
+}).catch(e=>{ $('palette').innerHTML='<div class="ph">Could not load the collection — open this page via the local server.</div>'; });
+</script>
+</body>
+</html>
