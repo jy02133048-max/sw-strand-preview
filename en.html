@@ -696,7 +696,7 @@ const SVGNS='http://www.w3.org/2000/svg';
 // per-slot jitter so no two beads of one stone look cloned, ghost slots, stained-glass halos.
 function renderBraceletMain(seq){
   const sv=svg(), cx=150,cy=150,n=seq.length, R=ringR(), defBd=state.beadMm*MM_PX;
-  if(!sv.querySelector('.zring')){ sv.innerHTML=`<defs><filter id="bshadow" x="-70%" y="-70%" width="240%" height="240%"><feDropShadow dx="0" dy="2.5" stdDeviation="3.5" flood-color="#1c1e1e" flood-opacity="0.32"/></filter></defs><defs class="zdefs"></defs><ellipse class="zring" cx="${cx}" cy="150" rx="100" ry="100" fill="none" stroke="rgba(200,180,140,.16)" stroke-width="1.3"/><g class="zbeads"><g class="zhalo"></g><g class="zghost"></g><g class="zbody"></g></g>`; }
+  if(!sv.querySelector('.zring')){ sv.innerHTML=`<defs><filter id="bshadow" x="-70%" y="-70%" width="240%" height="240%"><feDropShadow dx="0" dy="1.2" stdDeviation="1.8" flood-color="#1c1e1e" flood-opacity="0.20"/></filter></defs><defs class="zdefs"></defs><ellipse class="zring" cx="${cx}" cy="150" rx="100" ry="100" fill="none" stroke="rgba(200,180,140,.16)" stroke-width="1.3"/><g class="zbeads"><g class="zhalo"></g><g class="zghost"></g><g class="zbody"></g></g>`; }
   // stage grows with the strand: beads keep their pixel size, the camera frame widens
   const vh=vbHalf(seq), vw2=2*vh;
   sv.setAttribute('viewBox',`${(150-vh).toFixed(1)} ${(150-vh).toFixed(1)} ${vw2.toFixed(1)} ${vw2.toFixed(1)}`);
