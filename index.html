@@ -354,6 +354,15 @@
   .cat-lbl .cv{font-size:8px;transition:transform .2s}
   .cat-group.closed .cat-chips{display:none}
   .cat-group.closed .cv{transform:rotate(-90deg)}
+  /* three sections separated (User 2026-06-13): fit controls -> popover under meta; picker -> bottom sheet */
+  .fitpop{display:none;margin:10px auto 0;width:min(440px,94%);text-align:left}
+  #sizeMeta{cursor:pointer}
+  .picksheet{position:fixed;left:50%;bottom:0;transform:translateX(-50%) translateY(108%);width:100%;max-width:480px;z-index:30;background:var(--bg);border:1px solid var(--line);border-bottom:none;border-radius:18px 18px 0 0;height:min(68vh,620px);display:flex;flex-direction:column;padding:10px 14px;transition:transform .32s cubic-bezier(.22,.61,.36,1)}
+  .picksheet .cat{padding:5px 10px;font-size:11.5px}
+  .picksheet.show{transform:translateX(-50%)}
+  .ps-head{flex:none;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:var(--muted);padding:2px 2px 10px}
+  .ps-x{font-size:19px;color:var(--muted);cursor:pointer;line-height:1;padding:2px 6px}
+  .picksheet .pick-flex{flex:1;min-height:0;height:auto}
   .cat-chips{display:grid;grid-template-columns:1fr;gap:5px}
   .catbar .cat{text-align:center;padding:7px 4px}
   .pick-flex .palette{flex:1;min-width:0;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));height:100%;overflow-y:auto;align-content:start;grid-auto-rows:max-content;scrollbar-width:none}   /* definite-height grid collapses auto rows to min-height — rows must size to content; no contain: at the edges the swipe hands off to the panel (one fluid scroll) */
@@ -376,8 +385,13 @@
       <div class="sweep"></div>
       <div class="empty-hint" id="emptyHint">你的手串<br>在这里成形</div>
     </div>
-    <div class="preview-meta"><span><b id="beadCount">—</b> 颗</span><span id="sizeMeta">16cm · 8mm</span><span class="meta-lucky" id="luckyBtn">🎲 手气</span><span class="meta-clear" id="clearAll" style="display:none">✕ 清空</span></div>
+    <div class="preview-meta"><span><b id="beadCount">—</b> 颗</span><span id="sizeMeta">16cm · 8mm ✎</span><span class="meta-lucky" id="luckyBtn">🎲 手气</span><span class="meta-clear" id="clearAll" style="display:none">✕ 清空</span></div>
     <div class="preview-meta2" id="metaFit" style="display:none"></div>
+    <div class="sizebar fitpop" id="fitPop">
+        <div class="sz-row"><label class="sz-wrist">手腕 <input type="number" id="wrist" value="16" min="11" max="22" step="0.5"> 厘米</label><span class="howto" id="howto">ⓘ 怎么量</span></div>
+        <div class="howto-note" id="howtoNote">用一条纸条或绳子贴着手腕绕一圈,在重叠处做个记号,再用尺量出长度(厘米)。</div>
+        <div class="sz-row"><span class="sz-lbl">珠径</span><div class="sizes" id="sizeChips"></div></div>
+    </div>
     <div class="preview-actions" id="previewActions" style="display:none">
       <button class="pa-btn" id="zoomBtn">🔍 放大看</button>
       <button class="pa-btn" id="wristBtn">放进场景看</button>
@@ -428,19 +442,10 @@
 
     <!-- 3 · stones -->
     <div class="panel" data-panel="stones">
-      <div class="sizebar">
-        <div class="sz-row"><label class="sz-wrist">手腕 <input type="number" id="wrist" value="16" min="11" max="22" step="0.5"> 厘米</label><span class="howto" id="howto">ⓘ 怎么量</span></div>
-        <div class="howto-note" id="howtoNote">用一条纸条或绳子贴着手腕绕一圈,在重叠处做个记号,再用尺量出长度(厘米)。</div>
-        <div class="sz-row"><span class="sz-lbl">珠径</span><div class="sizes" id="sizeChips"></div></div>
-      </div>
+      <button class="btn ghost" id="openPicker" style="margin-bottom:14px">＋ 选石库 — <span id="stoneCount">…</span> 颗</button>
       <div class="section-label">你的石头 · 点珠子或 − 移除 · 尺寸为同款全改,改单颗请长按手串上的珠</div>
-      <div class="stones" id="stoneList"><div class="ph">还没有石头 — 先选场景+生日自动推荐,或从下面合集里加。</div></div>
+      <div class="stones" id="stoneList"><div class="ph">还没有石头 — 先选场景+生日自动推荐,或打开「选石库」自己挑。</div></div>
       <button class="btn ghost storyOpen" style="display:none;margin-bottom:14px">✦ 这一串的故事</button>
-      <div class="section-label">全部合集 — <span id="stoneCount">…</span> 颗 · 点 ＋ 添加,长按看大图</div>
-      <div class="pick-flex">
-        <div class="catbar" id="catBar"></div>
-        <div class="palette" id="palette"></div>
-      </div>
     </div>
 
     <!-- 4 · request -->
@@ -463,6 +468,13 @@
     </div>
   </main>
 
+  <div class="picksheet" id="pickSheet">
+    <div class="ps-head"><span>选石库 · 点 ＋ 添加,长按看大图</span><span class="ps-x" id="psClose">✕</span></div>
+    <div class="pick-flex">
+      <div class="catbar" id="catBar"></div>
+      <div class="palette" id="palette"></div>
+    </div>
+  </div>
   <footer class="cta-bar">
     <div class="cta-price" id="ctaPrice">—</div>
     <button class="btn" id="addBtn" disabled>先搭一串</button>
@@ -1024,7 +1036,7 @@ function renderAll(){
   else _mf.style.display='none';
   document.querySelectorAll('.storyOpen').forEach(b=>b.style.display=state.seq.length?'inline-flex':'none');
   $('beadCount').textContent=state.seq.length||'—';
-  $('sizeMeta').textContent=state.wristCm+'cm · '+state.beadMm+'mm';
+  $('sizeMeta').textContent=state.wristCm+'cm · '+state.beadMm+'mm ✎';
   renderCoach();
   renderYourStones();
   fillPalette();
@@ -1036,7 +1048,7 @@ function renderAll(){
 }
 function renderYourStones(){
   const sl=$('stoneList'), keys=[...new Set(state.recipe)];
-  if(!keys.length){ sl.innerHTML='<div class="ph">还没有石头 — 先选场景+生日自动推荐,或从下面合集里加。</div>'; return; }
+  if(!keys.length){ sl.innerHTML='<div class="ph">还没有石头 — 先选场景+生日自动推荐,或打开「选石库」自己挑。</div>'; return; }
   sl.innerHTML="";
   keys.forEach(k=>{const st=STONES[k]; if(!st)return; const pk=state.picks.find(p=>p.key===k), n=countIn(k);
     const row=document.createElement('div');row.className='stone';
@@ -1221,6 +1233,9 @@ function openZoom(){ if(!state.seq.length)return;
   $('zoomInfo').textContent=`${state.name||'你的手串'} · ${state.seq.length} 颗 · ${state.beadMm}mm · ${money(priceOf(state.seq))}`;
   $('zoomModal').classList.add('show'); _pz.reset(); }
 $('zoomBtn').onclick=openZoom;
+$('sizeMeta').onclick=()=>{ const f=$('fitPop'); f.style.display=(f.style.display==='block')?'none':'block'; };
+$('openPicker').onclick=()=>{ const sh=$('pickSheet'); sh.style.bottom=(document.querySelector('.cta-bar').offsetHeight||0)+'px'; sh.classList.add('show'); };
+$('psClose').onclick=()=>$('pickSheet').classList.remove('show');
 $('clearAll').onclick=()=>{ if(!state.recipe.length)return; const bak=state.recipe.slice(), bakM=state.mmList.slice();
   state.recipe=[]; state.mmList=[]; state.basePattern=null; state.autofilled=false; rebuild();
   toast('已清空整串','撤销',()=>{ state.recipe=bak; state.mmList=bakM; rebuild(); }); };
