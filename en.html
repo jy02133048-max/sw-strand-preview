@@ -772,7 +772,7 @@ function renderBraceletMain(seq){
       im.setAttribute('data-k',seq[i]);
       if(im.getAttribute('href')!==src){ im.setAttributeNS('http://www.w3.org/1999/xlink','href',src); im.setAttribute('href',src); }
       im.setAttribute('width',bd.toFixed(1)); im.setAttribute('height',bd.toFixed(1)); im.setAttribute('x',(-bd/2).toFixed(1)); im.setAttribute('y',(-bd/2).toFixed(1)); im.setAttribute('transform',`rotate(${rot})`);
-      el.style.opacity='1'; el.setAttribute('transform',`translate(${pp.x.toFixed(1)},${pp.y.toFixed(1)}) scale(${pp.sc.toFixed(3)})`); }
+      if(!el._pouring){ el.style.opacity='1'; el.setAttribute('transform',`translate(${pp.x.toFixed(1)},${pp.y.toFixed(1)}) scale(${pp.sc.toFixed(3)})`); } }   // a rebuild mid-pour must not stomp the choreography
     el.dataset.slot=i;
   }
   for(let i=n;i<els.length;i++){ const el=els[i]; el.classList.add('removing'); el.style.opacity='0';
@@ -783,8 +783,7 @@ function renderBraceletMain(seq){
       return ya-yb; }).forEach(e=>g.appendChild(e)); }
   if(newborns.length){
     const phys = newborns.length>=6 && !state.tilt && !(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches);
-    if(phys) pourPhysics(newborns,R,g);
-    else newborns.forEach((nb,j)=>threadIn(nb,j,g));
+    runPour(newborns,R,g,phys);
   }
   const stg0=sv.closest('.stage'), dish=stg0&&stg0.querySelector('.dish');
   if(dish){ dish.style.width=`calc(min(64vw,272px)*${(2*R*1.62/300).toFixed(3)})`; }
@@ -794,54 +793,67 @@ function renderBraceletMain(seq){
     stg.classList.toggle('tilted',!!state.tilt); }
 }
 
-function threadIn(nb,j,g){
-  const dly=Math.min(j,18)*38; nb.el.style.transitionDelay=dly+'ms';
-  let appl=false;
-  const apply=()=>{ if(appl)return; appl=true; nb.el.style.opacity='1';
-    nb.el.setAttribute('transform',`translate(${nb.x.toFixed(1)},${nb.y.toFixed(1)}) scale(${nb.sc.toFixed(3)})`); };
-  requestAnimationFrame(()=>requestAnimationFrame(apply));
-  setTimeout(apply,60);   // rAF starves in background tabs / headless — the timer guarantees the bead lands
-  setTimeout(()=>{ nb.el.style.transitionDelay='';
-    try{ nb.el.animate([{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:170,easing:'cubic-bezier(.25,1,.5,1)',composite:'add'}); }catch(_){}
-    bloomAt(g,nb.x,nb.y,nb.bd,nb.key); },dly+500);
-}
-// pour physics: beads tumble onto the dish (top-down), collide, push apart, settle — then thread on
-function pourPhysics(nbs,R,g){
+// pour + thread, one wall-clock tween engine on the transform ATTRIBUTE.
+// Why: CSS transitions on SVG presentation attributes are unreliable on iOS Safari (thread-in
+// never showed), and live rAF physics gets throttled by Low Power Mode then beheaded by a fixed
+// safety cutoff (the "卡/没效果" combo). The sim runs synchronously up front (pure math, instant);
+// playback interpolates samples by elapsed TIME — rAF paints when it can, a 40ms interval fills
+// the gaps, and a slow clock only lowers the frame rate, never the choreography.
+function runPour(nbs,R,g,phys){
   if(window._pourStop) window._pourStop();
-  let stop=false; window._pourStop=()=>{stop=true;};
+  let dead=false, iv=null; window._pourStop=()=>{ dead=true; if(iv){clearInterval(iv);iv=null;} };
   const C=150, wall=Math.min(R*1.05,132);
   const bod=nbs.map(nb=>{ const h=jit(nb.key,nb.slot);
     const ang=((h>>>7)%360)*Math.PI/180, rr=((h>>>3)%60)/100*wall*0.45;
-    return {nb, x:C+Math.cos(ang)*rr, y:C+Math.sin(ang)*rr,
-      vx:(((h>>>11)%100)-50)/13, vy:(((h>>>17)%100)-50)/13, r:nb.bd/2}; });
-  bod.forEach(b=>{ b.nb.el.style.transition='none'; b.nb.el.style.opacity='1';
-    b.nb.el.setAttribute('transform',`translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`); });
-  let frames=0, handed=false;
-  function handoff(){ if(handed||stop)return; handed=true;
-    bod.forEach(b=>{ b.nb.el.style.transition=''; });
-    bod.forEach((b,j)=>threadIn(b.nb,j,g)); }
-  // safety: rAF pauses in background tabs / headless — hand off to threading no matter what
-  setTimeout(handoff,1700);
-  function step(){
-    if(stop||handed) return;
-    frames++;
-    for(const b of bod){ b.x+=b.vx; b.y+=b.vy; b.vx*=0.91; b.vy*=0.91;
-      const dx=b.x-C, dy=b.y-C, d=Math.hypot(dx,dy)||0.01, lim=wall-b.r;
-      if(d>lim){ const nx=dx/d, ny=dy/d; b.x=C+nx*lim; b.y=C+ny*lim;
-        const dot=b.vx*nx+b.vy*ny; if(dot>0){ b.vx-=1.6*dot*nx; b.vy-=1.6*dot*ny; } } }
-    for(let i=0;i<bod.length;i++)for(let j=i+1;j<bod.length;j++){
-      const a=bod[i],c=bod[j]; const dx=c.x-a.x, dy=c.y-a.y; const d=Math.hypot(dx,dy)||0.01, min=a.r+c.r;
-      if(d<min){ const nx=dx/d, ny=dy/d, push=(min-d)/2;
-        a.x-=nx*push; a.y-=ny*push; c.x+=nx*push; c.y+=ny*push;
-        const av=a.vx*nx+a.vy*ny, cv2=c.vx*nx+c.vy*ny, ex=(cv2-av)*0.8;
-        a.vx+=ex*nx; a.vy+=ex*ny; c.vx-=ex*nx; c.vy-=ex*ny; } }
-    bod.forEach(b=>b.nb.el.setAttribute('transform',`translate(${b.x.toFixed(1)},${b.y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`));
-    const live=bod.some(b=>Math.hypot(b.vx,b.vy)>0.16);
-    if(handed) return;
-    if(frames<85 && (live||frames<26)) requestAnimationFrame(step);
-    else handoff();
+    return {nb, h, x:C+Math.cos(ang)*rr, y:C+Math.sin(ang)*rr,
+      vx:(((h>>>11)%100)-50)/13, vy:(((h>>>17)%100)-50)/13, r:nb.bd/2, sm:[]}; });
+  if(phys){ const SIMN=78;
+    for(let f=0;f<SIMN;f++){
+      for(const b of bod){ b.x+=b.vx; b.y+=b.vy; b.vx*=0.91; b.vy*=0.91;
+        const dx=b.x-C, dy=b.y-C, d=Math.hypot(dx,dy)||0.01, lim=wall-b.r;
+        if(d>lim){ const nx=dx/d, ny=dy/d; b.x=C+nx*lim; b.y=C+ny*lim;
+          const dot=b.vx*nx+b.vy*ny; if(dot>0){ b.vx-=1.6*dot*nx; b.vy-=1.6*dot*ny; } } }
+      for(let i=0;i<bod.length;i++)for(let j=i+1;j<bod.length;j++){
+        const a=bod[i],c=bod[j]; const dx=c.x-a.x, dy=c.y-a.y; const d=Math.hypot(dx,dy)||0.01, min=a.r+c.r;
+        if(d<min){ const nx=dx/d, ny=dy/d, push=(min-d)/2;
+          a.x-=nx*push; a.y-=ny*push; c.x+=nx*push; c.y+=ny*push;
+          const av=a.vx*nx+a.vy*ny, cv2=c.vx*nx+c.vy*ny, ex=(cv2-av)*0.8;
+          a.vx+=ex*nx; a.vy+=ex*ny; c.vx-=ex*nx; c.vy-=ex*ny; } }
+      if(f%3===0||f===SIMN-1) bod.forEach(b=>b.sm.push([b.x,b.y]));
+    } }
+  const easeOC=t2=>1-Math.pow(1-t2,3);
+  const PD=phys?1050:0, TD=430, t0=performance.now();
+  bod.forEach((b,j)=>{ b.t1=PD+Math.min(j,18)*38; b.done=false;
+    b.sx=150+(((b.h>>>3)%80)-40)*0.9; b.sy=150+R*0.55+((b.h>>>5)%26);
+    b.ex=phys?b.sm[b.sm.length-1][0]:b.sx; b.ey=phys?b.sm[b.sm.length-1][1]:b.sy;
+    b.nb.el.style.transition='none'; b.nb.el._pouring=true; });
+  const TOTAL=bod[bod.length-1].t1+TD;
+  let lastP=0;
+  function paint(){
+    if(dead) return true;
+    const now=performance.now(); if(now-lastP<24) return false; lastP=now;
+    const t=now-t0; let allDone=true;
+    for(const b of bod){ const el=b.nb.el; if(b.done) continue; let x,y,op=1;
+      if(phys&&t<PD){ const u=t/PD*(b.sm.length-1), i0=Math.floor(u), fr=u-i0;
+        const p0=b.sm[Math.min(i0,b.sm.length-1)], p1=b.sm[Math.min(i0+1,b.sm.length-1)];
+        x=p0[0]+(p1[0]-p0[0])*fr; y=p0[1]+(p1[1]-p0[1])*fr; allDone=false; }
+      else if(t<b.t1){ x=b.ex; y=b.ey; if(!phys)op=0; allDone=false; }
+      else if(t<b.t1+TD){ const k2=easeOC((t-b.t1)/TD);
+        x=b.ex+(b.nb.x-b.ex)*k2; y=b.ey+(b.nb.y-b.ey)*k2; op=phys?1:Math.min(1,k2*2.5); allDone=false; }
+      else { x=b.nb.x; y=b.nb.y; b.done=true; el._pouring=false; el.style.transition='';
+        try{ el.animate([{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:170,easing:'cubic-bezier(.25,1,.5,1)',composite:'add'}); }catch(_){}
+        bloomAt(g,b.nb.x,b.nb.y,b.nb.bd,b.nb.key); }
+      el.style.opacity=op<1?op.toFixed(2):'1';
+      el.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`);
+    }
+    return allDone;
   }
-  requestAnimationFrame(step);
+  iv=setInterval(()=>{ if(paint()&&iv){ clearInterval(iv); iv=null; } },40);
+  (function fr(){ if(dead) return; if(paint()){ if(iv){clearInterval(iv);iv=null;} return; } requestAnimationFrame(fr); })();
+  setTimeout(()=>{ if(iv){clearInterval(iv);iv=null;}
+    if(!dead) bod.forEach(b=>{ const el=b.nb.el; el._pouring=false; el.style.transition=''; el.style.opacity='1';
+      el.setAttribute('transform',`translate(${b.nb.x.toFixed(1)},${b.nb.y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`); });
+  }, TOTAL+900);   // absolute backstop: whatever happens, every bead lands
 }
 
 // a quiet ripple of the stone's own light where a bead just landed
