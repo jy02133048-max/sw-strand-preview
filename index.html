@@ -356,6 +356,7 @@
   .szmini{display:flex;gap:4px;margin-top:5px}
   .szmini b{font-weight:400;font-size:10.5px;min-width:22px;text-align:center;padding:2px 3px;border:1px solid var(--line);border-radius:5px;color:var(--muted);cursor:pointer}
   .szmini b.on{border-color:#0e6b50;color:#0e6b50;background:rgba(14,107,80,.06)}
+  .m-size-l{font-size:12px;color:var(--faint);align-self:center;margin-right:3px}
   @media (prefers-reduced-motion:reduce){svg.bracelet .zbeads,.stage .sweep,.modal-bead,.modal-bead::after,.chip,.panel.on,.s-item{animation:none!important}}
 </style>
 </head>
@@ -469,6 +470,7 @@
   <div class="mname" id="mName"></div>
   <div class="mcn" id="mCn"></div>
   <div class="mmeta"><span class="mel" id="mEl"></span><span class="mprice" id="mPrice"></span></div>
+  <div class="szmini" id="mSize" style="display:none;justify-content:center;margin:0 0 14px"></div>
   <div class="mdoes" id="mDoes"></div>
   <button class="btn" id="mAdd">加到我的手串</button>
   <div class="mremove" id="mRemove" style="display:none">↩ 从手串里移除一颗</div>
@@ -508,7 +510,7 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const VER=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?Date.now():'v20260612a';   // fixed in prod — Date.now() was defeating ALL image caching
+const VER=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?Date.now():'v20260612b';   // fixed in prod — Date.now() was defeating ALL image caching
 const ASSET=location.hostname.endsWith('github.io')?'https://cdn.jsdelivr.net/gh/jy02133048-max/sw-strand-preview@d07dee69a6d220fa095998bc6002e353b7ec90c7/':'';   // jsDelivr reaches mainland users far better than github.io; ref pinned to a commit at publish time
 const deAsset=u=>(ASSET&&u&&u.indexOf(ASSET)===0)?u.slice(ASSET.length):null;   // CDN miss → retry same-origin
 let CATALOG=[], STONES={};
@@ -674,8 +676,11 @@ function fillToCount(recipe,n){ if(!recipe.length)return[]; const o=[]; let i=0;
 function recipeFromPicks(picks){ const r=[]; picks.forEach((p,i)=>{r.push(p.key); if(i<2)r.push(p.key);}); return r; }
 function rebuild(){ state.seq=state.recipe.slice(); renderAll(); }   // the ring IS the beads you placed — one bead per entry
 function refit(){
-  if(state.autofilled && state.basePattern && state.basePattern.length){ state.recipe=fillToCount(state.basePattern, beadCount()); }
-  let trimmed=0; while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); trimmed++; }
+  if(state.autofilled && state.basePattern && state.basePattern.length){ state.recipe=fillToCount(state.basePattern, beadCount());
+    state.mmList=state.recipe.map(()=>null);
+    if(state._leadBump&&state.picks[0]){ const up=SIZES[Math.min(Math.max(SIZES.indexOf(state.beadMm),0)+1,SIZES.length-1)];
+      state.recipe.forEach((rk,i)=>{ if(rk===state.picks[0].key) state.mmList[i]=up; }); } }
+  let trimmed=0; while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); state.mmList.pop(); trimmed++; }
   if(trimmed) toast(`手围装不下 — 已自动减掉 ${trimmed} 颗`);
   rebuild();
 }
@@ -684,7 +689,7 @@ function refit(){
 const MM_PX=3.4;
 function loopMm(){ return state.wristCm*10 + EASE + Math.PI*state.beadMm; }   // wrist is the INNER circle; string runs through bead centres (+πd). EASE=13.6 from User's fit data (18×10mm@13.5cm, 21×10mm@16.5cm)
 function ringR(){ return loopMm()*MM_PX/(2*Math.PI); }   // true scale always — big strands expand the stage instead of shrinking beads (User: 16mm 不能变小)
-function vbHalf(seq){ const maxBd=(seq&&seq.length?Math.max(...seq.map(bdPx)):state.beadMm*MM_PX);
+function vbHalf(seq){ const maxBd=(seq&&seq.length?Math.max(...seq.map((k,i)=>bdAt(i))):state.beadMm*MM_PX);
   return Math.max(150, ringR()+maxBd/2+4); }
 function renderBracelet(svg,seq){
   const cx=150,cy=150,R=ringR();
@@ -694,7 +699,7 @@ function renderBracelet(svg,seq){
     s+=`<image data-k="${seq[i]}" href="${beadSrc(seq[i],i)}" x="${(x-bd/2).toFixed(1)}" y="${(y-bd/2).toFixed(1)}" width="${bd.toFixed(1)}" height="${bd.toFixed(1)}" transform="rotate(${jit(seq[i],i)%360} ${x.toFixed(1)} ${y.toFixed(1)})"/>`;});
   svg.innerHTML=`<g>${s}</g>`;
 }
-function priceOf(seq){return seq.length?CLASP+seq.reduce((a,k)=>a+(STONES[k]?STONES[k].price*(mmOf(k)/8):0),0):0;}   // size factor mm/8 = placeholder pricing
+function priceOf(seq){return seq.length?CLASP+seq.reduce((a,k,i)=>a+(STONES[k]?STONES[k].price*(mmAt(i)/8):0),0):0;}   // size factor mm/8 = placeholder pricing
 const SVGNS='http://www.w3.org/2000/svg';
 // animated main bracelet — per-bead sizes (sequential packing), two view modes, pour-in threading,
 // per-slot jitter so no two beads of one stone look cloned, ghost slots, stained-glass halos.
@@ -716,7 +721,7 @@ function renderBraceletMain(seq){
   if(state._repour){ els.forEach(e=>e.remove()); els=[]; state._repour=false; }   // full re-recommendation: pour the whole strand again
   const newborns=[];
   const lay=layoutRing(seq,R);
-  const used=seq.reduce((a,k)=>a+bdPx(k)/R,0);
+  const used=seq.reduce((a,k,i)=>a+bdAt(i)/R,0);
   // stained-glass halos
   const uniq={}; let di=0, defs='';
   seq.forEach(k=>{const s=STONES[k]; const c=s?(TINT[s.color]||'#cfd2d6'):'#cfd2d6';
@@ -838,7 +843,7 @@ function bloomAt(g,x,y,bd,k){
 }
 
 /* ===== state ===== */
-const state={intents:[],picks:[],recipe:[],seq:[],basePattern:null,autofilled:false,tilt:false,sizes:{},prof:null,hasReading:false,cat:"all",wristCm:16,beadMm:8,name:"",request:"",customText:"",place:""}; window.__state=state;
+const state={intents:[],picks:[],recipe:[],seq:[],basePattern:null,autofilled:false,tilt:false,mmList:[],prof:null,hasReading:false,cat:"all",wristCm:16,beadMm:8,name:"",request:"",customText:"",place:""}; window.__state=state;
 const esc=s=>(s||'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 // map a free-text "其他" description to stone wishes by keyword
 const CUSTOM_WISH=[[/睡|失眠|入睡|做梦/,"sleep_light"],[/焦虑|紧张|不安|静|放松|平静|心烦|emo/,"calm"],[/专注|分心|集中|定下来|拖延/,"focus"],[/自信|底气|不敢|胆小|怯/,"confidence"],[/钱|财|收入|搞钱|生意|赚/,"wealth"],[/事业|升职|前途|职业|工作/,"career"],[/爱|感情|喜欢|恋|心动|脱单|桃花/,"love"],[/自己|接纳|爱自己|配得|自我/,"self_love"],[/保护|边界|消耗|被伤|拒绝|讨好|防/,"protection"],[/踏实|稳|安定|脚踏实地|归属|扎根/,"grounding"],[/表达|说话|沟通|开口|演讲/,"communication"],[/活力|动力|能量|提不起劲|累|没劲/,"energy"],[/直觉|灵感|指引|第六感/,"intuition"]];
@@ -854,17 +859,18 @@ const CITY={
  "London":{lon:-0.1,tz:0},"Toronto":{lon:-79.4,tz:-5},"Sydney":{lon:151.2,tz:10},"Tokyo":{lon:139.7,tz:9},"Singapore":{lon:103.8,tz:8}
 };
 const countIn=k=>state.recipe.filter(x=>x===k).length;
-const mmOf=k=>state.sizes[k]||state.beadMm;
-const bdPx=k=>mmOf(k)*MM_PX;
-const sumMm=arr=>(arr||state.recipe).reduce((a,k)=>a+mmOf(k),0);
+const mmAt=i=>state.mmList[i]||state.beadMm;     // per-BEAD size (User: 要能单颗改)
+const bdAt=i=>mmAt(i)*MM_PX;
+const sumMm=()=>state.recipe.reduce((a,k,i)=>a+mmAt(i),0);
+const setTypeMm=(k,mm)=>{ state.recipe.forEach((rk,i)=>{ if(rk===k) state.mmList[i]=(mm===state.beadMm?null:mm); }); };
 // sequential packing — every bead takes its own arc width; when the strand is full the spacing
 // compresses evenly so extra beads squeeze in all around (no tail piling onto the head)
 function layoutRing(seq,R){
-  const ws=seq.map(k=>bdPx(k)/R), total=ws.reduce((a,b)=>a+b,0);
+  const ws=seq.map((k,i)=>bdAt(i)/R), total=ws.reduce((a,b)=>a+b,0);
   // snap-to-closed: a strand within ~6% of a full loop always closes (real elastic strands are never left ajar)
   const f=(total>2*Math.PI||total>2*Math.PI*0.94)?(2*Math.PI)/total:1;
   const out=[]; let a=-Math.PI/2, prevW=0;
-  seq.forEach((k,i)=>{ const w=ws[i]*f; if(i>0) a+=prevW/2+w/2; out.push({a,bd:bdPx(k)}); prevW=w; });
+  seq.forEach((k,i)=>{ const w=ws[i]*f; if(i>0) a+=prevW/2+w/2; out.push({a,bd:bdAt(i)}); prevW=w; });
   return out;
 }
 function projPos(a,R){ if(state.tilt) return {x:150+R*1.04*Math.cos(a),y:150+R*0.56*Math.sin(a)+13,sc:1+0.17*Math.sin(a)};
@@ -876,13 +882,13 @@ let VARN=1;
 fetch(ASSET+'beadwork/variants.json?v='+VER).then(r=>r.json()).then(v=>{ if(v&&v.n>1){VARN=v.n; rebuild();} }).catch(()=>{});
 const beadSrc=(k,i)=>{ const vi=VARN>1?((jit(k,i)>>>4)%VARN):0; return vi?`${ASSET}beadwork/beads-day/${k}_v${vi}.webp?v=${VER}`:sprite(k); };
 function addStone(k){   // capacity is now millimetre-true: sum of every bead's own size vs the wrist loop
-  const cap=loopMm(), cur=sumMm(), add=mmOf(k);
+  const cap=loopMm(), cur=sumMm(), add=state.beadMm;
   if(cur+add>cap+2*state.beadMm){ toast(`${state.wristCm}cm 手围真的放不下了 — 换大手围或减几颗`); return; }
-  state.recipe.push(k); state.autofilled=false; rebuild();
+  state.recipe.push(k); state.mmList.push(null); state.autofilled=false; rebuild();
   if(cur+add>cap) toast(`手串偏大了 — 已超过 ${state.wristCm}cm 手围的舒适量`);
 }
-function removeStone(k){ const i=state.recipe.lastIndexOf(k); if(i>=0)state.recipe.splice(i,1); state.autofilled=false; rebuild(); }
-function removeAt(i){ if(i>=0&&i<state.recipe.length){ state.recipe.splice(i,1); state.autofilled=false; rebuild(); } }
+function removeStone(k){ const i=state.recipe.lastIndexOf(k); if(i>=0){state.recipe.splice(i,1);state.mmList.splice(i,1);} state.autofilled=false; rebuild(); }
+function removeAt(i){ if(i>=0&&i<state.recipe.length){ state.recipe.splice(i,1); state.mmList.splice(i,1); state.autofilled=false; rebuild(); } }
 
 /* tap vs long-press helper (mouse + touch) */
 function attachPress(el,onTap,onLong){
@@ -942,12 +948,13 @@ function maybeRead(){
   if(city && h>=0){ const off=Math.round((city.lon-city.tz*15)*4); const c=new Date(new Date(y,m-1,d,h,mi,0).getTime()+off*60000); y=c.getFullYear();m=c.getMonth()+1;d=c.getDate();h=c.getHours();mi=c.getMinutes(); }
   state.prof=elementProfile(y,m,d,h,mi);
   state.picks=selectStones(state.intents,state.prof);
-  state.sizes={};
-  const _lk=state.picks[0]&&state.picks[0].key;
-  if(_lk){ const _li=SIZES.indexOf(state.beadMm); state.sizes[_lk]=SIZES[Math.min(Math.max(_li,0)+1,SIZES.length-1)]; }   // lead stone one size up
   state.basePattern=recipeFromPicks(state.picks);
   state.recipe=fillToCount(state.basePattern, beadCount());   // fill to a full bracelet ONCE; then the user tweaks bead by bead
-  while(state.recipe.length&&sumMm(state.recipe)>loopMm()+state.beadMm/2) state.recipe.pop();   // half-bead slack — elastic loops don't care about 1mm (was cutting the 22nd bead → visible gap)
+  state.mmList=state.recipe.map(()=>null); state._leadBump=true;
+  const _lk=state.picks[0]&&state.picks[0].key;
+  if(_lk){ const up=SIZES[Math.min(Math.max(SIZES.indexOf(state.beadMm),0)+1,SIZES.length-1)];
+    state.recipe.forEach((rk,i)=>{ if(rk===_lk) state.mmList[i]=up; }); }   // lead beads one size up (per-slot)
+  while(state.recipe.length&&sumMm()>loopMm()+state.beadMm/2){ state.recipe.pop(); state.mmList.pop(); }
   state.autofilled=true; state._repour=true;
   const first=!state.hasReading; state.hasReading=true;
   $('sceneNudge').classList.remove('on');
@@ -1036,9 +1043,10 @@ function renderYourStones(){
     mi.onclick=()=>removeStone(k); pl.onclick=()=>addStone(k);
     const sz=document.createElement('div'); sz.className='szmini';
     SIZES.forEach(mm=>{ const b2=document.createElement('b'); b2.textContent=mm;
-      if(mm===(state.sizes[k]||state.beadMm)) b2.className='on';
-      b2.onclick=()=>{ if(mm===state.beadMm) delete state.sizes[k]; else state.sizes[k]=mm;
-        while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm) state.recipe.pop();
+      const _i0=state.recipe.indexOf(k);
+      if(mm===(_i0>=0?mmAt(_i0):state.beadMm)) b2.className='on';
+      b2.onclick=()=>{ setTypeMm(k,mm);   // 该石全改;单颗改走长按珠子的详情
+        while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); state.mmList.pop(); }
         state.autofilled=false; rebuild(); };
       sz.appendChild(b2); });
     row.children[1].appendChild(sz);
@@ -1106,7 +1114,7 @@ function fillPalette(){
 }
 
 /* detail modal (long-press) */
-function openDetail(key){const s=STONES[key]; if(!s)return;
+function openDetail(key,slot){const s=STONES[key]; if(!s)return;
   $('mBead').style.backgroundImage=`url(${ASSET}beadwork/hi-day/${key}.webp?v=${VER}), url(${sprite(key)})`;
   let au=$('mAura'); if(!au){au=document.createElement('div');au.id='mAura';au.className='modal-aura';$('mBead').parentNode.insertBefore(au,$('mBead'));}
   au.style.background=`radial-gradient(circle,${TINT[s.color]||'#cfd2d6'} 0%,transparent 70%)`;
@@ -1116,6 +1124,16 @@ function openDetail(key){const s=STONES[key]; if(!s)return;
   $('mAdd').onclick=()=>{addStone(key);closeDetail();toast("已加入");};
   const rm=$('mRemove'); rm.style.display=countIn(key)?'block':'none';
   rm.onclick=()=>{removeStone(key);closeDetail();};
+  const ms=$('mSize');
+  if(typeof slot==='number'&&slot>=0&&state.recipe[slot]===key){ ms.style.display='flex'; ms.innerHTML='';
+    const lab=document.createElement('span'); lab.className='m-size-l'; lab.textContent='这一颗:'; ms.appendChild(lab);
+    SIZES.forEach(mm=>{ const b3=document.createElement('b'); b3.textContent=mm;
+      if(mm===mmAt(slot)) b3.className='on';
+      b3.onclick=()=>{ state.mmList[slot]=(mm===state.beadMm?null:mm);
+        while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); state.mmList.pop(); }
+        state.autofilled=false; rebuild(); openDetail(key, slot<state.recipe.length?slot:-1); };
+      ms.appendChild(b3); });
+  } else ms.style.display='none';
   $('modal').classList.add('show');}
 function closeDetail(){$('modal').classList.remove('show');}
 $('modalX').onclick=closeDetail; $('modal').onclick=e=>{if(e.target===$('modal'))closeDetail();};
@@ -1147,7 +1165,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
   SV.addEventListener('pointerdown',e=>{const k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-k'); if(!k){key=null;return;}
     key=k; long=false; drag=false; sx=e.clientX; sy=e.clientY;
     el=e.target.closest('.zb'); slot=el?+el.dataset.slot:-1;
-    t=setTimeout(()=>{long=true;openDetail(k);},430);
+    t=setTimeout(()=>{long=true;openDetail(k,slot);},430);
     try{SV.setPointerCapture(e.pointerId);}catch(_){}});
   SV.addEventListener('pointermove',e=>{ if(!key||long)return;
     if(!drag && Math.hypot(e.clientX-sx,e.clientY-sy)>12){
@@ -1163,7 +1181,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
       el._target=j; }});
   const fin=apply=>{ clearTimeout(t);
     if(drag){ SV.classList.remove('dragging'); el.style.transition='';
-      const j=el._target; if(apply&&j!==slot&&j>=0){ const r=state.recipe.splice(slot,1)[0]; state.recipe.splice(j,0,r); state.autofilled=false; }
+      const j=el._target; if(apply&&j!==slot&&j>=0){ const r=state.recipe.splice(slot,1)[0]; const rm=state.mmList.splice(slot,1)[0]; state.recipe.splice(j,0,r); state.mmList.splice(j,0,rm); state.autofilled=false; }
       SV._noClick=true; setTimeout(()=>SV._noClick=false,300);
       rebuild(); drag=false; key=null; return true; }
     return false; };
@@ -1192,9 +1210,9 @@ function openZoom(){ if(!state.seq.length)return;
   $('zoomInfo').textContent=`${state.name||'你的手串'} · ${state.seq.length} 颗 · ${state.beadMm}mm · ${money(priceOf(state.seq))}`;
   $('zoomModal').classList.add('show'); _pz.reset(); }
 $('zoomBtn').onclick=openZoom;
-$('clearAll').onclick=()=>{ if(!state.recipe.length)return; const bak=state.recipe.slice();
-  state.recipe=[]; state.basePattern=null; state.autofilled=false; rebuild();
-  toast('已清空整串','撤销',()=>{ state.recipe=bak; rebuild(); }); };
+$('clearAll').onclick=()=>{ if(!state.recipe.length)return; const bak=state.recipe.slice(), bakM=state.mmList.slice();
+  state.recipe=[]; state.mmList=[]; state.basePattern=null; state.autofilled=false; rebuild();
+  toast('已清空整串','撤销',()=>{ state.recipe=bak; state.mmList=bakM; rebuild(); }); };
 $('zoomX').onclick=()=>$('zoomModal').classList.remove('show'); $('zoomModal').onclick=e=>{if(e.target===$('zoomModal'))$('zoomModal').classList.remove('show');};
 svg().addEventListener('click',e=>{ if(svg()._noClick)return; const k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-k'); if(!k&&state.seq.length)openZoom();});
 
@@ -1214,7 +1232,7 @@ function drawWrist(){
     const P=Math.PI*(3*(rv+rh)-Math.sqrt(Math.max(0,(3*rv+rh)*(rv+3*rh))));
     const bd=Math.min(rv*0.95, P/Math.max(n,8))*1.28;
     x.save(); x.globalAlpha=.3; x.fillStyle='#2c2016'; x.beginPath(); x.ellipse(cx,cy+rv*0.42,rh*1.25,rv*0.5,0,0,7); x.fill(); x.restore();
-    const ds=seq.map(kk=>mmOf(kk)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
+    const ds=seq.map((kk,ii)=>mmAt(ii)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
     const order=[]; let cum=0; for(let i=0;i<n;i++){ const a=(cum+ds[i]/2)/totMm*2*Math.PI; cum+=ds[i]; order.push({i,a}); }
     order.sort((p,q)=>Math.sin(p.a)-Math.sin(q.a));                       // far side first, near side on top
     order.forEach(({i,a})=>{ const px=cx+rh*Math.sin(a), py=cy-rv*Math.cos(a), front=Math.sin(a)>=0, d=bd*(front?1.05:0.9)*ds[i]/state.beadMm;
@@ -1231,7 +1249,7 @@ function braceletDataURL(cb){
   uniqS.forEach(u=>{const im=new Image();im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
   if(!uniqS.length){cb(null);return;}
   function paint(){ const cx=256,cy=256,n=seq.length;
-    const ds=seq.map(kk=>mmOf(kk)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
+    const ds=seq.map((kk,ii)=>mmAt(ii)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
     const base=Math.min(78, 2*Math.PI*176/Math.max(n,8)*1.12), R=Math.min(196, (totMm/state.beadMm)*base/(2*Math.PI));
     let cum=0;
     for(let i=0;i<n;i++){ const a=(cum+ds[i]/2)/totMm*2*Math.PI-Math.PI/2; cum+=ds[i];
@@ -1265,7 +1283,7 @@ function drawScene(name){
     const cx=S*0.5, cy=S*0.62, rh=S*0.30, rv=S*0.16, n=seq.length;
     const P=Math.PI*(3*(rh+rv)-Math.sqrt(Math.max(0,(3*rh+rv)*(rh+3*rv))));
     const bd=Math.min(rv*0.85,P/Math.max(n,8))*1.22;
-    const ds=seq.map(kk=>mmOf(kk)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
+    const ds=seq.map((kk,ii)=>mmAt(ii)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
     const pts=[]; let cum=0; for(let i=0;i<n;i++){const a=(cum+ds[i]/2)/totMm*2*Math.PI-Math.PI/2; cum+=ds[i]; pts.push({i,r:ds[i]/state.beadMm,px:cx+rh*Math.sin(a),py:cy-rv*Math.cos(a),f:Math.cos(a)});}
     pts.forEach(p=>{const d=bd*(1+0.13*(-p.f))*p.r; x.save(); x.globalAlpha=.2; x.fillStyle='#15110c';
       x.beginPath(); x.ellipse(p.px,p.py+d*0.32,d*0.5,d*0.16,0,0,7); x.fill(); x.restore();});
@@ -1335,7 +1353,8 @@ function openStory(){
     if(u.pos.length>=3&&ct!=='own'){ const g=Math.round((u.pos[u.pos.length-1]-u.pos[0])/(u.pos.length-1));
       place+=` 全串隔 ~${g} 颗回来一次,等距呼吸。`; }
     if(ct==='own'&&prof&&prof.jishen&&prof.jishen.includes(st.el)) place+=` 说句实话:${EL_EN[st.el]}是你盘里宜避开的 — 纯为颜色喜欢,留着也没问题。`;
-    if(ct==='lead'&&state.sizes[u.key]&&state.sizes[u.key]>state.beadMm) place+=` 加大一号(${state.sizes[u.key]}mm),最显眼的位置给它。`;
+    const bigMm=u.pos.map(p2=>state.mmList[p2]||0).filter(v=>v>state.beadMm)[0];
+    if(ct==='lead'&&bigMm) place+=` 加大一号(${bigMm}mm),最显眼的位置给它。`;
     const it=document.createElement('div'); it.className='s-item'; it.style.setProperty('--i',bi);
     it.innerHTML=`<div class="s-bead" style="background-image:url(${sprite(u.key)})"></div>
       <div style="flex:1;min-width:0"><div class="s-tier">${tierLbl} · ×${u.pos.length}</div>
@@ -1368,7 +1387,7 @@ function buildShareImage(cb){
     x.save();x.shadowColor='rgba(20,22,24,.15)';x.shadowBlur=46;x.shadowOffsetY=14;
     x.fillStyle='#ffffff';roundRect(x,48,48,W-96,H-96,40);x.fill();x.restore();
     // ring (per-bead sizes + variants + rotation)
-    const ds=seq.map(k=>mmOf(k)), tot=ds.reduce((a,b)=>a+b,0), n=seq.length;
+    const ds=seq.map((k,i)=>mmAt(i)), tot=ds.reduce((a,b)=>a+b,0), n=seq.length;
     const base=Math.min(150, 2*Math.PI*580/Math.max(n,8)*1.06);
     const Rr=Math.min(300,(tot/state.beadMm)*base/(2*Math.PI)), ccx=W/2, ccy=400;
     let cum=0;
@@ -1444,10 +1463,10 @@ function luckyStrand(){
     if(!picks.length)return;
     state.picks=picks;
   }
-  state.sizes={};   // lucky = uniform size (User: 一个大一个小显得乱)
   state.basePattern=recipeFromPicks(state.picks);
   state.recipe=fillToCount(state.basePattern,beadCount());
-  while(state.recipe.length&&sumMm(state.recipe)>loopMm()+state.beadMm/2) state.recipe.pop();
+  state.mmList=state.recipe.map(()=>null); state._leadBump=false;   // lucky = uniform size
+  while(state.recipe.length&&sumMm()>loopMm()+state.beadMm/2){ state.recipe.pop(); state.mmList.pop(); }
   state.autofilled=true; state._repour=true; rebuild();
   toast(state.prof?'手气一串 — 因果链照走,只是每步换了张牌':'手气一串 — 回「解读」填上生日,手气会更懂你');
 }
@@ -1463,7 +1482,7 @@ $('addBtn').onclick=()=>{ if(!state.seq.length)return;
 function loadAlbum(){ try{return JSON.parse(localStorage.getItem('sw_album')||'[]');}catch(e){return[];} }
 function putAlbum(a){ try{localStorage.setItem('sw_album',JSON.stringify(a.slice(0,40)));}catch(e){} }
 $('saveAlbum').onclick=()=>{ if(!state.recipe.length){toast("先搭点东西");return;}
-  const a=loadAlbum(); a.unshift({name:state.name||"未命名",recipe:state.recipe.slice(),sizes:{...state.sizes},wristCm:state.wristCm,beadMm:state.beadMm,ts:Date.now()});
+  const a=loadAlbum(); a.unshift({name:state.name||"未命名",recipe:state.recipe.slice(),mmList:state.mmList.slice(),wristCm:state.wristCm,beadMm:state.beadMm,ts:Date.now()});
   putAlbum(a); renderAlbum(); toast("已存到相册"); };
 function miniRing(recipe){ const seq=recipe.length?recipe.slice(0,30):[]; const cx=50,cy=50,R=37,n=seq.length||1,bd=2*Math.PI*R/n; let s='';
   for(let i=0;i<n;i++){const a=i/n*2*Math.PI-Math.PI/2,x=cx+R*Math.cos(a),y=cy+R*Math.sin(a); s+=`<image href="${sprite(seq[i])}" x="${(x-bd/2).toFixed(1)}" y="${(y-bd/2).toFixed(1)}" width="${bd.toFixed(1)}" height="${bd.toFixed(1)}"/>`;}
@@ -1479,7 +1498,7 @@ function renderAlbum(){
     el.appendChild(it); });
 }
 function loadDesign(d){
-  state.recipe=d.recipe.slice(); state.sizes=(d.sizes&&{...d.sizes})||{}; state.autofilled=false; state.basePattern=null; state.wristCm=d.wristCm||16; state.beadMm=d.beadMm||8; state.name=d.name||"";
+  state.recipe=d.recipe.slice(); state.mmList=(d.mmList&&d.mmList.slice())||(d.sizes?d.recipe.map(k=>d.sizes[k]||null):d.recipe.map(()=>null)); state.autofilled=false; state.basePattern=null; state.wristCm=d.wristCm||16; state.beadMm=d.beadMm||8; state.name=d.name||"";
   $('wrist').value=state.wristCm; $('bname').value=state.name;
   document.querySelectorAll('.szchip').forEach(x=>x.classList.toggle('on',+x.textContent===state.beadMm));
   rebuild(); showTab('stones');
