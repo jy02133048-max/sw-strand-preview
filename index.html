@@ -155,6 +155,9 @@
   .pbead .d{width:36px;height:36px;border-radius:50%;background-size:cover;background-position:center;flex-shrink:0;cursor:pointer}
   .pbead .info{min-width:0;flex:1;cursor:pointer}.pbead .pn{display:block;font-size:12.5px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pbead .pp{font-size:11px;color:var(--faint)}
   .pbead .ctrls{flex-shrink:0}
+  .pbead{flex-wrap:wrap}
+  .pbead .ctrls.step{flex-basis:100%;display:inline-flex;justify-content:center;margin-top:6px}   /* with a count, the stepper takes its own row — it was crushing the name to one character */
+  .pbead .ctrls.step button{width:30px;height:28px}
   .padd{width:34px;height:34px;border-radius:50%;border:1px solid var(--gold);background:transparent;color:var(--gold);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1}
   .padd:active{background:rgba(227,148,49,.14)}
 
