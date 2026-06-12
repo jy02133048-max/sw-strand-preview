@@ -822,7 +822,7 @@ function runPour(nbs,R,g,phys){
           a.x-=nx*push; a.y-=ny*push; c.x+=nx*push; c.y+=ny*push;
           const av=a.vx*nx+a.vy*ny, cv2=c.vx*nx+c.vy*ny, ex=(cv2-av)*0.8;
           a.vx+=ex*nx; a.vy+=ex*ny; c.vx-=ex*nx; c.vy-=ex*ny; } }
-      if(f%3===0||f===SIMN-1) bod.forEach(b=>b.sm.push([b.x,b.y]));
+      if(f%2===0||f===SIMN-1) bod.forEach(b=>b.sm.push([b.x,b.y]));
     } }
   const easeOC=t2=>1-Math.pow(1-t2,3);
   const PD=phys?1050:0, TD=430, t0=performance.now();
@@ -832,9 +832,11 @@ function runPour(nbs,R,g,phys){
     b.nb.el.style.transition='none'; b.nb.el._pouring=true; });
   const TOTAL=bod[bod.length-1].t1+TD;
   let lastP=0;
-  function paint(){
+  function paint(fromRaf){
     if(dead) return true;
-    const now=performance.now(); if(now-lastP<24) return false; lastP=now;
+    const now=performance.now();
+    if(!fromRaf&&now-lastP<60) return false;   // interval is only the starvation fallback — never double-paints a healthy rAF
+    lastP=now;
     const t=now-t0; let allDone=true;
     for(const b of bod){ const el=b.nb.el; if(b.done) continue; let x,y,op=1;
       if(phys&&t<PD){ const u=t/PD*(b.sm.length-1), i0=Math.floor(u), fr=u-i0;
@@ -846,13 +848,15 @@ function runPour(nbs,R,g,phys){
       else { x=b.nb.x; y=b.nb.y; b.done=true; el._pouring=false; el.style.transition='';
         try{ el.animate([{transform:'scale(1.045)'},{transform:'scale(1)'}],{duration:170,easing:'cubic-bezier(.25,1,.5,1)',composite:'add'}); }catch(_){}
         bloomAt(g,b.nb.x,b.nb.y,b.nb.bd,b.nb.key); }
-      el.style.opacity=op<1?op.toFixed(2):'1';
-      el.setAttribute('transform',`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`);
+      const ts=`translate(${x.toFixed(1)},${y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`;
+      if(b.lastT!==ts){ b.lastT=ts; el.setAttribute('transform',ts); }
+      const os=op<1?op.toFixed(2):'1';
+      if(b.lastO!==os){ b.lastO=os; el.style.opacity=os; }
     }
     return allDone;
   }
-  iv=setInterval(()=>{ if(paint()&&iv){ clearInterval(iv); iv=null; } },40);
-  (function fr(){ if(dead) return; if(paint()){ if(iv){clearInterval(iv);iv=null;} return; } requestAnimationFrame(fr); })();
+  iv=setInterval(()=>{ if(paint(false)&&iv){ clearInterval(iv); iv=null; } },40);
+  (function fr(){ if(dead) return; if(paint(true)){ if(iv){clearInterval(iv);iv=null;} return; } requestAnimationFrame(fr); })();
   setTimeout(()=>{ if(iv){clearInterval(iv);iv=null;}
     if(!dead) bod.forEach(b=>{ const el=b.nb.el; el._pouring=false; el.style.transition=''; el.style.opacity='1';
       el.setAttribute('transform',`translate(${b.nb.x.toFixed(1)},${b.nb.y.toFixed(1)}) scale(${b.nb.sc.toFixed(3)})`); });
@@ -1187,8 +1191,8 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
     if(g){
       if(state.tilt){ if(g.getAttribute('transform')) g.removeAttribute('transform'); deg=0; window._spinDeg=0; }
       else if(state.seq.length&&!sv.classList.contains('dragging')&&!(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)){
-        deg=(deg+dt*360/90000)%360; window._spinDeg=deg; acc+=dt;
-        if(acc>=50){ acc=0; g.setAttribute('transform',`rotate(${deg.toFixed(2)} 150 150)`); }   // ~20fps is invisible at 4°/s, third of the CPU
+        deg=(deg+dt*360/90000)%360; window._spinDeg=deg;
+        g.setAttribute('transform',`rotate(${deg.toFixed(3)} 150 150)`);   // full frame rate: beads are cheap to composite since shadows/halos went; 20fps stepping read as jank on phones
       }
     }
     requestAnimationFrame(f); }
