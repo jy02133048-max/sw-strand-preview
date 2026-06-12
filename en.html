@@ -532,7 +532,8 @@
 <script>
 const VER=(location.hostname==='localhost'||location.hostname==='127.0.0.1')?Date.now():'v20260612b';   // fixed in prod — Date.now() was defeating ALL image caching
 const ASSET=location.hostname.endsWith('github.io')?'https://cdn.jsdelivr.net/gh/jy02133048-max/sw-strand-preview@d07dee69a6d220fa095998bc6002e353b7ec90c7/':'';   // jsDelivr reaches mainland users far better than github.io; ref pinned to a commit at publish time
-const deAsset=u=>(ASSET&&u&&u.indexOf(ASSET)===0)?u.slice(ASSET.length):null;   // CDN miss → retry same-origin
+const deAsset=u=>(ASSET&&u&&u.indexOf(ASSET)===0)?u.slice(ASSET.length):null;
+const APIBASE=location.hostname.endsWith('github.io')?'https://sw-strand-relay-production.up.railway.app':'';   // public build: AI relay on Railway (key server-side, origin-gated, rate-capped)   // CDN miss → retry same-origin
 let CATALOG=[], STONES={};
 const sprite=k=>`${ASSET}beadwork/beads-day/${k}.webp?v=${VER}`;
 const CLASP=6.00, money=v=>"$"+v.toFixed(2), EASE=13.6;
@@ -1309,7 +1310,7 @@ function openWrist(){ if(!state.seq.length)return;
   $('wristModal').classList.add('show');
   $('wristResult').style.display='none'; $('wristCanvas').style.display='none'; $('wristLoad').style.display='flex'; $('wristCap').textContent='Generating your on-wrist preview…';
   braceletDataURL(durl=>{ if(!durl){ wristFallback(); return; }
-    fetch('/api/onwrist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:durl})})
+    fetch(APIBASE+'/api/onwrist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:durl})})
       .then(r=>r.json()).then(d=>{ if(!d||!d.image) throw 0; const im=$('wristResult');
         im.onload=()=>{ $('wristLoad').style.display='none'; im.style.display='block'; $('wristCap').textContent='On-wrist preview · your exact strand'; };
         im.onerror=()=>wristFallback(); im.src=d.image; })
@@ -1354,7 +1355,7 @@ function openScene(name){
   $('wristResult').style.display='none'; $('wristCanvas').style.display='none';
   $('wristLoad').style.display='flex'; $('wristCap').textContent='Placing your strand into the scene…';
   braceletDataURL(durl=>{ if(!durl){ sceneFallback(name); return; }
-    fetch('/api/onwrist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:durl,scene:name})})
+    fetch(APIBASE+'/api/onwrist',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({image:durl,scene:name})})
       .then(r=>r.json()).then(d=>{ if(!d||!d.image) throw 0; _sceneCache[ck]=d.image; const im=$('wristResult');
         im.onload=()=>{ $('wristLoad').style.display='none'; im.style.display='block'; $('wristCap').textContent=SCENES[name].cap+' · AI'; };
         im.onerror=()=>sceneFallback(name); im.src=d.image; })
