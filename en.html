@@ -1294,7 +1294,7 @@ function braceletDataURL(cb){
   const C=document.createElement('canvas'); C.width=C.height=512; const x=C.getContext('2d');
   x.fillStyle='#0e0b13'; x.fillRect(0,0,512,512);
   const srcs=seq.map((k,i)=>beadSrc(k,i)), uniqS=[...new Set(srcs)], imgs={}; let pend=uniqS.length;
-  uniqS.forEach(u=>{const im=new Image();im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
+  uniqS.forEach(u=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
   if(!uniqS.length){cb(null);return;}
   function paint(){ const cx=256,cy=256,n=seq.length;
     const ds=seq.map((kk,ii)=>mmAt(ii)), totMm=ds.reduce((a2,b2)=>a2+b2,0)||1;
@@ -1303,7 +1303,7 @@ function braceletDataURL(cb){
     for(let i=0;i<n;i++){ const a=(cum+ds[i]/2)/totMm*2*Math.PI-Math.PI/2; cum+=ds[i];
       const d=base*ds[i]/state.beadMm, px=cx+R*Math.cos(a), py=cy+R*Math.sin(a), im=imgs[srcs[i]];
       if(im&&im.naturalWidth){x.save();x.shadowColor='rgba(0,0,0,.5)';x.shadowBlur=d*.14;x.shadowOffsetY=d*.1;x.drawImage(im,px-d/2,py-d/2,d,d);x.restore();}}
-    cb(C.toDataURL('image/png')); }
+    try{ cb(C.toDataURL('image/png')); }catch(_){ cb(null); } }   // tainted canvas must degrade, not hang
 }
 function openWrist(){ if(!state.seq.length)return;
   $('wristModal').classList.add('show');
@@ -1322,7 +1322,7 @@ for(const n in SCENES){ const im=new Image(); im.src=SCENES[n].img+'?v='+VER; SC
 function drawScene(name){
   const cv=$('wristCanvas'), x=cv.getContext('2d'), S=cv.width, bg=SCENES[name].image;
   const seq=state.seq, srcs=seq.map((kk,ii)=>beadSrc(kk,ii)), uniqS=[...new Set(srcs)], imgs={}; let pend=uniqS.length;
-  uniqS.forEach(u=>{const im=new Image();im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
+  uniqS.forEach(u=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
   if(!uniqS.length)return;
   function paint(){
     if(!bg.complete||!bg.naturalWidth){ bg.onload=paint; return; }
@@ -1429,7 +1429,7 @@ function buildShareImage(cb){
   const W=1080,H=1440,cv=document.createElement('canvas');cv.width=W;cv.height=H;const x=cv.getContext('2d');
   const srcs=seq.map((k,i)=>beadSrc(k,i)), uniqS=[...new Set(srcs)], imgs={};
   let pend=uniqS.length;
-  uniqS.forEach(u=>{const im=new Image();im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
+  uniqS.forEach(u=>{const im=new Image();im.crossOrigin='anonymous';im.onload=()=>{if(--pend<=0)paint();};im.onerror=()=>{const r=deAsset(im.src);if(r){im.src=r;}else if(--pend<=0)paint();};im.src=u;imgs[u]=im;});
   function paint(){
     x.fillStyle='#e9ebec';x.fillRect(0,0,W,H);
     x.save();x.shadowColor='rgba(20,22,24,.15)';x.shadowBlur=46;x.shadowOffsetY=14;
@@ -1486,7 +1486,7 @@ function buildShareImage(cb){
     // footer
     x.textAlign='center'; x.fillStyle=faint; x.font='300 22px Manrope, "PingFang SC", sans-serif';
     x.fillText('Stone Whisper · {N} beads · {P} · hand-assembled · photographed before it ships'.replace('{N}',seq.length).replace('{P}',money(priceOf(seq))), W/2, H-86);
-    cb(cv.toDataURL('image/png'));
+    try{ cb(cv.toDataURL('image/png')); }catch(_){ cb(null); }
   }
 }
 $('shareBtn').onclick=()=>{ if(!state.seq.length)return;
