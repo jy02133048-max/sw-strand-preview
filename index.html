@@ -346,13 +346,15 @@
 
   /* stones picker: two independent scroll columns, NO sticky (sticky+inner overflow breaks touch scroll on iOS — rail only moved passively) */
   .pick-flex{display:flex;gap:10px;align-items:stretch;height:62vh;min-height:340px}
-  .catbar{display:block;width:78px;flex-shrink:0;height:100%;overflow-y:auto;overscroll-behavior:contain;margin:0;padding-right:2px}
-  .catbar::-webkit-scrollbar{width:4px}
+  .catbar{display:block;width:78px;flex-shrink:0;height:100%;overflow-y:auto;margin:0;padding-right:2px}
+  .catbar::-webkit-scrollbar{display:none}
+  .catbar{scrollbar-width:none}
   .cat-group{display:block;margin-bottom:10px}
   .cat-lbl{display:block;font-size:10px;letter-spacing:.12em;color:var(--faint);margin:0 0 5px 2px;padding:0}
   .cat-chips{display:grid;grid-template-columns:1fr;gap:5px}
   .catbar .cat{text-align:center;padding:7px 4px}
-  .pick-flex .palette{flex:1;min-width:0;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));height:100%;overflow-y:auto;overscroll-behavior:contain;align-content:start;grid-auto-rows:max-content}   /* definite-height grid collapses auto rows to min-height — rows must size to content */
+  .pick-flex .palette{flex:1;min-width:0;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));height:100%;overflow-y:auto;align-content:start;grid-auto-rows:max-content;scrollbar-width:none}   /* definite-height grid collapses auto rows to min-height — rows must size to content; no contain: at the edges the swipe hands off to the panel (one fluid scroll) */
+  .pick-flex .palette::-webkit-scrollbar{display:none}
   .szmini{display:flex;gap:4px;margin-top:5px}
   .szmini b{font-weight:400;font-size:10.5px;min-width:22px;text-align:center;padding:2px 3px;border:1px solid var(--line);border-radius:5px;color:var(--muted);cursor:pointer}
   .szmini b.on{border-color:#0e6b50;color:#0e6b50;background:rgba(14,107,80,.06)}
