@@ -368,7 +368,7 @@
   .picksheet .pick-flex{flex:1;min-height:0;height:auto}
   .cat-chips{display:grid;grid-template-columns:1fr;gap:5px}
   .catbar .cat{text-align:center;padding:7px 4px}
-  .pick-flex .palette{flex:1;min-width:0;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));height:100%;overflow-y:auto;align-content:start;grid-auto-rows:max-content;scrollbar-width:none}   /* definite-height grid collapses auto rows to min-height — rows must size to content; no contain: at the edges the swipe hands off to the panel (one fluid scroll) */
+  .pick-flex .palette{flex:1;min-width:0;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));height:100%;overflow-y:auto;align-content:start;grid-auto-rows:max-content;scrollbar-width:none}   /* definite-height grid collapses auto rows to min-height — rows must size to content; no contain: at the edges the swipe hands off to the panel (one fluid scroll) */
   .pick-flex .palette::-webkit-scrollbar{display:none}
   .szmini{display:flex;gap:4px;margin-top:5px}
   .szmini b{font-weight:400;font-size:10.5px;min-width:22px;text-align:center;padding:2px 3px;border:1px solid var(--line);border-radius:5px;color:var(--muted);cursor:pointer}
@@ -764,6 +764,8 @@ function renderBraceletMain(seq){
     const rot=h%360, src=beadSrc(seq[i],i);
     let el=els[i];
     if(!el){ el=document.createElementNS(SVGNS,'g'); el.setAttribute('class','zb');
+      const ph=document.createElementNS(SVGNS,'circle'); const st0=STONES[seq[i]];
+      ph.setAttribute('r',(bd*0.44).toFixed(1)); ph.setAttribute('fill',st0?(TINT[st0.color]||'#cfd2d6'):'#cfd2d6'); ph.setAttribute('opacity','0.45'); el.appendChild(ph);   // placeholder under the photo: sprite requests straggle on slow phones
       const im=document.createElementNS(SVGNS,'image'); im.setAttribute('width',bd.toFixed(1)); im.setAttribute('height',bd.toFixed(1)); im.setAttribute('x',(-bd/2).toFixed(1)); im.setAttribute('y',(-bd/2).toFixed(1)); im.setAttribute('data-k',seq[i]); im.setAttributeNS('http://www.w3.org/1999/xlink','href',src); im.setAttribute('href',src); im.setAttribute('transform',`rotate(${rot})`); el.appendChild(im);
       im.addEventListener('error',()=>{ const r=deAsset(im.getAttribute('href')); if(r){ im.setAttributeNS('http://www.w3.org/1999/xlink','href',r); im.setAttribute('href',r); } });
       // spawn loose near the dish floor; threading (or physics pour) happens after the loop
