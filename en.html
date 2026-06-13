@@ -1264,9 +1264,13 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
           b.setAttribute('transform',`translate(${pp.x.toFixed(1)},${pp.y.toFixed(1)}) scale(${pp.sc.toFixed(3)})`); }); } }});
   const fin=apply=>{ clearTimeout(t);
     if(drag){ SV.classList.remove('dragging'); el.style.transition='';
-      const j=el._target; if(apply&&j!==slot&&j>=0){ const r=state.recipe.splice(slot,1)[0]; const rm=state.mmList.splice(slot,1)[0]; state.recipe.splice(j,0,r); state.mmList.splice(j,0,rm); state.autofilled=false; }
+      const j=el._target;
+      if(apply&&j!==slot&&j>=0){ const r=state.recipe.splice(slot,1)[0]; const rm=state.mmList.splice(slot,1)[0]; state.recipe.splice(j,0,r); state.mmList.splice(j,0,rm); state.autofilled=false;
+        const bySlot={}; [...SV.querySelectorAll('.zb')].forEach(b=>bySlot[+b.dataset.slot]=b);   // relabel each bead to its NEW index so rebuild reuses beads BY IDENTITY — kills the image-churn that read as a swap (User 2026-06-13)
+        const order=[...Array(state.recipe.length).keys()]; const [mv]=order.splice(slot,1); order.splice(j,0,mv);
+        order.forEach((os,ni)=>{ if(bySlot[os]) bySlot[os].dataset.slot=ni; }); }
       SV._noClick=true; setTimeout(()=>SV._noClick=false,300);
-      [...SV.querySelectorAll('.zb')].forEach(b=>b.style.transition='');   // clear live-shift transitions before the authoritative re-render
+      [...SV.querySelectorAll('.zb')].forEach(b=>b.style.transition='');
       rebuild(); drag=false; key=null; return true; }
     return false; };
   SV.addEventListener('pointerup',()=>{ if(fin(true))return; if(key&&!long){ slot>=0?removeAt(slot):removeStone(key); SV._noClick=true; setTimeout(()=>SV._noClick=false,300); } key=null; });
