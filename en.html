@@ -374,6 +374,14 @@
   .szmini b{font-weight:400;font-size:10.5px;min-width:22px;text-align:center;padding:2px 3px;border:1px solid var(--line);border-radius:5px;color:var(--muted);cursor:pointer}
   .szmini b.on{border-color:#0e6b50;color:#0e6b50;background:rgba(14,107,80,.06)}
   .m-size-l{font-size:12px;color:var(--faint);align-self:center;margin-right:3px}
+  .m-alt{margin:0 0 14px}
+  .m-alt-l{font-size:12px;color:var(--faint);text-align:center;margin-bottom:9px}
+  .m-alt-row{display:flex;gap:11px;overflow-x:auto;padding:2px 2px 6px;scrollbar-width:none}
+  .m-alt-row::-webkit-scrollbar{display:none}
+  .m-alt-c{flex:0 0 auto;width:60px;text-align:center;cursor:pointer}
+  .m-alt-b{width:54px;height:54px;border-radius:50%;background-size:cover;background-position:center;margin:0 auto 5px;border:1px solid var(--line);transition:border-color .15s}
+  .m-alt-c span{font-size:10px;color:var(--muted);display:block;line-height:1.2;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+  .m-alt-c:active .m-alt-b{border-color:#0e6b50}
   @media (prefers-reduced-motion:reduce){svg.bracelet .zbeads,.stage .sweep,.modal-bead,.modal-bead::after,.chip,.panel.on,.s-item{animation:none!important}}
 </style>
 </head>
@@ -491,6 +499,7 @@
   <div class="mcn" id="mCn"></div>
   <div class="mmeta"><span class="mel" id="mEl"></span><span class="mprice" id="mPrice"></span></div>
   <div class="szmini" id="mSize" style="display:none;justify-content:center;margin:0 0 14px"></div>
+  <div class="m-alt" id="mAlt" style="display:none"></div>
   <div class="mdoes" id="mDoes"></div>
   <button class="btn" id="mAdd">Add to my bracelet</button>
   <div class="mremove" id="mRemove" style="display:none">↩ remove one from bracelet</div>
@@ -1169,6 +1178,16 @@ function fillPalette(){
 }
 
 /* detail modal (long-press) */
+function altsFor(key,slot){ const s=STONES[key]; if(!s)return[];
+  const inStrand=new Set(state.recipe.filter((_,i)=>i!==slot));   // every OTHER slot — the one being swapped doesn't count as taken
+  const want=wantedWishes(), ji=new Set((state.prof&&state.prof.jishen)||[]);
+  return CATALOG.filter(c=>c.el===s.el&&c.key!==key&&!inStrand.has(c.key)&&!ji.has(c.el))   // same element + not an avoid-element ⇒ five-element balance is untouched
+    .sort((a,b)=>((b.wish||[]).filter(w=>want.has(w)).length)-((a.wish||[]).filter(w=>want.has(w)).length)).slice(0,8); }
+function swapBead(slot,newKey){ const oldKey=state.recipe[slot]; if(!STONES[newKey]||oldKey===newKey)return;
+  state.recipe[slot]=newKey;   // mmList[slot] (size) preserved on purpose
+  const op=state.picks.find(p=>p.key===oldKey);   // inherit the role so the story card keeps its 因果 (same element ⇒ the element-based prose still holds)
+  if(op&&!state.picks.find(p=>p.key===newKey)) state.picks.push({...STONES[newKey],ct:op.ct,role:op.role,e1:op.e1,e2:op.e2,bt:op.bt,tdir:op.tdir,hits:(STONES[newKey].wish||[]).filter(w=>wantedWishes().has(w)),key:newKey});
+  state.autofilled=false; rebuild(); }
 function openDetail(key,slot){const s=STONES[key]; if(!s)return;
   $('mBead').style.backgroundImage=`url(${ASSET}beadwork/hi-day/${key}.webp?v=${VER}), url(${sprite(key)})`;
   let au=$('mAura'); if(!au){au=document.createElement('div');au.id='mAura';au.className='modal-aura';$('mBead').parentNode.insertBefore(au,$('mBead'));}
@@ -1189,6 +1208,16 @@ function openDetail(key,slot){const s=STONES[key]; if(!s)return;
         state.autofilled=false; rebuild(); openDetail(key, slot<state.recipe.length?slot:-1); };
       ms.appendChild(b3); });
   } else ms.style.display='none';
+  const ma=$('mAlt');
+  if(typeof slot==='number'&&slot>=0&&state.recipe[slot]===key){ const alts=altsFor(key,slot);
+    if(alts.length){ ma.style.display='block'; ma.innerHTML='<div class="m-alt-l">Swap this one · same nature, balance unchanged</div>';
+      const row=document.createElement('div'); row.className='m-alt-row';
+      alts.forEach(a=>{ const c=document.createElement('div'); c.className='m-alt-c';
+        c.innerHTML=`<div class="m-alt-b" style="background-image:url(${sprite(a.key)})"></div><span>${a.en}</span>`;
+        c.onclick=()=>{ swapBead(slot,a.key); closeDetail(); toast('Swapped — the balance is unchanged'); };
+        row.appendChild(c); });
+      ma.appendChild(row); } else ma.style.display='none';
+  } else ma.style.display='none';
   $('modal').classList.add('show');}
 function closeDetail(){$('modal').classList.remove('show');}
 $('modalX').onclick=closeDetail; $('modal').onclick=e=>{if(e.target===$('modal'))closeDetail();};
