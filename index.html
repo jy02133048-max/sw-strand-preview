@@ -765,10 +765,11 @@ function renderBraceletMain(seq){
         ga+=step; } }
   }
   ghost.innerHTML=gh;
-  for(let i=0;i<n;i++){ const p=lay[i], pp=projPos(p.a,R), bd=p.bd, h=jit(seq[i],i);
-    const rot=h%360, src=beadSrc(seq[i],i);
+  for(let i=0;i<n;i++){ const p=lay[i], pp=projPos(p.a,R), bd=p.bd;
     let el=els[i];
-    if(!el){ el=document.createElementNS(SVGNS,'g'); el.setAttribute('class','zb');
+    const vseed = el ? (+el.dataset.vseed||0) : i;   // per-bead stable seed: survives reorder so a dragged bead keeps its OWN variant + rotation, not its position's (User 2026-06-13)
+    const h=jit(seq[i],vseed), rot=h%360, src=beadSrc(seq[i],vseed);
+    if(!el){ el=document.createElementNS(SVGNS,'g'); el.setAttribute('class','zb'); el.dataset.vseed=i;
       const ph=document.createElementNS(SVGNS,'circle'); const st0=STONES[seq[i]];
       ph.setAttribute('r',(bd*0.44).toFixed(1)); ph.setAttribute('fill',st0?(TINT[st0.color]||'#cfd2d6'):'#cfd2d6'); ph.setAttribute('opacity','0.45'); el.appendChild(ph);   // placeholder under the photo: sprite requests straggle on slow phones
       const im=document.createElementNS(SVGNS,'image'); im.setAttribute('width',bd.toFixed(1)); im.setAttribute('height',bd.toFixed(1)); im.setAttribute('x',(-bd/2).toFixed(1)); im.setAttribute('y',(-bd/2).toFixed(1)); im.setAttribute('data-k',seq[i]); im.setAttributeNS('http://www.w3.org/1999/xlink','href',src); im.setAttribute('href',src); im.setAttribute('transform',`rotate(${rot})`); el.appendChild(im);
