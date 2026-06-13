@@ -1253,13 +1253,19 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
       const dx=pt.x-150, dy=pt.y-150, c=Math.cos(-phi), s=Math.sin(-phi);
       const gx=150+dx*c-dy*s, gy=150+dx*s+dy*c;
       el.setAttribute('transform',`translate(${gx.toFixed(1)},${gy.toFixed(1)}) scale(1.18)`);
-      const lay=layoutRing(state.seq,ringR()), ang=Math.atan2(gy-150,gx-150);
+      const R=ringR(), lay=layoutRing(state.seq,R), ang=Math.atan2(gy-150,gx-150);
       let j=0,best=9; lay.forEach((p,idx)=>{ const d2=Math.abs(((ang-p.a)%(2*Math.PI)+3*Math.PI)%(2*Math.PI)-Math.PI); if(d2<best){best=d2;j=idx;} });
-      el._target=j; }});
+      if(j!==el._target){ el._target=j;   // live shift: neighbours slide aside to OPEN the target slot (insert+平移, not swap) — User 2026-06-13
+        [...SV.querySelectorAll('.zb')].forEach(b=>{ if(b===el)return; const ds=+b.dataset.slot; let ni=ds;
+          if(slot<j){ if(ds>slot&&ds<=j) ni=ds-1; } else if(slot>j){ if(ds>=j&&ds<slot) ni=ds+1; }
+          const p=lay[ni]; if(!p)return; const pp=projPos(p.a,R);
+          b.style.transition='transform .2s cubic-bezier(.4,0,.2,1)';
+          b.setAttribute('transform',`translate(${pp.x.toFixed(1)},${pp.y.toFixed(1)}) scale(${pp.sc.toFixed(3)})`); }); } }});
   const fin=apply=>{ clearTimeout(t);
     if(drag){ SV.classList.remove('dragging'); el.style.transition='';
       const j=el._target; if(apply&&j!==slot&&j>=0){ const r=state.recipe.splice(slot,1)[0]; const rm=state.mmList.splice(slot,1)[0]; state.recipe.splice(j,0,r); state.mmList.splice(j,0,rm); state.autofilled=false; }
       SV._noClick=true; setTimeout(()=>SV._noClick=false,300);
+      [...SV.querySelectorAll('.zb')].forEach(b=>b.style.transition='');   // clear live-shift transitions before the authoritative re-render
       rebuild(); drag=false; key=null; return true; }
     return false; };
   SV.addEventListener('pointerup',()=>{ if(fin(true))return; if(key&&!long){ slot>=0?removeAt(slot):removeStone(key); SV._noClick=true; setTimeout(()=>SV._noClick=false,300); } key=null; });
