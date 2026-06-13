@@ -656,6 +656,8 @@ const tempOf=s=>WARMC.has(s.color)?1:(COOLC.has(s.color)?-1:0);
 function selectStones(intentIds,prof,rng){
   const want=new Set();
   intentIds.forEach(id=>{ if(id==='custom'){ customWishes(state.customText).forEach(w=>want.add(w)); return; } const I=INTENTS.find(x=>x.id===id); if(I)I.wish.forEach(w=>want.add(w));});
+  if(!prof){ const _sc={}; CATALOG.forEach(s=>{ const h=(s.wish||[]).filter(w=>want.has(w)).length; if(h)_sc[s.el]=(_sc[s.el]||0)+h; });
+    prof={favorable:['wood','fire','earth','metal','water'].slice().sort((a,b)=>(_sc[b]||0)-(_sc[a]||0)), jishen:[], synthetic:true}; }   // scene-only: no chart → rank elements by how many wished stones they carry
   const ji=new Set(prof.jishen||[]), fav=prof.favorable, used=new Set();
   const hitsOf=s=>(s.wish||[]).filter(w=>want.has(w)).length;
   const pickFrom=pool=>{ if(!pool.length)return null;
@@ -982,11 +984,13 @@ $('bPlace').addEventListener('input',()=>{ state.place=$('bPlace').value; maybeR
 function maybeRead(){
   const dv=$('bDate').value;
   const ready=state.intents.some(id=>id!=='custom')||(state.intents.includes('custom')&&(state.customText||'').trim());
-  if(!ready||!dv||!CATALOG.length) return;
-  let [y,m,d]=dv.split('-').map(Number); const tv=$('bTime').value; let h=-1,mi=0; if(tv){const t=tv.split(':');h=+t[0];mi=+t[1]||0;}
-  const city=CITY[($('bPlace').value||'').trim()];
-  if(city && h>=0){ const off=Math.round((city.lon-city.tz*15)*4); const c=new Date(new Date(y,m-1,d,h,mi,0).getTime()+off*60000); y=c.getFullYear();m=c.getMonth()+1;d=c.getDate();h=c.getHours();mi=c.getMinutes(); }
-  state.prof=elementProfile(y,m,d,h,mi);
+  if((!ready&&!dv)||!CATALOG.length) return;   // scene OR birthday — either one alone builds a strand now (User 2026-06-13)
+  let prof=null;
+  if(dv){ let [y,m,d]=dv.split('-').map(Number); const tv=$('bTime').value; let h=-1,mi=0; if(tv){const t=tv.split(':');h=+t[0];mi=+t[1]||0;}
+    const city=CITY[($('bPlace').value||'').trim()];
+    if(city && h>=0){ const off=Math.round((city.lon-city.tz*15)*4); const c=new Date(new Date(y,m-1,d,h,mi,0).getTime()+off*60000); y=c.getFullYear();m=c.getMonth()+1;d=c.getDate();h=c.getHours();mi=c.getMinutes(); }
+    prof=elementProfile(y,m,d,h,mi); }
+  state.prof=prof;
   state.picks=selectStones(state.intents,state.prof);
   state.basePattern=recipeFromPicks(state.picks);
   state.recipe=fillToCount(state.basePattern, beadCount());   // fill to a full bracelet ONCE; then the user tweaks bead by bead
@@ -1005,11 +1009,21 @@ function maybeRead(){
 function paintReading(){
   const scenes=state.intents.map(id=> id==='custom'?{custom:true,t:"the moment you described"}:INTENTS.find(x=>x.id===id)).filter(Boolean);
   const sc=scenes[0], top=state.picks[0], topName=top?top.en:"these stones";
+  if(!state.prof){   // scene-only: no chart → no energy bars; explain from the moment, nudge a birthday
+    $('whyBlock').classList.remove('placeholder');
+    const sN=scenes.length>1?scenes[0].t.toLowerCase()+' and '+scenes[1].t.toLowerCase():(scenes[0]?scenes[0].t.toLowerCase():'this moment');
+    $('whyQuote').textContent=`What you asked for: ${sN}.`;
+    const wd0=$('whyDetail'); wd0.style.display='block';
+    wd0.innerHTML=`This set follows the state you described — it leans on <em>${topName}</em> to carry it, then uses warm/cool balance and a little white space to pull the whole strand back to centre.<br><span style="color:var(--faint);font-size:12.5px">Want it sharper? Add your birthday under Reading and every bead picks up your chart too.</span>`;
+    $('energyBlock').style.display='none'; return;
+  }
   const strongest=EL_EN[state.prof.strongest], weakest=EL_EN[state.prof.weakest];
   $('whyBlock').classList.remove('placeholder');
   $('whyQuote').textContent=`${strongest} leads in you; ${weakest} runs quiet.`;
   const wd=$('whyDetail'); wd.style.display='block';
-  if(sc&&sc.custom){
+  if(!scenes.length){   // birthday only, no scene: speak from the chart, nudge a scene
+    wd.innerHTML=`${strongest} leads in you and ${weakest} runs quiet — so this set follows your pattern: it leans on <em>${topName}</em> to catch what you need most, keeps a little ${weakest} to pull you back to centre, and spaces the brighter stones so it wears well.<br><span style="color:var(--faint);font-size:12.5px">Want it tied to right now? Pick a moment or two under Scene and the strand will tune to it.</span>`;
+  } else if(sc&&sc.custom){
     wd.innerHTML=`You wrote “${esc((state.customText||'').slice(0,60))}”. ${strongest} leads in you and ${weakest} runs quiet — so this isn't a template: it leans on <em>${topName}</em> to carry what you described, keeps a little ${weakest} in the mix to pull you back to centre, and spaces the brighter stones rather than clustering them, so it actually wears well. That's why <em>your</em> strand isn't anyone else's.`;
   } else {
     const sName=scenes.length>1?scenes[0].t.toLowerCase()+" and "+scenes[1].t.toLowerCase():scenes[0].t.toLowerCase();
@@ -1393,7 +1407,9 @@ function openStory(){
     const hits=(pk&&pk.hits?pk.hits:(st.wish||[]).filter(w=>want.has(w))).map(w=>WISH_LABEL[w]||w);
     let why='';
     if(ct==='lead'&&prof){ why=`Because ${EL_EN[prof.strongest]} leads in you and ${EL_EN[prof.weakest]} runs quiet${tiaoTxt}, and you're in the middle of \u201c${sceneName}\u201d — this strand opens with it: ${EL_EN[st.el]}, the energy your pattern needs most right now${hits.length?`, answering the ${hits.join(' & ')} you asked for`:''}.`; }
+    else if(ct==='lead'){ why=`Because what you asked for is “${hits.join(' & ')||sceneName}” — this strand opens with it: the keynote of the whole piece, closest to that state.`; }
     else if(ct==='bridge'&&prof){ why=pk.bt==='flow'?`Because the lead raises ${EL_EN[pk.e1]}, and ${EL_EN[pk.e1]} feeds ${EL_EN[pk.e2]} — this stone carries that charge and grounds it, so the energy doesn't spin loose.`:`Because one note alone doesn't hold — it carries the second thing your pattern asks for: ${EL_EN[st.el]}.`; }
+    else if(ct==='bridge'){ why=`Because one note alone doesn't hold — this one carries the lead and keeps the line steady.`; }
     else if(ct==='balance'){ why=pk.tdir==='cool'?`Because the lead and the carry both run warm, the strand is heating up — so one cool stone, spaced in, presses the rhythm back to centre.`:(pk.tdir==='warm'?`Because the first two notes run cool — so one warm stone lifts the temperature back.`:`Because the main line already stands — it fills in the ${hits.join(' & ')||'detail'} thread.`); }
     else if(ct==='breath'){ why=`Because even a full story needs white space — a colourless stone that competes with nothing. The strand's breath.`; }
     else if(ct==='echo'){ why=hits.length?`Because the ${hits.join(' & ')} you asked for deserves one more hand — this is its echo.`:`It lays one more undertone beneath the strand.`; }

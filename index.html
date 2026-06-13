@@ -655,6 +655,8 @@ const tempOf=s=>WARMC.has(s.color)?1:(COOLC.has(s.color)?-1:0);
 function selectStones(intentIds,prof,rng){
   const want=new Set();
   intentIds.forEach(id=>{ if(id==='custom'){ customWishes(state.customText).forEach(w=>want.add(w)); return; } const I=INTENTS.find(x=>x.id===id); if(I)I.wish.forEach(w=>want.add(w));});
+  if(!prof){ const _sc={}; CATALOG.forEach(s=>{ const h=(s.wish||[]).filter(w=>want.has(w)).length; if(h)_sc[s.el]=(_sc[s.el]||0)+h; });
+    prof={favorable:['wood','fire','earth','metal','water'].slice().sort((a,b)=>(_sc[b]||0)-(_sc[a]||0)), jishen:[], synthetic:true}; }   // scene-only: no chart → rank elements by how many wished stones they carry
   const ji=new Set(prof.jishen||[]), fav=prof.favorable, used=new Set();
   const hitsOf=s=>(s.wish||[]).filter(w=>want.has(w)).length;
   const pickFrom=pool=>{ if(!pool.length)return null;
@@ -981,11 +983,13 @@ $('bPlace').addEventListener('input',()=>{ state.place=$('bPlace').value; maybeR
 function maybeRead(){
   const dv=$('bDate').value;
   const ready=state.intents.some(id=>id!=='custom')||(state.intents.includes('custom')&&(state.customText||'').trim());
-  if(!ready||!dv||!CATALOG.length) return;
-  let [y,m,d]=dv.split('-').map(Number); const tv=$('bTime').value; let h=-1,mi=0; if(tv){const t=tv.split(':');h=+t[0];mi=+t[1]||0;}
-  const city=CITY[($('bPlace').value||'').trim()];
-  if(city && h>=0){ const off=Math.round((city.lon-city.tz*15)*4); const c=new Date(new Date(y,m-1,d,h,mi,0).getTime()+off*60000); y=c.getFullYear();m=c.getMonth()+1;d=c.getDate();h=c.getHours();mi=c.getMinutes(); }
-  state.prof=elementProfile(y,m,d,h,mi);
+  if((!ready&&!dv)||!CATALOG.length) return;   // scene OR birthday — either one alone builds a strand now (User 2026-06-13)
+  let prof=null;
+  if(dv){ let [y,m,d]=dv.split('-').map(Number); const tv=$('bTime').value; let h=-1,mi=0; if(tv){const t=tv.split(':');h=+t[0];mi=+t[1]||0;}
+    const city=CITY[($('bPlace').value||'').trim()];
+    if(city && h>=0){ const off=Math.round((city.lon-city.tz*15)*4); const c=new Date(new Date(y,m-1,d,h,mi,0).getTime()+off*60000); y=c.getFullYear();m=c.getMonth()+1;d=c.getDate();h=c.getHours();mi=c.getMinutes(); }
+    prof=elementProfile(y,m,d,h,mi); }
+  state.prof=prof;
   state.picks=selectStones(state.intents,state.prof);
   state.basePattern=recipeFromPicks(state.picks);
   state.recipe=fillToCount(state.basePattern, beadCount());   // fill to a full bracelet ONCE; then the user tweaks bead by bead
@@ -1004,11 +1008,21 @@ function maybeRead(){
 function paintReading(){
   const scenes=state.intents.map(id=> id==='custom'?{custom:true,t:'你说的那个时刻'}:INTENTS.find(x=>x.id===id)).filter(Boolean);
   const sc=scenes[0], top=state.picks[0], topName=top?(top.cn||top.en):"这些石头";
+  if(!state.prof){   // scene-only: no chart → no energy bars; explain from the moment, nudge a birthday
+    $('whyBlock').classList.remove('placeholder');
+    const sN=scenes.length>1?scenes[0].t+'、'+scenes[1].t:(scenes[0]?scenes[0].t:'此刻');
+    $('whyQuote').textContent=`你要的是「${sN}」。`;
+    const wd0=$('whyDetail'); wd0.style.display='block';
+    wd0.innerHTML=`这一套顺着你说的那个状态配 — 靠 <em>${topName}</em> 来扛住它,再用冷暖色温和一点留白把整串拉回平衡。<br><span style="color:var(--faint);font-size:12.5px">想更准?回「解读」填上生日,每颗珠子会再接上你的命盘逻辑。</span>`;
+    $('energyBlock').style.display='none'; return;
+  }
   const strongest=EL_EN[state.prof.strongest], weakest=EL_EN[state.prof.weakest];
   $('whyBlock').classList.remove('placeholder');
   $('whyQuote').textContent=`你身上${strongest}最旺,${weakest}最弱。`;
   const wd=$('whyDetail'); wd.style.display='block';
-  if(sc&&sc.custom){
+  if(!scenes.length){   // birthday only, no scene: speak from the chart, nudge a scene
+    wd.innerHTML=`你身上${strongest}最旺、${weakest}最弱 — 这套顺着你的格局来:靠 <em>${topName}</em> 接住最需要的那一味,再留一点${weakest}把你拉回中心,亮石错开排,这样才真的好戴。<br><span style="color:var(--faint);font-size:12.5px">想更贴当下?回「场景」选一两个时刻,这串会再顺着你此刻的状态调一次。</span>`;
+  } else if(sc&&sc.custom){
     wd.innerHTML=`你写的是「${esc((state.customText||'').slice(0,60))}」。你身上${strongest}最旺、${weakest}最弱,所以这套不是套模板 — 它顺着你的格局,靠 <em>${topName}</em> 扛住你说的那个状态,再留一点${weakest}把你拉回中心,更亮的石头错开排,这样才真的好戴。这就是为什么<em>你的</em>那一串和别人都不一样。`;
   } else {
     const sName=scenes.length>1?scenes[0].t+"、"+scenes[1].t:scenes[0].t;
@@ -1392,7 +1406,9 @@ function openStory(){
     const hits=(pk&&pk.hits?pk.hits:(st.wish||[]).filter(w=>want.has(w))).map(w=>WISH_LABEL[w]||w);
     let why='';
     if(ct==='lead'&&prof){ why=`因为你身上${EL_EN[prof.strongest]}最旺、${EL_EN[prof.weakest]}最弱${tiaoTxt},而你正卡在「${sceneName}」——所以这串的第一味是它:${EL_EN[st.el]},你的盘此刻最需要的能量${hits.length?`,同时回应你要的「${hits.join('、')}」`:''}。`; }
+    else if(ct==='lead'){ why=`因为你要的是「${hits.join('、')||sceneName}」——所以这串的第一味给它:整串的基调由它定,最贴你那个状态。`; }
     else if(ct==='bridge'&&prof){ why=pk.bt==='flow'?`因为主石把${EL_EN[pk.e1]}提了起来,而${EL_EN[pk.e1]}生${EL_EN[pk.e2]}——所以配它:把这股劲承接住、落到实处,不让能量空转。`:`因为只补一味立不稳——所以它来接你盘里第二顺位的${EL_EN[st.el]}。`; }
+    else if(ct==='bridge'){ why=`因为只有一味立不住——所以用它接住主石,把这条线撑稳、不让能量空转。`; }
     else if(ct==='balance'){ why=pk.tdir==='cool'?`因为主石和承接都是暖调,串到这里温度偏燥——所以插一颗冷色的它,把节奏压回中心。`:(pk.tdir==='warm'?`因为前两味都偏冷,串到这里偏沉——所以加一颗暖色的它,把温度托回来。`:`因为主线已经立住——所以它来补「${hits.join('、')||'细节'}」这条线。`); }
     else if(ct==='breath'){ why=`因为再满的故事也要留白——所以一颗无色的它,不抢任何一味,是整串的呼吸。`; }
     else if(ct==='echo'){ why=hits.length?`因为你要的「${hits.join('、')}」值得再多一只手——所以它来补这声和声。`:`它给整串再添一层底色。`; }
