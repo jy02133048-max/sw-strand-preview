@@ -1267,7 +1267,7 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDetail();});
   SV.addEventListener('pointercancel',()=>{ if(fin(false))return; key=null; });
 })();
 
-/* zoom the whole bracelet to a big image (button, or tap the empty ring centre) */
+/* zoom the whole bracelet — top-left 放大 button ONLY (User 2026-06-13: 看大图只走左上角,取消点串中间放大) */
 const _pz=(function(){           // drag to pan, wheel / two-finger pinch to zoom
   const stage=$('zoomStage'), inner=$('zoomSvg');
   let s=1.5,tx=0,ty=0,sx=0,sy=0,drag=false,startDist=0,startScale=1; const pts=new Map();
@@ -1295,7 +1295,6 @@ $('clearAll').onclick=()=>{ if(!state.recipe.length)return; const bak=state.reci
   state.recipe=[]; state.mmList=[]; state.basePattern=null; state.autofilled=false; rebuild();
   toast('Strand cleared','Undo',()=>{ state.recipe=bak; state.mmList=bakM; rebuild(); }); };
 $('zoomX').onclick=()=>$('zoomModal').classList.remove('show'); $('zoomModal').onclick=e=>{if(e.target===$('zoomModal'))$('zoomModal').classList.remove('show');};
-svg().addEventListener('click',e=>{ if(svg()._noClick)return; const k=e.target&&e.target.getAttribute&&e.target.getAttribute('data-k'); if(!k&&state.seq.length)openZoom();});
 
 /* on-wrist preview — composite YOUR actual beads around a bare-wrist photo on a canvas */
 const WRISTIMG=new Image(); WRISTIMG.src=ASSET+'assets/wrist-base.png?v='+VER;
