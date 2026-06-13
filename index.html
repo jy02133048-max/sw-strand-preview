@@ -700,9 +700,7 @@ function recipeFromPicks(picks){ const r=[]; picks.forEach((p,i)=>{r.push(p.key)
 function rebuild(){ state.seq=state.recipe.slice(); renderAll(); }   // the ring IS the beads you placed — one bead per entry
 function refit(){
   if(state.autofilled && state.basePattern && state.basePattern.length){ state.recipe=fillToCount(state.basePattern, beadCount());
-    state.mmList=state.recipe.map(()=>null);
-    if(state._leadBump&&state.picks[0]){ const up=SIZES[Math.min(Math.max(SIZES.indexOf(state.beadMm),0)+1,SIZES.length-1)];
-      state.recipe.forEach((rk,i)=>{ if(rk===state.picks[0].key) state.mmList[i]=up; }); } }
+    state.mmList=state.recipe.map(()=>null); }
   let trimmed=0; while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); state.mmList.pop(); trimmed++; }
   if(trimmed) toast(`手围装不下 — 已自动减掉 ${trimmed} 颗`);
   rebuild();
@@ -993,10 +991,7 @@ function maybeRead(){
   state.picks=selectStones(state.intents,state.prof);
   state.basePattern=recipeFromPicks(state.picks);
   state.recipe=fillToCount(state.basePattern, beadCount());   // fill to a full bracelet ONCE; then the user tweaks bead by bead
-  state.mmList=state.recipe.map(()=>null); state._leadBump=true;
-  const _lk=state.picks[0]&&state.picks[0].key;
-  if(_lk){ const up=SIZES[Math.min(Math.max(SIZES.indexOf(state.beadMm),0)+1,SIZES.length-1)];
-    state.recipe.forEach((rk,i)=>{ if(rk===_lk) state.mmList[i]=up; }); }   // lead beads one size up (per-slot)
+  state.mmList=state.recipe.map(()=>null); state._leadBump=false;   // scene reco = all one size (User 2026-06-13; lead no longer bumped, matches lucky)
   while(state.recipe.length&&sumMm()>loopMm()+state.beadMm/2){ state.recipe.pop(); state.mmList.pop(); }
   state.autofilled=true; state._repour=true;
   const first=!state.hasReading; state.hasReading=true;
