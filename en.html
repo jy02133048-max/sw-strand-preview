@@ -704,9 +704,13 @@ function fillToCount(recipe,n){ if(!recipe.length)return[]; const o=[]; let i=0;
 function recipeFromPicks(picks){ const r=[]; picks.forEach((p,i)=>{r.push(p.key); if(i<2)r.push(p.key);}); return r; }
 function rebuild(){ state.seq=state.recipe.slice(); renderAll(); }   // the ring IS the beads you placed — one bead per entry
 function refit(){
-  if(state.autofilled && state.basePattern && state.basePattern.length){ state.recipe=fillToCount(state.basePattern, beadCount());
+  const target=beadCount();
+  if(state.autofilled && state.basePattern && state.basePattern.length){ state.recipe=fillToCount(state.basePattern, target);
     state.mmList=state.recipe.map(()=>null); }
-  let trimmed=0; while(state.recipe.length&&sumMm()>loopMm()+2*state.beadMm){ state.recipe.pop(); state.mmList.pop(); trimmed++; }
+  else if(state.recipe.length){ const pat=state.recipe.slice();   // user-customized: keep the pattern but match the COUNT to the new wrist/bead — otherwise the reverse-fit wrist drifts (User 2026-06-14: 手围要准确)
+    while(state.recipe.length>target){ state.recipe.pop(); state.mmList.pop(); }
+    let _i=0; while(state.recipe.length<target){ state.recipe.push(pat[_i%pat.length]); state.mmList.push(null); _i++; } }
+  let trimmed=0; while(state.recipe.length>4&&sumMm()>loopMm()+state.beadMm/2){ state.recipe.pop(); state.mmList.pop(); trimmed++; }
   if(trimmed) toast(`Doesn't fit the wrist — removed ${trimmed} bead(s)`);
   rebuild();
 }
