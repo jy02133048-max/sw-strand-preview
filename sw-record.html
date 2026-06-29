@@ -59,8 +59,10 @@
 // Local dev serves the customizer as sw-v1.html; the published site (github.io)
 // serves it as index.html. One file works in both; override with ?src=…
 const params = new URLSearchParams(location.search);
+// English by default: local sw-v1.html is the EN build; online en.html is the
+// EN page real users load. zh override: ?src=index.html
 const isLocal = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
-const SRC = params.get('src') || (isLocal ? 'sw-v1.html' : 'index.html');
+const SRC = params.get('src') || (isLocal ? 'sw-v1.html' : 'en.html');
 document.getElementById('app').src = SRC;
 
 const btn = document.getElementById('rec');
