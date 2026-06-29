@@ -72,7 +72,7 @@ const frameEl = document.querySelector('.frame');
 const iframeEl = document.getElementById('app');
 const scratch = document.getElementById('scratch');
 
-let recording = false, mediaRec = null, chunks = [], rafId = 0, displayStream = null, secs = 0, tick = 0;
+let recording = false, mediaRec = null, chunks = [], rafId = 0, displayStream = null, secs = 0, tick = 0, capResEl = '';
 
 modeSel.addEventListener('change', () => {
   statusEl.textContent = modeSel.value === 'clean'
@@ -93,17 +93,27 @@ async function start(){
   let captureStream;
   try {
     if (mode === 'clean') {
-      // Capture the current tab; we crop the iframe rect out of it (UI excluded).
+      // Capture the current tab at full device resolution (NOT downscaled to CSS
+      // px) so the cropped iframe region has real 1080x1920 pixels — otherwise a
+      // 2x (Retina) frame is captured at 1x and upscaling makes it look soft.
       captureStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: 60 }, audio: false, preferCurrentTab: true,
+        video: { frameRate: 60, width: { max: 7680 }, height: { max: 4320 }, resizeMode: 'none' },
+        audio: false, preferCurrentTab: true,
       });
     } else {
-      // Whole screen — includes the real cursor.
+      // Whole screen — device resolution, includes the real cursor.
       captureStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: 60, cursor: 'always' }, audio: false,
+        video: { frameRate: 60, cursor: 'always', width: { max: 7680 }, height: { max: 4320 } },
+        audio: false,
       });
     }
   } catch (e) { statusEl.textContent = '已取消 / 无权限'; return; }
+
+  // Push the track to its highest resolution where supported.
+  try {
+    const vt = captureStream.getVideoTracks()[0];
+    await vt.applyConstraints({ width: { max: 7680 }, height: { max: 4320 }, frameRate: 60, resizeMode: 'none' });
+  } catch (e) {}
 
   displayStream = captureStream;
   // If the user hits the browser's "Stop sharing", finalize cleanly.
@@ -118,13 +128,21 @@ async function start(){
     video.srcObject = captureStream; video.muted = true; await video.play();
     await new Promise(r => video.videoWidth ? r() : (video.onloadedmetadata = r));
 
-    scratch.width = 1080; scratch.height = 1920;
-    const ctx = scratch.getContext('2d', { alpha: false });
     const sx = video.videoWidth / document.documentElement.clientWidth;
     const sy = video.videoHeight / document.documentElement.clientHeight;
+    // Master the canvas at the cropped source's real pixel size (capped so the
+    // long edge ≥1920), keeping 9:16 — this is 1:1 with the captured pixels, no
+    // upscale. If the source is smaller, we still output a clean 1080x1920.
+    const r0 = frameEl.getBoundingClientRect();
+    let outH = Math.max(1920, Math.round(r0.height * sy));
+    let outW = Math.round(outH * 9 / 16);
+    scratch.width = outW; scratch.height = outH;
+    const ctx = scratch.getContext('2d', { alpha: false });
+    ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+    capResEl = ` · 源 ${Math.round(r0.width*sx)}×${Math.round(r0.height*sy)} → ${outW}×${outH}`;
     const draw = () => {
       const r = frameEl.getBoundingClientRect();
-      try { ctx.drawImage(video, r.left*sx, r.top*sy, r.width*sx, r.height*sy, 0, 0, 1080, 1920); } catch(e){}
+      try { ctx.drawImage(video, r.left*sx, r.top*sy, r.width*sx, r.height*sy, 0, 0, outW, outH); } catch(e){}
       rafId = requestAnimationFrame(draw);
     };
     rafId = requestAnimationFrame(draw);
@@ -133,16 +151,21 @@ async function start(){
     recordStream = captureStream; // record exactly what they shared
   }
 
+  if (mode === 'screen') {
+    const vt = captureStream.getVideoTracks()[0].getSettings();
+    capResEl = ` · 屏幕 ${vt.width||'?'}×${vt.height||'?'}（自行裁竖版）`;
+  }
   chunks = [];
-  mediaRec = new MediaRecorder(recordStream, { mimeType: pickMime(), videoBitsPerSecond: 16_000_000 });
+  // High bitrate so the encoder doesn't add its own softness on top.
+  mediaRec = new MediaRecorder(recordStream, { mimeType: pickMime(), videoBitsPerSecond: 28_000_000 });
   mediaRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
   mediaRec.onstop = save;
   mediaRec.start();
 
   recording = true; secs = 0;
   btn.textContent = '■ 停止并保存'; btn.classList.add('on'); modeSel.disabled = true;
-  statusEl.innerHTML = '<span class="dot blink"></span>录制中 00:00';
-  tick = setInterval(() => { secs++; statusEl.innerHTML = '<span class="dot blink"></span>录制中 ' + fmt(secs); }, 1000);
+  statusEl.innerHTML = '<span class="dot blink"></span>录制中 00:00' + capResEl;
+  tick = setInterval(() => { secs++; statusEl.innerHTML = '<span class="dot blink"></span>录制中 ' + fmt(secs) + capResEl; }, 1000);
 }
 
 function stop(){
