@@ -72,8 +72,9 @@ document.getElementById('app').src = SRC;
 // screen-sharing bar, and freeze while recording so the frame (and therefore the
 // recorded crop) is identical whether or not we're recording.
 const SHARE_RESERVE = 72; // px the "sharing this tab" bar may steal
+let frozen = false;       // lock the frame the instant sharing starts
 function fitFrame(){
-  if (recording) return;
+  if (recording || frozen) return;
   const stage = document.querySelector('.stage');
   const h = Math.max(320, stage.clientHeight - SHARE_RESERVE - 16);
   const fr = document.querySelector('.frame');
@@ -107,6 +108,10 @@ function pickMime(){
 
 async function start(){
   const mode = modeSel.value;
+  // Freeze the frame size NOW — Chrome's share bar shrinks the viewport the
+  // moment getDisplayMedia is granted, which is before recording=true. Freezing
+  // first keeps the iframe width constant so its text never re-wraps (串行).
+  frozen = true;
   let captureStream;
   try {
     if (mode === 'clean') {
@@ -124,7 +129,7 @@ async function start(){
         audio: false,
       });
     }
-  } catch (e) { statusEl.textContent = '已取消 / 无权限'; return; }
+  } catch (e) { frozen = false; statusEl.textContent = '已取消 / 无权限'; return; }
 
   // Push the track to its highest resolution where supported.
   try {
@@ -193,7 +198,8 @@ function stop(){
   if (displayStream) displayStream.getTracks().forEach(t => t.stop());
   btn.textContent = '● 开始录制'; btn.classList.remove('on'); modeSel.disabled = false;
   statusEl.textContent = '正在导出…';
-  setTimeout(fitFrame, 50); // viewport restored after the share bar disappears
+  frozen = false;
+  setTimeout(fitFrame, 80); // viewport restored after the share bar disappears
 }
 
 function save(){
