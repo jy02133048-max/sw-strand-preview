@@ -27,7 +27,10 @@
 
   /* The stage: a 9:16 phone frame, centered. The iframe IS the production page. */
   .stage { height: calc(100% - var(--bar)); display: flex; align-items: center; justify-content: center; }
-  .frame { position: relative; height: 92%; aspect-ratio: 9 / 16; background: #000;
+  /* size is set in px by fitFrame() — NOT a % of the viewport — so the browser's
+     "you're sharing this tab" bar (which shrinks the viewport on record) can't
+     change the frame size. We also reserve room for that bar up front. */
+  .frame { position: relative; background: #000;
     border-radius: 18px; overflow: hidden; box-shadow: 0 14px 50px rgba(0,0,0,.5); }
   iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
   /* off-screen scratch canvas for the clean-crop pipeline */
@@ -64,6 +67,20 @@ const params = new URLSearchParams(location.search);
 const isLocal = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
 const SRC = params.get('src') || (isLocal ? 'sw-v1.html' : 'en.html');
 document.getElementById('app').src = SRC;
+
+// Lock the phone frame to a fixed pixel size. Reserve headroom for the browser's
+// screen-sharing bar, and freeze while recording so the frame (and therefore the
+// recorded crop) is identical whether or not we're recording.
+const SHARE_RESERVE = 72; // px the "sharing this tab" bar may steal
+function fitFrame(){
+  if (recording) return;
+  const stage = document.querySelector('.stage');
+  const h = Math.max(320, stage.clientHeight - SHARE_RESERVE - 16);
+  const fr = document.querySelector('.frame');
+  fr.style.height = h + 'px';
+  fr.style.width = Math.round(h * 9 / 16) + 'px';
+}
+window.addEventListener('resize', fitFrame);
 
 const btn = document.getElementById('rec');
 const modeSel = document.getElementById('mode');
@@ -176,6 +193,7 @@ function stop(){
   if (displayStream) displayStream.getTracks().forEach(t => t.stop());
   btn.textContent = '● 开始录制'; btn.classList.remove('on'); modeSel.disabled = false;
   statusEl.textContent = '正在导出…';
+  setTimeout(fitFrame, 50); // viewport restored after the share bar disappears
 }
 
 function save(){
@@ -188,6 +206,11 @@ function save(){
 }
 
 btn.addEventListener('click', () => recording ? stop() : start());
+
+// Size the frame now and after the iframe paints (fonts/layout may shift it).
+fitFrame();
+iframeEl.addEventListener('load', fitFrame);
+window.addEventListener('orientationchange', fitFrame);
 </script>
 </body>
 </html>
