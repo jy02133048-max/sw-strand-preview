@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SW Bracelet · 录制台</title>
+<style>
+  :root { --bar: 56px; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; background: #0d0f14; overflow: hidden;
+    font-family: -apple-system, system-ui, "PingFang SC", sans-serif; color: #e8e3d6; }
+
+  /* Control bar — lives OUTSIDE the phone frame, so clean-tab crop never sees it. */
+  .bar { height: var(--bar); display: flex; align-items: center; gap: 12px;
+    padding: 0 14px; background: #14171d; border-bottom: 1px solid #232730; }
+  .bar .title { font-size: 13px; font-weight: 600; color: #cdb98a; letter-spacing: .04em; }
+  .bar .spacer { flex: 1; }
+  select, button { font: inherit; border-radius: 8px; border: 1px solid #2c313b;
+    background: #1c2027; color: #e8e3d6; padding: 7px 10px; }
+  button { cursor: pointer; }
+  #rec { font-weight: 600; background: #e0524d; border-color: #e0524d; color: #fff; padding: 8px 16px; }
+  #rec.on { background: #2c2f36; border-color: #4a3030; color: #ff8a85; }
+  .status { font-size: 12px; color: #9a958a; min-width: 150px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%;
+    background: #e0524d; margin-right: 6px; vertical-align: middle; }
+  .blink { animation: b .9s steps(1) infinite; } @keyframes b { 50% { opacity: .25; } }
+
+  /* The stage: a 9:16 phone frame, centered. The iframe IS the production page. */
+  .stage { height: calc(100% - var(--bar)); display: flex; align-items: center; justify-content: center; }
+  .frame { position: relative; height: 92%; aspect-ratio: 9 / 16; background: #000;
+    border-radius: 18px; overflow: hidden; box-shadow: 0 14px 50px rgba(0,0,0,.5); }
+  iframe { width: 100%; height: 100%; border: 0; display: block; background: #fff; }
+  /* off-screen scratch canvas for the clean-crop pipeline */
+  #scratch { position: fixed; left: -99999px; top: 0; }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <span class="title">SW 录制台</span>
+    <select id="mode" title="录制方式">
+      <option value="clean">干净标签页（无鼠标）</option>
+      <option value="screen">全屏带鼠标</option>
+    </select>
+    <button id="rec">● 开始录制</button>
+    <span class="status" id="status">选「此标签页」→ 自动裁出 1080×1920</span>
+    <span class="spacer"></span>
+    <span style="font-size:11px;color:#5d6470">改 sw-v1.html，此页自动同步</span>
+  </div>
+
+  <div class="stage">
+    <div class="frame">
+      <iframe id="app" allow="clipboard-read; clipboard-write" referrerpolicy="no-referrer"></iframe>
+    </div>
+  </div>
+  <canvas id="scratch"></canvas>
+
+<script>
+// ---- load the production customizer in the iframe (single source of truth) ----
+// Local dev serves the customizer as sw-v1.html; the published site (github.io)
+// serves it as index.html. One file works in both; override with ?src=…
+const params = new URLSearchParams(location.search);
+const isLocal = location.hostname === '127.0.0.1' || location.hostname === 'localhost';
+const SRC = params.get('src') || (isLocal ? 'sw-v1.html' : 'index.html');
+document.getElementById('app').src = SRC;
+
+const btn = document.getElementById('rec');
+const modeSel = document.getElementById('mode');
+const statusEl = document.getElementById('status');
+const frameEl = document.querySelector('.frame');
+const iframeEl = document.getElementById('app');
+const scratch = document.getElementById('scratch');
+
+let recording = false, mediaRec = null, chunks = [], rafId = 0, displayStream = null, secs = 0, tick = 0;
+
+modeSel.addEventListener('change', () => {
+  statusEl.textContent = modeSel.value === 'clean'
+    ? '选「此标签页」→ 自动裁出 1080×1920'
+    : '选「整个屏幕」→ 录到鼠标，自己框/后期裁';
+});
+
+function fmt(s){ const m=Math.floor(s/60), r=s%60; return (m<10?'0':'')+m+':'+(r<10?'0':'')+r; }
+function stamp(){ return new Date().toISOString().replace(/[:.]/g,'-').replace('T','_').slice(0,19); }
+function pickMime(){
+  for (const m of ['video/webm;codecs=vp9','video/webm;codecs=vp8','video/webm'])
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+  return 'video/webm';
+}
+
+async function start(){
+  const mode = modeSel.value;
+  let captureStream;
+  try {
+    if (mode === 'clean') {
+      // Capture the current tab; we crop the iframe rect out of it (UI excluded).
+      captureStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 60 }, audio: false, preferCurrentTab: true,
+      });
+    } else {
+      // Whole screen — includes the real cursor.
+      captureStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 60, cursor: 'always' }, audio: false,
+      });
+    }
+  } catch (e) { statusEl.textContent = '已取消 / 无权限'; return; }
+
+  displayStream = captureStream;
+  // If the user hits the browser's "Stop sharing", finalize cleanly.
+  captureStream.getVideoTracks()[0].addEventListener('ended', () => { if (recording) stop(); });
+
+  let recordStream;
+  if (mode === 'clean') {
+    // Draw the iframe's region into a 1080x1920 canvas every frame, then record
+    // the canvas. Crop coords are viewport-relative — exactly what a tab capture
+    // maps to — so no need to know the window's screen position.
+    const video = document.createElement('video');
+    video.srcObject = captureStream; video.muted = true; await video.play();
+    await new Promise(r => video.videoWidth ? r() : (video.onloadedmetadata = r));
+
+    scratch.width = 1080; scratch.height = 1920;
+    const ctx = scratch.getContext('2d', { alpha: false });
+    const sx = video.videoWidth / document.documentElement.clientWidth;
+    const sy = video.videoHeight / document.documentElement.clientHeight;
+    const draw = () => {
+      const r = frameEl.getBoundingClientRect();
+      try { ctx.drawImage(video, r.left*sx, r.top*sy, r.width*sx, r.height*sy, 0, 0, 1080, 1920); } catch(e){}
+      rafId = requestAnimationFrame(draw);
+    };
+    rafId = requestAnimationFrame(draw);
+    recordStream = scratch.captureStream(60);
+  } else {
+    recordStream = captureStream; // record exactly what they shared
+  }
+
+  chunks = [];
+  mediaRec = new MediaRecorder(recordStream, { mimeType: pickMime(), videoBitsPerSecond: 16_000_000 });
+  mediaRec.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+  mediaRec.onstop = save;
+  mediaRec.start();
+
+  recording = true; secs = 0;
+  btn.textContent = '■ 停止并保存'; btn.classList.add('on'); modeSel.disabled = true;
+  statusEl.innerHTML = '<span class="dot blink"></span>录制中 00:00';
+  tick = setInterval(() => { secs++; statusEl.innerHTML = '<span class="dot blink"></span>录制中 ' + fmt(secs); }, 1000);
+}
+
+function stop(){
+  if (!recording) return;
+  recording = false; clearInterval(tick);
+  if (rafId) cancelAnimationFrame(rafId), rafId = 0;
+  try { if (mediaRec && mediaRec.state !== 'inactive') mediaRec.stop(); } catch(e){}
+  if (displayStream) displayStream.getTracks().forEach(t => t.stop());
+  btn.textContent = '● 开始录制'; btn.classList.remove('on'); modeSel.disabled = false;
+  statusEl.textContent = '正在导出…';
+}
+
+function save(){
+  const blob = new Blob(chunks, { type: 'video/webm' });
+  const name = `sw-bracelet-${modeSel.value}-${stamp()}.webm`;
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  statusEl.innerHTML = '已下载 <b>' + name + '</b>（' + (blob.size/1048576).toFixed(1) + 'MB）';
+}
+
+btn.addEventListener('click', () => recording ? stop() : start());
+</script>
+</body>
+</html>
