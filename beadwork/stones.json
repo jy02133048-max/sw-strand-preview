@@ -4,7 +4,7 @@
   "en": "White Phantom Quartz",
   "cn": "白幽灵水晶手串",
   "el": "metal",
-  "price": 2.97,
+  "price": 2.62,
   "wish": [
    "energy",
    "intuition"
@@ -30,14 +30,14 @@
    0,
    69
   ],
-  "matp": 0.47
+  "cost8": 0.236
  },
  {
   "key": "jx-002",
   "en": "White Garden Quartz",
   "cn": "白水幽灵手串",
   "el": "metal",
-  "price": 3.81,
+  "price": 5.14,
   "wish": [
    "calm",
    "energy",
@@ -65,14 +65,14 @@
    1,
    88
   ],
-  "matp": 1.31
+  "cost8": 0.656
  },
  {
   "key": "jx-003",
   "en": "Milky Quartz",
   "cn": "奶白晶",
   "el": "metal",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "energy",
    "intuition"
@@ -98,14 +98,14 @@
    0,
    53
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-004",
   "en": "White Moonstone",
   "cn": "白月光手串",
   "el": "metal",
-  "price": 4.43,
+  "price": 6.99,
   "wish": [
    "energy",
    "intuition"
@@ -131,14 +131,14 @@
    1,
    297
   ],
-  "matp": 1.93
+  "cost8": 0.966
  },
  {
   "key": "jx-005",
   "en": "Milky Quartz",
   "cn": "奶白晶水晶",
   "el": "metal",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "energy",
    "intuition"
@@ -164,14 +164,14 @@
    2,
    292
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-006",
   "en": "Snowflake Phantom Quartz",
   "cn": "雪花幽灵水晶",
   "el": "metal",
-  "price": 2.76,
+  "price": 1.99,
   "wish": [
    "energy",
    "intuition"
@@ -197,14 +197,14 @@
    1,
    290
   ],
-  "matp": 0.26
+  "cost8": 0.131
  },
  {
   "key": "jx-007",
   "en": "White Phantom Quartz",
   "cn": "白幽灵水晶手串",
   "el": "metal",
-  "price": 2.89,
+  "price": 2.38,
   "wish": [
    "energy",
    "intuition"
@@ -230,14 +230,14 @@
    1,
    86
   ],
-  "matp": 0.39
+  "cost8": 0.197
  },
  {
   "key": "jx-008",
   "en": "Champagne Moonstone",
   "cn": "奶茶月光",
   "el": "metal",
-  "price": 3.79,
+  "price": 5.06,
   "wish": [
    "energy",
    "intuition",
@@ -265,14 +265,14 @@
    8,
    89
   ],
-  "matp": 1.29
+  "cost8": 0.644
  },
  {
   "key": "jx-009",
   "en": "Azeztulite Quartz",
   "cn": "白阿塞水晶",
   "el": "metal",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "energy",
    "intuition"
@@ -298,14 +298,14 @@
    9,
    247
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-010",
   "en": "Clear Quartz",
   "cn": "A级白水晶",
   "el": "metal",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "energy",
    "intuition"
@@ -331,14 +331,14 @@
    3,
    88
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-011",
   "en": "Clear Quartz",
   "cn": "A白水晶",
   "el": "metal",
-  "price": 2.97,
+  "price": 2.62,
   "wish": [
    "energy",
    "intuition"
@@ -364,14 +364,14 @@
    2,
    103
   ],
-  "matp": 0.47
+  "cost8": 0.236
  },
  {
   "key": "jx-012",
   "en": "Fluorite",
   "cn": "冰感彩萤石浓色",
   "el": "wood",
-  "price": 3.6,
+  "price": 4.51,
   "wish": [
    "calm",
    "career",
@@ -400,14 +400,14 @@
    4,
    1
   ],
-  "matp": 1.1
+  "cost8": 0.551
  },
  {
   "key": "jx-013",
   "en": "Tourmaline",
   "cn": "浓郁色碧玺",
   "el": "wood",
-  "price": 40.38,
+  "price": 114.85,
   "wish": [
    "calm",
    "career",
@@ -437,14 +437,14 @@
    15,
    78
   ],
-  "matp": 37.88
+  "cost8": 18.942
  },
  {
   "key": "jx-014",
   "en": "Tourmaline",
   "cn": "天然碧玺",
   "el": "wood",
-  "price": 20.68,
+  "price": 55.75,
   "wish": [
    "calm",
    "career",
@@ -474,14 +474,14 @@
    15,
    69
   ],
-  "matp": 18.18
+  "cost8": 9.092
  },
  {
   "key": "jx-015",
   "en": "天然聚宝盆兔毛",
   "cn": "天然聚宝盆兔毛",
   "el": "wood",
-  "price": 18.25,
+  "price": 48.44,
   "wish": [
    "confidence",
    "energy"
@@ -507,14 +507,14 @@
    25,
    62
   ],
-  "matp": 15.75
+  "cost8": 7.874
  },
  {
   "key": "jx-016",
   "en": "天然满毛彩兔毛",
   "cn": "天然满毛彩兔毛",
   "el": "wood",
-  "price": 18.25,
+  "price": 48.44,
   "wish": [],
   "color": "multicolor",
   "rgb": [
@@ -537,14 +537,14 @@
    18,
    74
   ],
-  "matp": 15.75
+  "cost8": 7.874
  },
  {
   "key": "jx-017",
   "en": "Fluorite",
   "cn": "超透体彩萤石",
   "el": "wood",
-  "price": 3.44,
+  "price": 4.03,
   "wish": [
    "career",
    "love"
@@ -570,14 +570,14 @@
    7,
    49
   ],
-  "matp": 0.94
+  "cost8": 0.472
  },
  {
   "key": "jx-018",
   "en": "Super Seven",
   "cn": "超七多宝三圈手串",
   "el": "wood",
-  "price": 4.86,
+  "price": 8.29,
   "wish": [
    "career",
    "confidence",
@@ -609,14 +609,14 @@
    13,
    19
   ],
-  "matp": 2.36
+  "cost8": 1.181
  },
  {
   "key": "jx-019",
   "en": "Fluorite",
   "cn": "彩萤石",
   "el": "wood",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "career",
    "love"
@@ -642,14 +642,14 @@
    5,
    55
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-020",
   "en": "Fluorite",
   "cn": "兔毛萤石",
   "el": "wood",
-  "price": 2.81,
+  "price": 2.14,
   "wish": [
    "career",
    "love"
@@ -675,14 +675,14 @@
    8,
    227
   ],
-  "matp": 0.31
+  "cost8": 0.157
  },
  {
   "key": "jx-021",
   "en": "Super Seven",
   "cn": "超七多宝手串1",
   "el": "wood",
-  "price": 4.47,
+  "price": 7.11,
   "wish": [
    "career",
    "confidence",
@@ -713,14 +713,14 @@
    13,
    30
   ],
-  "matp": 1.97
+  "cost8": 0.984
  },
  {
   "key": "jx-022",
   "en": "Fluorite",
   "cn": "超透体彩萤石",
   "el": "wood",
-  "price": 3.67,
+  "price": 4.7,
   "wish": [
    "career",
    "love"
@@ -746,14 +746,14 @@
    1,
    3
   ],
-  "matp": 1.17
+  "cost8": 0.583
  },
  {
   "key": "jx-023",
   "en": "Angel Hair Quartz",
   "cn": "彩胶花水晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -781,14 +781,14 @@
    39,
    61
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-024",
   "en": "Angel Hair Quartz",
   "cn": "浅彩胶花水晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -816,14 +816,14 @@
    22,
    76
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-025",
   "en": "Fluorite",
   "cn": "彩萤石",
   "el": "wood",
-  "price": 3.16,
+  "price": 3.18,
   "wish": [
    "career",
    "love"
@@ -849,14 +849,14 @@
    4,
    298
   ],
-  "matp": 0.66
+  "cost8": 0.331
  },
  {
   "key": "jx-026",
   "en": "Topaz",
   "cn": "托帕石",
   "el": "water",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "calm",
    "communication",
@@ -883,14 +883,14 @@
    21,
    101
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-027",
   "en": "Rose Quartz",
   "cn": "双A级粉晶水晶",
   "el": "fire",
-  "price": 4.6,
+  "price": 7.5,
   "wish": [
    "confidence",
    "energy",
@@ -918,14 +918,14 @@
    15,
    21
   ],
-  "matp": 2.1
+  "cost8": 1.05
  },
  {
   "key": "jx-028",
   "en": "Rose Quartz",
   "cn": "西柚粉粉晶5",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -953,14 +953,14 @@
    13,
    25
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-029",
   "en": "Madagascar Rose Quartz",
   "cn": "马粉水晶三圈手串",
   "el": "fire",
-  "price": 2.97,
+  "price": 2.62,
   "wish": [
    "confidence",
    "energy",
@@ -988,14 +988,14 @@
    12,
    23
   ],
-  "matp": 0.47
+  "cost8": 0.236
  },
  {
   "key": "jx-030",
   "en": "Rose Quartz",
   "cn": "西柚粉粉晶",
   "el": "fire",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "confidence",
    "energy",
@@ -1023,14 +1023,14 @@
    15,
    25
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-031",
   "en": "Madagascar Rose Quartz",
   "cn": "紫马粉水晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -1060,14 +1060,14 @@
    21,
    21
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-032",
   "en": "Flower Quartz",
   "cn": "粉胶花水晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -1096,14 +1096,14 @@
    30,
    50
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-033",
   "en": "Rose Quartz",
   "cn": "马达加斯加粉晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -1133,14 +1133,14 @@
    16,
    23
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-034",
   "en": "Madagascar Rose Quartz",
   "cn": "马粉",
   "el": "fire",
-  "price": 2.89,
+  "price": 2.38,
   "wish": [
    "confidence",
    "energy",
@@ -1168,14 +1168,14 @@
    17,
    24
   ],
-  "matp": 0.39
+  "cost8": 0.197
  },
  {
   "key": "jx-035",
   "en": "Madagascar Rose Quartz",
   "cn": "A级马粉",
   "el": "fire",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "confidence",
    "energy",
@@ -1203,14 +1203,14 @@
    17,
    18
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-036",
   "en": "Rose Quartz",
   "cn": "星光粉晶",
   "el": "fire",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "confidence",
    "energy",
@@ -1238,14 +1238,14 @@
    12,
    20
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-037",
   "en": "Black Rutilated Quartz",
   "cn": "黑发晶水晶手串",
   "el": "water",
-  "price": 3.68,
+  "price": 4.74,
   "wish": [
    "energy",
    "grounding",
@@ -1272,14 +1272,14 @@
    3,
    78
   ],
-  "matp": 1.18
+  "cost8": 0.591
  },
  {
   "key": "jx-038",
   "en": "Black Rutilated Quartz",
   "cn": "黑发晶水晶手串",
   "el": "water",
-  "price": 4.07,
+  "price": 5.92,
   "wish": [
    "energy",
    "grounding",
@@ -1307,14 +1307,14 @@
    4,
    82
   ],
-  "matp": 1.57
+  "cost8": 0.787
  },
  {
   "key": "jx-039",
   "en": "Skeletal Quartz",
   "cn": "黑骨干水晶",
   "el": "water",
-  "price": 3.68,
+  "price": 4.74,
   "wish": [
    "energy",
    "grounding",
@@ -1342,14 +1342,14 @@
    13,
    69
   ],
-  "matp": 1.18
+  "cost8": 0.591
  },
  {
   "key": "jx-040",
   "en": "Red Agate",
   "cn": "天然满色南红",
   "el": "fire",
-  "price": 5.08,
+  "price": 8.93,
   "wish": [
    "confidence",
    "energy",
@@ -1377,14 +1377,14 @@
    59,
    43
   ],
-  "matp": 2.58
+  "cost8": 1.288
  },
  {
   "key": "jx-041",
   "en": "Rhodonite",
   "cn": "蔷薇石手串",
   "el": "fire",
-  "price": 4.6,
+  "price": 7.5,
   "wish": [
    "confidence",
    "energy",
@@ -1415,14 +1415,14 @@
    52,
    22
   ],
-  "matp": 2.1
+  "cost8": 1.05
  },
  {
   "key": "jx-042",
   "en": "樱花雨水晶手串1",
   "cn": "樱花雨水晶手串1",
   "el": "fire",
-  "price": 4.6,
+  "price": 7.5,
   "wish": [
    "confidence",
    "energy",
@@ -1450,14 +1450,14 @@
    31,
    11
   ],
-  "matp": 2.1
+  "cost8": 1.05
  },
  {
   "key": "jx-043",
   "en": "Strawberry Quartz",
   "cn": "草莓晶水晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "confidence",
    "energy",
@@ -1486,14 +1486,14 @@
    34,
    28
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-044",
   "en": "Flower Quartz",
   "cn": "红胶花水晶",
   "el": "fire",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "confidence",
    "energy",
@@ -1521,14 +1521,14 @@
    40,
    43
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-045",
   "en": "星光草莓",
   "cn": "星光草莓",
   "el": "fire",
-  "price": 3.42,
+  "price": 3.96,
   "wish": [
    "confidence",
    "energy",
@@ -1557,14 +1557,14 @@
    20,
    18
   ],
-  "matp": 0.92
+  "cost8": 0.459
  },
  {
   "key": "jx-046",
   "en": "Red Tiger Eye",
   "cn": "红虎眼",
   "el": "fire",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "confidence",
    "energy",
@@ -1592,14 +1592,14 @@
    23,
    35
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-047",
   "en": "Citrine",
   "cn": "高透黄水晶",
   "el": "earth",
-  "price": 3.76,
+  "price": 4.98,
   "wish": [
    "career",
    "energy",
@@ -1627,14 +1627,14 @@
    30,
    93
   ],
-  "matp": 1.26
+  "cost8": 0.63
  },
  {
   "key": "jx-048",
   "en": "Flower Quartz",
   "cn": "橘子胶花",
   "el": "earth",
-  "price": 3.42,
+  "price": 3.96,
   "wish": [
    "career",
    "energy",
@@ -1662,14 +1662,14 @@
    33,
    60
   ],
-  "matp": 0.92
+  "cost8": 0.459
  },
  {
   "key": "jx-049",
   "en": "Flower Quartz",
   "cn": "黄金胶花水晶",
   "el": "earth",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "career",
    "energy",
@@ -1697,14 +1697,14 @@
    46,
    71
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-050",
   "en": "超透体黄塔晶",
   "cn": "超透体黄塔晶",
   "el": "earth",
-  "price": 4.47,
+  "price": 7.11,
   "wish": [
    "career",
    "energy",
@@ -1732,14 +1732,14 @@
    45,
    79
   ],
-  "matp": 1.97
+  "cost8": 0.984
  },
  {
   "key": "jx-051",
   "en": "Golden Rutilated Quartz",
   "cn": "钢板金发晶钛晶",
   "el": "earth",
-  "price": 38.98,
+  "price": 110.65,
   "wish": [
    "career",
    "energy",
@@ -1767,14 +1767,14 @@
    33,
    73
   ],
-  "matp": 36.48
+  "cost8": 18.241
  },
  {
   "key": "jx-052",
   "en": "Yellow Tiger Eye",
   "cn": "天然黄虎眼6",
   "el": "earth",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "career",
    "energy",
@@ -1802,14 +1802,14 @@
    40,
    72
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-053",
   "en": "Fluorite",
   "cn": "高品黄萤石",
   "el": "earth",
-  "price": 3.76,
+  "price": 4.98,
   "wish": [
    "career",
    "confidence",
@@ -1839,14 +1839,14 @@
    55,
    81
   ],
-  "matp": 1.26
+  "cost8": 0.63
  },
  {
   "key": "jx-054",
   "en": "Fluorite",
   "cn": "黄萤石手串",
   "el": "earth",
-  "price": 3.6,
+  "price": 4.51,
   "wish": [
    "career",
    "energy",
@@ -1874,14 +1874,14 @@
    53,
    82
   ],
-  "matp": 1.1
+  "cost8": 0.551
  },
  {
   "key": "jx-055",
   "en": "千层幽灵",
   "cn": "千层幽灵",
   "el": "earth",
-  "price": 3.13,
+  "price": 3.09,
   "wish": [
    "career",
    "energy",
@@ -1909,14 +1909,14 @@
    22,
    52
   ],
-  "matp": 0.63
+  "cost8": 0.315
  },
  {
   "key": "jx-056",
   "en": "Coral Jade",
   "cn": "珊瑚玉手串",
   "el": "earth",
-  "price": 2.79,
+  "price": 2.08,
   "wish": [
    "career",
    "energy",
@@ -1944,14 +1944,14 @@
    29,
    63
   ],
-  "matp": 0.29
+  "cost8": 0.146
  },
  {
   "key": "jx-057",
   "en": "柠檬晶水晶手串",
   "cn": "柠檬晶水晶手串",
   "el": "earth",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "career",
    "energy",
@@ -1979,14 +1979,14 @@
    29,
    98
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-058",
   "en": "Flower Quartz",
   "cn": "橘色胶花水晶手串",
   "el": "earth",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "career",
    "energy",
@@ -2014,14 +2014,14 @@
    22,
    58
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-059",
   "en": "Flower Quartz",
   "cn": "黄胶花水晶手串",
   "el": "earth",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "career",
    "energy",
@@ -2049,14 +2049,14 @@
    35,
    72
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-060",
   "en": "Flower Quartz",
   "cn": "黄胶花水晶",
   "el": "earth",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "career",
    "energy",
@@ -2084,14 +2084,14 @@
    37,
    78
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-061",
   "en": "天然水晶奶黄晶",
   "cn": "天然水晶奶黄晶",
   "el": "earth",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "career",
    "energy",
@@ -2119,14 +2119,14 @@
    27,
    94
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-062",
   "en": "Yellow Tiger Eye",
   "cn": "黄虎眼",
   "el": "earth",
-  "price": 3.02,
+  "price": 2.77,
   "wish": [
    "career",
    "energy",
@@ -2154,14 +2154,14 @@
    38,
    73
   ],
-  "matp": 0.52
+  "cost8": 0.262
  },
  {
   "key": "jx-063",
   "en": "Citrine",
   "cn": "黄水晶",
   "el": "earth",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "career",
    "energy",
@@ -2189,14 +2189,14 @@
    36,
    85
   ],
-  "matp": 0.66
+  "cost8": 0.328
  },
  {
   "key": "jx-064",
   "en": "Smoky Quartz",
   "cn": "茶晶",
   "el": "water",
-  "price": 3.5,
+  "price": 4.19,
   "wish": [
    "energy",
    "grounding",
@@ -2223,14 +2223,14 @@
    13,
    64
   ],
-  "matp": 1.0
+  "cost8": 0.499
  },
  {
   "key": "jx-065",
   "en": "Flower Quartz",
   "cn": "金箔胶花",
   "el": "earth",
-  "price": 3.81,
+  "price": 5.14,
   "wish": [
    "career",
    "energy",
@@ -2259,14 +2259,14 @@
    21,
    74
   ],
-  "matp": 1.31
+  "cost8": 0.656
  },
  {
   "key": "jx-066",
   "en": "Golden Rutilated Quartz",
   "cn": "金发晶水晶",
   "el": "earth",
-  "price": 5.78,
+  "price": 11.04,
   "wish": [
    "career",
    "energy",
@@ -2294,14 +2294,14 @@
    21,
    80
   ],
-  "matp": 3.28
+  "cost8": 1.64
  },
  {
   "key": "jx-067",
   "en": "黑金超水晶",
   "cn": "黑金超水晶",
   "el": "earth",
-  "price": 4.07,
+  "price": 5.92,
   "wish": [
    "career",
    "energy",
@@ -2330,14 +2330,14 @@
    21,
    54
   ],
-  "matp": 1.57
+  "cost8": 0.787
  },
  {
   "key": "jx-069",
   "en": "Lapis Lazuli",
   "cn": "青金石",
   "el": "water",
-  "price": 3.05,
+  "price": 2.86,
   "wish": [
    "calm",
    "communication",
@@ -2364,14 +2364,14 @@
    34,
    288
   ],
-  "matp": 0.55
+  "cost8": 0.277
  },
  {
   "key": "jx-070",
   "en": "Kyanite",
   "cn": "蓝晶石",
   "el": "water",
-  "price": 3.55,
+  "price": 4.35,
   "wish": [
    "calm",
    "communication",
@@ -2399,14 +2399,14 @@
    23,
    264
   ],
-  "matp": 1.05
+  "cost8": 0.525
  },
  {
   "key": "jx-071",
   "en": "Blue Moonstone",
   "cn": "蓝月光水晶",
   "el": "water",
-  "price": 3.17,
+  "price": 3.21,
   "wish": [
    "calm",
    "communication",
@@ -2433,14 +2433,14 @@
    5,
    269
   ],
-  "matp": 0.67
+  "cost8": 0.335
  },
  {
   "key": "jx-072",
   "en": "Amazonite",
   "cn": "老矿料天河石",
   "el": "water",
-  "price": 5.12,
+  "price": 9.07,
   "wish": [
    "calm",
    "communication",
@@ -2467,14 +2467,14 @@
    24,
    200
   ],
-  "matp": 2.62
+  "cost8": 1.312
  },
  {
   "key": "jx-073",
   "en": "蓝虎眼石",
   "cn": "蓝虎眼石",
   "el": "water",
-  "price": 3.68,
+  "price": 4.74,
   "wish": [
    "calm",
    "communication",
@@ -2503,14 +2503,14 @@
    27,
    268
   ],
-  "matp": 1.18
+  "cost8": 0.591
  },
  {
   "key": "jx-074",
   "en": "Fluorite",
   "cn": "湖水蓝萤石",
   "el": "wood",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "career",
    "love"
@@ -2536,14 +2536,14 @@
    19,
    243
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-075",
   "en": "Amazonite",
   "cn": "老矿料天河石",
   "el": "water",
-  "price": 5.78,
+  "price": 11.04,
   "wish": [
    "calm",
    "communication",
@@ -2570,14 +2570,14 @@
    22,
    200
   ],
-  "matp": 3.28
+  "cost8": 1.64
  },
  {
   "key": "jx-076",
   "en": "Amazonite",
   "cn": "天河石",
   "el": "water",
-  "price": 3.29,
+  "price": 3.56,
   "wish": [
    "calm",
    "communication",
@@ -2604,14 +2604,14 @@
    26,
    207
   ],
-  "matp": 0.79
+  "cost8": 0.394
  },
  {
   "key": "jx-077",
   "en": "Blue Moonstone",
   "cn": "蓝月光",
   "el": "water",
-  "price": 3.4,
+  "price": 3.9,
   "wish": [
    "calm",
    "communication",
@@ -2638,14 +2638,14 @@
    10,
    254
   ],
-  "matp": 0.9
+  "cost8": 0.451
  },
  {
   "key": "jx-078",
   "en": "Aquamarine",
   "cn": "海蓝宝",
   "el": "water",
-  "price": 5.84,
+  "price": 11.23,
   "wish": [
    "calm",
    "communication",
@@ -2672,14 +2672,14 @@
    14,
    237
   ],
-  "matp": 3.34
+  "cost8": 1.671
  },
  {
   "key": "jx-079",
   "en": "Aquamarine",
   "cn": "海蓝宝",
   "el": "water",
-  "price": 6.24,
+  "price": 12.43,
   "wish": [
    "calm",
    "communication",
@@ -2707,14 +2707,14 @@
    18,
    239
   ],
-  "matp": 3.74
+  "cost8": 1.872
  },
  {
   "key": "jx-080",
   "en": "Aquamarine",
   "cn": "海蓝宝",
   "el": "water",
-  "price": 5.17,
+  "price": 9.22,
   "wish": [
    "calm",
    "communication",
@@ -2741,14 +2741,14 @@
    16,
    234
   ],
-  "matp": 2.67
+  "cost8": 1.337
  },
  {
   "key": "jx-081",
   "en": "Aquamarine",
   "cn": "海蓝宝",
   "el": "water",
-  "price": 7.18,
+  "price": 15.24,
   "wish": [
    "calm",
    "communication",
@@ -2776,14 +2776,14 @@
    15,
    235
   ],
-  "matp": 4.68
+  "cost8": 2.34
  },
  {
   "key": "jx-082",
   "en": "Malachite",
   "cn": "孔雀石",
   "el": "wood",
-  "price": 3.25,
+  "price": 3.46,
   "wish": [
    "career",
    "love"
@@ -2809,14 +2809,14 @@
    30,
    163
   ],
-  "matp": 0.75
+  "cost8": 0.376
  },
  {
   "key": "jx-083",
   "en": "Green Phantom Quartz",
   "cn": "天然聚宝盆绿幽灵",
   "el": "wood",
-  "price": 19.56,
+  "price": 52.38,
   "wish": [
    "career",
    "love",
@@ -2843,14 +2843,14 @@
    6,
    135
   ],
-  "matp": 17.06
+  "cost8": 8.53
  },
  {
   "key": "jx-084",
   "en": "Fluorite",
   "cn": "湖水绿萤石",
   "el": "wood",
-  "price": 3.35,
+  "price": 3.75,
   "wish": [
    "career",
    "focus",
@@ -2877,14 +2877,14 @@
    18,
    191
   ],
-  "matp": 0.85
+  "cost8": 0.425
  },
  {
   "key": "jx-085",
   "en": "Prehnite",
   "cn": "葡萄石",
   "el": "wood",
-  "price": 3.55,
+  "price": 4.35,
   "wish": [
    "career",
    "love"
@@ -2910,14 +2910,14 @@
    23,
    109
   ],
-  "matp": 1.05
+  "cost8": 0.525
  },
  {
   "key": "jx-086",
   "en": "Green Phantom Quartz",
   "cn": "绿幽灵聚宝盆水晶1",
   "el": "wood",
-  "price": 4.07,
+  "price": 5.92,
   "wish": [
    "career",
    "love",
@@ -2944,14 +2944,14 @@
    6,
    123
   ],
-  "matp": 1.57
+  "cost8": 0.787
  },
  {
   "key": "jx-087",
   "en": "青提奶盖玉手串",
   "cn": "青提奶盖玉手串",
   "el": "wood",
-  "price": 2.94,
+  "price": 2.51,
   "wish": [
    "career",
    "love"
@@ -2977,14 +2977,14 @@
    37,
    107
   ],
-  "matp": 0.44
+  "cost8": 0.219
  },
  {
   "key": "jx-088",
   "en": "Fluorite",
   "cn": "葡萄绿萤石",
   "el": "wood",
-  "price": 3.44,
+  "price": 4.03,
   "wish": [
    "career",
    "love"
@@ -3010,14 +3010,14 @@
    17,
    153
   ],
-  "matp": 0.94
+  "cost8": 0.472
  },
  {
   "key": "jx-089",
   "en": "Fluorite",
   "cn": "薄荷绿萤石",
   "el": "wood",
-  "price": 3.6,
+  "price": 4.51,
   "wish": [
    "career",
    "focus",
@@ -3044,14 +3044,14 @@
    16,
    182
   ],
-  "matp": 1.1
+  "cost8": 0.551
  },
  {
   "key": "jx-090",
   "en": "Silver Obsidian",
   "cn": "银耀石手串",
   "el": "water",
-  "price": 3.09,
+  "price": 2.98,
   "wish": [
    "energy",
    "grounding",
@@ -3078,14 +3078,14 @@
    1,
    48
   ],
-  "matp": 0.59
+  "cost8": 0.297
  },
  {
   "key": "jx-091",
   "en": "Garnet",
   "cn": "紫牙乌石榴石手串",
   "el": "fire",
-  "price": 5.51,
+  "price": 10.23,
   "wish": [
    "calm",
    "energy",
@@ -3114,14 +3114,14 @@
    31,
    23
   ],
-  "matp": 3.01
+  "cost8": 1.504
  },
  {
   "key": "jx-092",
   "en": "Garnet",
   "cn": "紫牙乌石榴石",
   "el": "fire",
-  "price": 8.92,
+  "price": 20.45,
   "wish": [
    "calm",
    "energy",
@@ -3150,14 +3150,14 @@
    24,
    6
   ],
-  "matp": 6.42
+  "cost8": 3.209
  },
  {
   "key": "jx-093",
   "en": "Amethyst",
   "cn": "玻利维亚紫水晶",
   "el": "fire",
-  "price": 3.68,
+  "price": 4.74,
   "wish": [
    "calm",
    "energy",
@@ -3186,14 +3186,14 @@
    29,
    319
   ],
-  "matp": 1.18
+  "cost8": 0.591
  },
  {
   "key": "jx-094",
   "en": "Amethyst",
   "cn": "乌拉圭紫晶",
   "el": "fire",
-  "price": 4.6,
+  "price": 7.5,
   "wish": [
    "calm",
    "energy",
@@ -3222,14 +3222,14 @@
    37,
    315
   ],
-  "matp": 2.1
+  "cost8": 1.05
  },
  {
   "key": "jx-095",
   "en": "Kunzite",
   "cn": "阿富汗紫锂辉",
   "el": "fire",
-  "price": 4.07,
+  "price": 5.92,
   "wish": [
    "calm",
    "energy",
@@ -3258,14 +3258,14 @@
    11,
    345
   ],
-  "matp": 1.57
+  "cost8": 0.787
  },
  {
   "key": "jx-096",
   "en": "Kunzite",
   "cn": "紫锂辉水晶手串",
   "el": "fire",
-  "price": 3.55,
+  "price": 4.35,
   "wish": [
    "calm",
    "energy",
@@ -3294,14 +3294,14 @@
    20,
    326
   ],
-  "matp": 1.05
+  "cost8": 0.525
  },
  {
   "key": "jx-097",
   "en": "Amethyst",
   "cn": "紫水晶",
   "el": "fire",
-  "price": 3.16,
+  "price": 3.17,
   "wish": [
    "calm",
    "energy",
@@ -3330,6 +3330,6 @@
    30,
    318
   ],
-  "matp": 0.66
+  "cost8": 0.328
  }
 ]
