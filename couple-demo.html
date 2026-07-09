@@ -3195,6 +3195,10 @@ fetch(ASSET+'beadwork/stones.json?v='+VER).then(r=>r.json()).then(cat=>{
     if(!fx||!CATALOG.length) return;
     state.beadMm=fx.beadMm; if(fx.wristCm) state.wristCm=fx.wristCm;
     state.picks=fx.picks.map(([k,ct,role])=>({...STONES[k],ct,e1:STONES[k].el,hits:[],role}));
+    if(state.findings&&state.findings.length){   // reading cards pair each finding with engine-chosen stones — remap them onto THIS profile's fixed stones so the copy below matches the strand (User 2026-07-09)
+      const ks=fx.picks.map(p=>p[0]);
+      state.findings.forEach((f,i)=>{ const st=STONES[ks[i%ks.length]]; if(st) f.stone={...st}; });
+    }
     state.recipe=fx.recipe.slice(); state.basePattern=state.recipe.slice();
     state.mmList=state.recipe.map(()=>state.beadMm);
     state.designOpts=[]; state.designSel=-1; state.pattern=null; state.palette=null;
