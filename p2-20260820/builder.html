@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Stone Whisper · Build your own</title>
+<!-- P2 preview build p2-20260820 · builder route · 皮=page2-build-v5 · 脏器=p2-organs.js
+     PREVIEW ONLY:不接生产结账/Pixel/真实 analytics(事件仅本地日志) -->
+<style>
+  :root{--ink:#3a2c18;--muted:#5a4a34;--dim:#8a7a60;--gold:#a87c34}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{background:#e7ddc9;color:var(--ink);font-family:"PingFang SC","Hiragino Sans GB",sans-serif;display:flex;align-items:center;justify-content:center;padding:18px}
+  .phone{width:min(400px,96vw);background:#efe6d4;border:1px solid rgba(150,110,55,.4);border-radius:30px;padding:14px 12px;box-shadow:0 24px 70px -24px rgba(60,40,10,.5)}
+  .scr{background:radial-gradient(95% 60% at 50% 30%,#f7f0e4,#efe6d6 62%,#e9dfcc);border-radius:20px;height:min(840px,92vh);min-height:660px;position:relative;overflow:clip;display:flex;flex-direction:column}
+  .talk{padding:18px 22px 0;text-align:center;flex-shrink:0}
+  .talk h2{font:600 18px/1.4 Georgia,"Songti SC",serif}
+  .talk .sub{font-size:10.5px;color:var(--gold);margin-top:4px;letter-spacing:.08em;min-height:14px;text-transform:uppercase}
+  .stage{position:relative;flex:1;min-height:238px}
+  .ringwrap{position:absolute;left:50%;top:50%;width:236px;height:236px;transform:translate(-50%,-50%)}
+  .ringwrap::before{content:"";position:absolute;inset:22px;border-radius:50%;border:1px solid rgba(150,110,55,.32)}
+  .sweep{position:absolute;inset:-6px;border-radius:50%;pointer-events:none;opacity:0;
+    background:conic-gradient(from 0deg,transparent 0 78%,rgba(200,150,70,.5) 90%,transparent 100%);
+    -webkit-mask:radial-gradient(circle,transparent 58%,#000 59%,#000 78%,transparent 79%);
+            mask:radial-gradient(circle,transparent 58%,#000 59%,#000 78%,transparent 79%)}
+  .sweep.go{animation:sweep 1.35s cubic-bezier(.4,0,.3,1) 1 forwards}
+  @keyframes sweep{0%{opacity:0;transform:rotate(0)}12%{opacity:1}100%{opacity:0;transform:rotate(360deg)}}
+  .cname{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:132px;text-align:center;
+    pointer-events:none;opacity:0;transition:opacity .6s}
+  .cname.on{opacity:1}
+  .cname b{display:block;font:600 13px/1.3 Georgia,"Songti SC",serif;letter-spacing:.04em;color:var(--ink)}
+  .cname span{display:block;font-size:9.5px;line-height:1.45;color:var(--muted);margin-top:4px}
+  .slot{position:absolute;left:50%;top:50%;border-radius:50%;border:1px dashed rgba(150,110,55,.38);background:rgba(255,255,255,.28)}
+  .bead{position:absolute;left:50%;top:50%;border-radius:50%;object-fit:cover;cursor:pointer;
+    transition:transform .52s cubic-bezier(.22,1,.36,1),opacity .3s,width .3s,height .3s,margin .3s}
+  .bead.out{opacity:0;transform:scale(.4)!important}
+  .bead.drag{filter:drop-shadow(0 6px 12px rgba(60,40,10,.45));cursor:grabbing}
+  .info{flex-shrink:0;text-align:center;padding:2px 16px 0}
+  .info .count{font-size:12.5px;color:var(--muted)}
+  .info .count b{color:var(--ink);font-family:Georgia,serif;font-size:15px}
+  .quote{font-size:10px;color:var(--dim);margin-top:2px;min-height:13px}
+  .quote.verified{color:var(--gold)}
+  .fitrow{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px}
+  .szc{display:flex;align-items:center;gap:3px;border:1px solid rgba(150,110,55,.3);border-radius:999px;
+    background:rgba(255,255,255,.5);padding:3px 8px 3px 5px;cursor:pointer;font-family:inherit;color:var(--muted)}
+  .szc i{display:block;border-radius:50%;background:radial-gradient(circle at 35% 30%,#cfe4ea,#7fa8b4)}
+  .szc b{font:600 10.5px Georgia,serif;color:var(--ink)}
+  .szc.on{background:rgba(217,165,94,.25);border-color:#a87c34}
+  .wristc{border:1px solid rgba(150,110,55,.3);border-radius:999px;background:rgba(255,255,255,.5);
+    padding:4px 10px;cursor:pointer;font-size:10.5px;color:var(--muted);font-family:inherit}
+  .wristc b{color:var(--ink);font-family:Georgia,serif}
+  .tray{flex-shrink:0;padding:6px 10px 4px;border-top:1px solid rgba(150,110,55,.22)}
+  .tt{font-size:9.5px;color:var(--dim);letter-spacing:.08em;text-align:center;margin-bottom:6px}
+  .candbox{max-height:142px;overflow-y:auto;scrollbar-width:thin}
+  .cands{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;padding-bottom:4px}
+  .cand{text-align:center;background:rgba(255,255,255,.5);border:1px solid rgba(150,110,55,.22);border-radius:9px;
+    padding:5px 2px 3px;cursor:pointer;font-family:inherit}
+  .cand:active{transform:scale(.96)}
+  .cand img{width:24px;height:24px;border-radius:50%;object-fit:cover;display:block;margin:0 auto 2px;background:rgba(150,110,55,.12)}
+  .cand span{font-size:7.5px;color:var(--muted);display:block;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .cand .tier{color:#a87c34;letter-spacing:.08em}
+  .utils{display:flex;gap:6px;justify-content:center;margin-top:6px}
+  .ub{background:none;border:1px solid rgba(150,110,55,.4);color:var(--gold);border-radius:999px;
+    font-size:10.5px;padding:4px 12px;cursor:pointer;font-family:inherit}
+  .ub:active{transform:scale(.97)}
+  .guide{flex-shrink:0;padding:8px 16px 14px}
+  .cta{display:block;text-align:center;background:linear-gradient(180deg,#faf3e6,#efe2c9);color:#3a2c14;border:1px solid rgba(150,110,55,.3);
+    border-radius:10px;padding:10px 0 9px;font:13.5px Georgia,serif;cursor:pointer;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 2px 0 rgba(90,62,26,.25),0 10px 24px -10px rgba(60,40,10,.4);
+    opacity:.45;pointer-events:none;transition:opacity .3s}
+  .cta.armed{opacity:1;pointer-events:auto}
+  .alt{margin-top:6px;text-align:center;font-size:10.5px;color:var(--dim)}
+  .alt a{color:var(--muted)}
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:8;background:#f2e9d8;border-top:1px solid rgba(150,110,55,.35);
+    border-radius:18px 18px 0 0;padding:18px 20px 20px;transform:translateY(105%);transition:transform .56s cubic-bezier(.16,1,.3,1)}
+  .sheet.up{transform:none}
+  .sheet h3{font:600 15px Georgia,"Songti SC",serif;text-align:center;color:#3a2c18}
+  .sheet .wv{font:600 26px/1.2 Georgia,serif;text-align:center;margin-top:10px;color:#3a2c18;font-variant-numeric:tabular-nums}
+  .sheet .wv small{font-size:12px;color:#7a6448}
+  .sheet input[type=range]{width:100%;margin:10px 0 4px;accent-color:#a87c34}
+  .fit2{text-align:center;font-size:11.5px;color:#7a6448;margin-top:8px}
+  .fit2 b{color:#3a2c18;font-family:Georgia,serif}
+  .sheet .back{display:block;text-align:center;font-size:10.5px;color:#8a7a60;margin-top:12px;cursor:pointer}
+  @media (max-height:800px){.ringwrap{transform:translate(-50%,-50%) scale(.88)}}
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:120ms!important}}
+  button.cta,button.back{display:block;width:100%;font-family:inherit;appearance:none;cursor:pointer}
+  button.back{width:auto;margin:12px auto 0;background:none;border:0;color:inherit}
+</style>
+</head>
+<body>
+<div class="phone"><div class="scr">
+  <div class="talk">
+    <h2>Your string is ready</h2>
+    <p class="sub" id="a1">TAP A STONE — IT GOES STRAIGHT ON</p>
+  </div>
+  <div class="stage">
+    <div class="ringwrap" id="ring"><div class="sweep" id="sweep"></div><div class="cname" id="cname"><b id="cn1"></b><span id="cn2"></span></div></div>
+  </div>
+  <div class="info">
+    <p class="count"><b id="nplaced">0</b> of <b id="nslots">21</b> stones · $<b id="price">0</b></p>
+    <p class="quote" id="quoteline"></p>
+    <div class="fitrow" id="fitrow">
+      <button class="wristc" id="wristc">wrist <b id="wcur">15.5</b> cm</button>
+    </div>
+  </div>
+  <div class="tray">
+    <p class="tt" id="ttline"></p>
+    <div class="candbox"><div class="cands" id="cands"></div></div>
+    <div class="utils">
+      <button class="ub" id="surprise">Surprise me</button>
+      <button class="ub" id="fillrest">Fill with clear quartz</button>
+      <button class="ub" id="clearall">Clear</button>
+    </div>
+  </div>
+  <div class="guide">
+    <button type="button" class="cta" id="cta">Make it real — checkout</button>
+    <p class="alt">Rather have it designed for you? <a href="need.html">What you need</a> · <a href="birth.html">Start from your birthday</a></p>
+  </div>
+  <div class="sheet" id="sheet">
+    <h3>Your wrist</h3>
+    <p class="wv"><span id="wcm">15.5</span><small> cm</small></p>
+    <input type="range" id="wr" min="13" max="20" step="0.5" value="15.5">
+    <p class="fit2">≈ <b id="fitN">21</b> stones at <b id="fitMM">8</b>mm — the ring re-lays live</p>
+    <button type="button" class="back" id="sheetback">Back to stringing</button>
+  </div>
+</div></div>
+<script src="materials.public.js"></script>
+<script src="structure-lib.js"></script>
+<script src="p2-organs.js"></script>
+<script>
+(function(){
+'use strict';
+var O=window.SW_P2_ORGANS;
+if(location.search.indexOf('debug=1')>=0) window.__SW_DEBUG=true;
+
+/* ── 事件:入路(去重由器官层管) ── */
+O.track('ViewContent',{design_mode:'builder'});
+O.track('EditorOpened',{design_mode:'builder',entry_workspace:'stones'});
+
+var MM=[6,8,10,12,16], mm=8, wrist=15.5;
+var RM=matchMedia('(prefers-reduced-motion: reduce)').matches;
+var FILL_MS=RM?0:85;
+var RC=96;
+var ring=document.getElementById('ring');
+var placed=[], slotEls=[], fillTimers=[], lastStruct=null, filling=false, firstTouched=false;
+var slots=O.beadCount(wrist,mm);
+var quoteState={verified:false,usd:null,seq:0};
+var lastDG=null, lastDGHash='';   /* DG=每个新 verified 配方一次(codex 裁决),CTA 只发 InitiateCheckout */
+function recipeHash(){ return placed.map(function(b){return b.t.key}).join(',')+'|'+wrist+'|'+mm; }
+
+function setStruct(name,expl){ lastStruct=name;
+  document.getElementById('cn1').textContent=name;
+  document.getElementById('cn2').textContent=expl;
+  document.getElementById('cname').classList.add('on'); }
+function clearStruct(){ lastStruct=null; document.getElementById('cname').classList.remove('on'); }
+function geo(){ var s0=Math.sin(Math.PI/slots); var R=Math.min(RC,118/(1+s0)); return {R:R,px:2*R*s0}; }  /* 零缝:珠径=弦长 */
+function beadPx(){ return geo().px; }
+function pos(el,i){ var g=geo();
+  el.style.width=g.px+'px'; el.style.height=g.px+'px'; el.style.margin=(-g.px/2)+'px';
+  el.style.transform='rotate('+(i/slots*360)+'deg) translateY('+(-g.R)+'px)'; }
+function relayoutSlots(){
+  slotEls.forEach(function(e){e.remove()}); slotEls=[];
+  for(var i=placed.length;i<slots;i++){ var d=document.createElement('div'); d.className='slot'; pos(d,i);
+    ring.appendChild(d); slotEls.push(d); } }
+function layout(){ relayoutSlots(); placed.forEach(function(b,i){ pos(b.el,i); }); }
+function markFirst(){ if(!firstTouched){ firstTouched=true; O.track('FirstInteraction',{design_mode:'builder'}); } }
+
+/* ── 报价状态机:任何变更→approximate;满环→designBom→verified ── */
+function invalidateQuote(){ quoteState.verified=false; quoteState.seq++; renderQuote(); armCta(); }
+function renderQuote(){
+  var q=document.getElementById('quoteline');
+  var keys=placed.map(function(b){return b.t.key});
+  var est=O.estimate(keys);
+  document.getElementById('price').textContent=keys.length?est:0;
+  if(!keys.length){ q.textContent=''; return; }
+  if(quoteState.verified){ q.className='quote verified'; q.textContent='Verified quote · '+quoteState.pricing; }
+  else { q.className='quote'; q.textContent=O.approxLabel; }
+}
+function requestVerifiedQuote(){
+  var mySeq=++quoteState.seq;
+  O.designBom({beads:placed.map(function(b){return b.t.key}),wrist_cm:wrist,bead_mm:mm})
+   .then(function(res){
+     if(mySeq!==quoteState.seq) return;             /* 期间又改过珠,弃旧应答 */
+     quoteState.verified=true;
+     quoteState.usd=res.totals.estimated_retail_usd;
+     quoteState.pricing=res.pricing_version;
+     document.getElementById('price').textContent=quoteState.usd;
+     var h=recipeHash();                            /* BOM verified=完整配方形成→DG 一次(同配方不重发) */
+     if(h!==lastDGHash){
+       lastDGHash=h;
+       lastDG=O.track('DesignGenerated',{design_mode:'builder',origin:'builder_recipe',
+         estimated_retail_usd:quoteState.usd,quote_verified:true});
+     }
+     renderQuote(); armCta();
+   });
+}
+function armCta(){ /* 契约:checkout 需 verified quote */
+  document.getElementById('cta').classList.toggle('armed', placed.length>=slots && quoteState.verified);
+}
+function refresh(){
+  document.getElementById('nplaced').textContent=placed.length;
+  document.getElementById('nslots').textContent=slots;
+  var full=(placed.length>=slots);
+  var a1=document.getElementById('a1');
+  if(full){ a1.textContent='FULL RING — MAKE IT REAL BELOW';
+    if(!lastStruct && !filling) setStruct('YOUR OWN HAND','No formula — strung by you, stone by stone.'); }
+  else if(!placed.length) a1.textContent='TAP A STONE — IT GOES STRAIGHT ON';
+  else a1.textContent=(slots-placed.length)+' TO GO';
+  renderQuote(); armCta();
+}
+function onFull(){
+  O.track('WorkspaceCompleted',{design_mode:'builder',workspace:'stones'});
+  requestVerifiedQuote();
+  setTimeout(function(){ var sw=document.getElementById('sweep');
+    sw.classList.remove('go'); void sw.offsetWidth; sw.classList.add('go'); },560);
+}
+function addBead(t,silent){
+  if(placed.length>=slots) return false;
+  markFirst();
+  var i=placed.length, px=beadPx();
+  var img=document.createElement('img'); img.className='bead'; img.src=O.imgFor(t.key); img.alt=t.en;
+  img.style.width=px+'px'; img.style.height=px+'px'; img.style.margin=(-px/2)+'px';
+  img.style.transform='rotate('+(i/slots*360)+'deg) translateY('+(-(geo().R+30))+'px) scale(.5)';
+  img.style.opacity='0';
+  ring.appendChild(img);
+  var rec={t:t,el:img};
+  placed.push(rec);
+  attachDrag(rec);
+  setTimeout(function(){ img.style.opacity='1'; pos(img,placed.indexOf(rec)); },silent?10:30);
+  relayoutSlots();
+  invalidateQuote();
+  O.track('BeadSwapped',{design_mode:'builder',action:'added',sku:t.key,quantity:1,positions:[i]});
+  refresh();
+  if(placed.length===slots) onFull();
+  return true;
+}
+function attachDrag(rec){
+  var el=rec.el, sx, sy, moved, cx, cy, sc, curIdx;
+  el.style.touchAction='none';
+  el.addEventListener('pointerdown',function(e){
+    e.preventDefault(); el.setPointerCapture(e.pointerId);
+    sx=e.clientX; sy=e.clientY; moved=false;
+    var r=ring.getBoundingClientRect();
+    cx=r.left+r.width/2; cy=r.top+r.height/2; sc=r.width/236;
+  });
+  el.addEventListener('pointermove',function(e){
+    if(sx===undefined) return;
+    var dx=e.clientX-sx, dy=e.clientY-sy;
+    if(!moved && dx*dx+dy*dy<49) return;
+    if(!moved){ moved=true; el.style.transition='none'; el.style.zIndex=5;
+      el.classList.add('drag'); curIdx=placed.indexOf(rec); rec._dragFrom=curIdx; clearStruct(); }
+    var px=(e.clientX-cx)/sc, py=(e.clientY-cy)/sc;
+    el.style.transform='translate('+px+'px,'+py+'px) scale(1.12)';
+    var ang=Math.atan2(px,-py); if(ang<0) ang+=Math.PI*2;
+    var ti=Math.round(ang/(Math.PI*2/slots))%slots;
+    if(ti>=placed.length) ti=placed.length-1;
+    if(ti!==curIdx){
+      placed.splice(placed.indexOf(rec),1);
+      placed.splice(ti,0,rec);
+      curIdx=ti;
+      placed.forEach(function(b,i){ if(b!==rec) pos(b.el,i); });
+    }
+  });
+  function up(){
+    if(sx===undefined) return;
+    var was=moved; sx=undefined;
+    if(!was){ removeBead(rec); return; }
+    el.classList.remove('drag'); el.style.zIndex=''; el.style.transition='';
+    requestAnimationFrame(function(){ pos(el,placed.indexOf(rec)); });
+    invalidateQuote();
+    O.track('BeadSwapped',{design_mode:'builder',action:'reordered',
+      from:rec._dragFrom,to:placed.indexOf(rec),count:1});
+    if(placed.length>=slots) requestVerifiedQuote();
+    refresh();
+  }
+  el.addEventListener('pointerup',up);
+  el.addEventListener('pointercancel',up);
+}
+function removeBead(rec){
+  var idx=placed.indexOf(rec); if(idx<0)return;
+  placed.splice(idx,1); clearStruct();
+  invalidateQuote();
+  O.track('BeadSwapped',{design_mode:'builder',action:'removed',sku:rec.t.key,quantity:1,positions:[idx]});
+  rec.el.classList.add('out');
+  setTimeout(function(){ rec.el.remove(); layout(); refresh(); },300);
+}
+function stopFills(){ fillTimers.forEach(clearTimeout); fillTimers=[]; filling=false; }
+function clearAll(emit){
+  stopFills(); clearStruct();
+  if(emit!==false && placed.length) O.track('BraceletCleared',{design_mode:'builder'});
+  placed.slice().forEach(function(r){ r.el.remove(); });
+  placed=[]; invalidateQuote(); layout(); refresh();
+}
+
+/* ── 石库(公开档位徽章,无精确单珠价) ── */
+var cands=document.getElementById('cands');
+document.getElementById('ttline').textContent=
+  'ALL '+O.materials.length+' REAL STONES · $–$$$$ = PRICE TIER · TAP A BEAD = OFF · DRAG = REARRANGE';
+O.materials.forEach(function(t){
+  var b=document.createElement('button'); b.className='cand'; b.title=t.en+' · '+t.price_tier;
+  b.innerHTML='<img loading="lazy" src="'+O.imgFor(t.key)+'" alt=""><span>'+t.en+'</span><span class="tier">'+O.tierBadge(t.price_tier)+'</span>';
+  b.onclick=function(){ clearStruct(); addBead(t); };
+  cands.appendChild(b);
+});
+
+/* ── 结构随机:真结构引擎(七选一,beidou 禁选在器官层拦) ── */
+var GEN_KEYS=Object.keys(O.generators);
+document.getElementById('surprise').onclick=function(){
+  clearAll(); filling=true;
+  var genKey=GEN_KEYS[Math.floor(Math.random()*GEN_KEYS.length)];
+  var plan=O.applyStructure(genKey,slots);
+  plan.keys.forEach(function(k,i){
+    fillTimers.push(setTimeout(function(){ addBead(O.byKey[k],true); },i*FILL_MS));
+  });
+  fillTimers.push(setTimeout(function(){
+    filling=false;
+    if(plan.named_structure) O.track('StructureSelected',{design_mode:'builder',structure_id:plan.structure_id});
+    setStruct(plan.ui_label,plan.hook); refresh();
+  },plan.keys.length*FILL_MS+(RM?40:320)));
+};
+document.getElementById('fillrest').onclick=function(){
+  var t=O.byKey['jx-011']||O.materials[0];
+  var need=slots-placed.length;
+  for(var i=0;i<need;i++){ (function(d){ fillTimers.push(setTimeout(function(){ addBead(t,true); },d)); })(i*FILL_MS); }
+};
+document.getElementById('clearall').onclick=function(){ clearAll(); };
+
+/* ── 尺寸:珠径五档+腕围抽屉;留珠重排,报价失效重估 ── */
+var fitrow=document.getElementById('fitrow');
+MM.forEach(function(m){
+  var b=document.createElement('button'); b.className='szc'+(m===8?' on':'');
+  b.innerHTML='<i style="width:'+(m*1.35)+'px;height:'+(m*1.35)+'px"></i><b>'+m+'</b>';
+  b.onclick=function(){
+    mm=m;[].slice.call(fitrow.querySelectorAll('.szc')).forEach(function(x){x.classList.toggle('on',x===b)});
+    applyFit();
+  };
+  fitrow.insertBefore(b,document.getElementById('wristc'));
+});
+var sheet=document.getElementById('sheet');
+document.getElementById('wristc').onclick=function(){ sheet.classList.add('up'); };
+document.getElementById('sheetback').onclick=function(){ sheet.classList.remove('up'); };
+document.getElementById('wr').addEventListener('input',function(){
+  wrist=parseFloat(this.value);
+  document.getElementById('wcm').textContent=wrist.toFixed(1);
+  document.getElementById('wcur').textContent=wrist.toFixed(1);
+  applyFit();
+});
+function applyFit(){
+  stopFills();
+  slots=O.beadCount(wrist,mm);
+  while(placed.length>slots){ var r=placed.pop(); r.el.remove(); }
+  document.getElementById('fitN').textContent=slots;
+  document.getElementById('fitMM').textContent=mm;
+  invalidateQuote();
+  layout(); refresh();
+  if(placed.length>=slots && placed.length) onFull();
+}
+
+/* ── CTA:verified quote 才放行;DG 已在 BOM verified 时发,此处只发结账意图挂 parent ── */
+document.getElementById('cta').onclick=function(){
+  if(!quoteState.verified || !lastDG) return;
+  O.track('InitiateCheckout',{design_mode:'builder',estimated_retail_usd:quoteState.usd,
+    quote_verified:true,parent_event_id:lastDG.event_id});
+  document.getElementById('a1').textContent='SAVED — CHECKOUT COMES NEXT (PREVIEW ENDS HERE)';
+};
+layout(); refresh();
+})();
+</script>
+</body>
+</html>
